@@ -1064,29 +1064,29 @@ let moveInput = 0;
 if (cursors.left.isDown) moveInput = -1;
 else if (cursors.right.isDown) moveInput = 1;
 
-// Set drag for deceleration (higher on ground for snappier stops)
-if (touchingDown) {
-    player.body.setDragX(400);  // Strong drag on ground (adjust 200-600)
+const horizSpeed = Math.abs(player.body.velocity.x);
+
+// Air control only if speed <= 360; otherwise, "stick" at current speed
+if (horizSpeed <= 360) {
+    // Normal air control: apply drag and acceleration
+    player.body.setDragX(150);  // Light drag for deceleration when no input
+    const BASE_ACCEL = 800;  // Base acceleration (tweak 600-1000)
+    const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
+    let accel = moveInput * BASE_ACCEL * AIR_ACCEL_MULTIPLIER;
+    player.setAccelerationX(accel);
+    
+    // Clamp to prevent exceeding 360
+    player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -360, 360);
+    
+    // Debug logging (remove after testing)
+    console.log("Air Control - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1));
 } else {
-    player.body.setDragX(150);  // Light drag in air for control (adjust 50-200)
-}
-
-// Set acceleration based on input
-const BASE_ACCEL = 800;  // Base acceleration (tweak 600-1000)
-const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
-let accel = moveInput * BASE_ACCEL;
-if (!touchingDown) accel *= AIR_ACCEL_MULTIPLIER;  // Boost air control
-player.setAccelerationX(accel);
-
-// Clamp velocity to prevent runaway speeds, but allow boosts above normal
-const MAX_GROUND_SPEED = 360;
-const MAX_AIR_SPEED = 500;  // Higher to allow boosts
-const maxSpeed = touchingDown ? MAX_GROUND_SPEED : MAX_AIR_SPEED;
-player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -maxSpeed, maxSpeed);
-
-// Optional: Debug logging (remove after testing)
-if (!touchingDown) {
-    console.log("Air - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1), "Drag:", player.body.drag.x);
+    // Speed > 360: no drag, no acceleration - stick at speed
+    player.body.setDragX(0);
+    player.setAccelerationX(0);
+    
+    // Debug logging (remove after testing)
+    console.log("Stuck Speed - Velocity:", player.body.velocity.x.toFixed(1));
 }
 
 
@@ -2294,6 +2294,7 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
 
 
