@@ -1066,22 +1066,31 @@ else if (cursors.right.isDown) moveInput = 1;
 
 const horizSpeed = Math.abs(player.body.velocity.x);
 
-// Air control only if speed <= 360; otherwise, "stick" at current speed
-if (horizSpeed <= 360) {
-    // Normal air control: apply drag and acceleration
-    player.body.setDragX(150);  // Light drag for deceleration when no input
+// Air control logic with speed thresholds
+if (horizSpeed <= 340) {
+    // Full air control: drag, acceleration, clamp to 340
+    player.body.setDragX(150);  // Light drag for deceleration
     const BASE_ACCEL = 800;  // Base acceleration (tweak 600-1000)
     const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
     let accel = moveInput * BASE_ACCEL * AIR_ACCEL_MULTIPLIER;
     player.setAccelerationX(accel);
     
-    // Clamp to prevent exceeding 360
-    player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -360, 360);
+    // Clamp to prevent exceeding 340
+    player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -340, 340);
     
     // Debug logging (remove after testing)
-    console.log("Air Control - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1));
+    console.log("Full Air Control - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1));
+} else if (horizSpeed <= 360) {
+    // Partial control: drag for deceleration, no acceleration
+    player.body.setDragX(150);  // Allow slowing down
+    player.setAccelerationX(0);  // No speeding up
+    
+    // No clamping here - let it decelerate naturally
+    
+    // Debug logging (remove after testing)
+    console.log("Decel Only - Velocity:", player.body.velocity.x.toFixed(1));
 } else {
-    // Speed > 360: no drag, no acceleration - stick at speed
+    // Speed > 360: stick mode - no drag, no acceleration
     player.body.setDragX(0);
     player.setAccelerationX(0);
     
@@ -2294,6 +2303,7 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
 
 
