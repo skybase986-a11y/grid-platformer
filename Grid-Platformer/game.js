@@ -623,18 +623,25 @@ editorButtons.forEach(btn => {
   });
 
   // Export level data
-  this.exportLevel = function() {
-    return {
-      music: selectedMusicKey || 'X',
-      background: selectedBackgroundKey || 'A',
-      blocks: blocksGroup.getChildren().map(b => ({ x: b.x, y: b.y, width: b.displayWidth, height: b.displayHeight, tint: b.tint })),
-      spikes: spikesGroup.getChildren().map(s => ({ x: s.x, y: s.y, width: s.displayWidth, height: s.displayHeight })),
-      windows: windowsGroup.getChildren().map(w => ({ x: w.x, y: w.y, width: w.displayWidth, height: w.displayHeight })),
-      noBoostBlocks: noBoostBlocksGroup.getChildren().map(b => ({ x: b.x, y: b.y, width: b.displayWidth, height: b.displayHeight })),
-      start: spawnPoint ? { x: spawnPoint.x, y: spawnPoint.y, width: spawnPoint.displayWidth, height: spawnPoint.displayHeight } : null,
-      finish: finishLine ? { x: finishLine.x, y: finishLine.y, width: finishLine.displayWidth, height: finishLine.displayHeight } : null
-    };
+this.exportLevel = function() {
+  // Shortened keys and array format for compactness
+  const levelData = {
+    m: selectedMusicKey || 'X',  // music
+    bg: selectedBackgroundKey || 'A',  // background
+    b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
+    s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
+    w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
+    nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),  // noBoostBlocks: [x, y, w, h]
+    st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
+    f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
   };
+  
+  // Convert to JSON string, then compress
+  const jsonString = JSON.stringify(levelData);
+  const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
+  
+  return compressed;
+};
 
   
 }
@@ -2097,95 +2104,72 @@ function saveLevelToClipboard(scene) {
 }
 
 // 🔥 LOAD LEVEL FROM CLIPBOARD (L key)
-function loadLevelFromClipboard(scene) {
-  navigator.clipboard.readText().then(text => {
-    try {
-      const levelData = JSON.parse(text);
-      console.log("Loading JSON:", levelData);
-      
-      // SAFETY CHECKS
-      if (!levelData.music || !levelData.background) {
-        throw new Error("Missing music or background");
-      }
-      
-      // 🔥 SAFE CLEAR (no crashes)
-      if (blocksGroup) blocksGroup.clear(true, true);
-      if (spikesGroup) spikesGroup.clear(true, true);
-      if (windowsGroup) windowsGroup.clear(true, true);
-      if (noBoostBlocksGroup) noBoostBlocksGroup.clear(true, true);
-      
-      if (scene.spawnPoint) scene.spawnPoint.destroy();
-      if (scene.finishLine) scene.finishLine.destroy();
-      
-      // 🔥 SAFE TEXTURE CHANGE (NO CRASH)
-      selectedMusicKey = levelData.music;
-      selectedBackgroundKey = levelData.background;
-      
-      // ONLY change texture if menuBg exists AND texture exists
-      if (menuBg && scene.textures.exists(levelData.background)) {
-        menuBg.setTexture(levelData.background);
-      }
-      
-      // BLOCKS - SAFE
-      if (levelData.blocks?.length) {
-        levelData.blocks.forEach(block => {
-          const sprite = blocksGroup.create(block.x, block.y, 'pixel');
-          sprite.setOrigin(0, 0);
-          sprite.setDisplaySize(block.width || 64, block.height || 64);
-          sprite.setTint(block.tint || 0xffffff);
-          sprite.refreshBody();
-        });
-      }
-      
-      // SPIKES - SAFE  
-      if (levelData.spikes?.length) {
-        levelData.spikes.forEach(spike => {
-          const sprite = spikesGroup.create(spike.x, spike.y, 'spike');
-          sprite.setOrigin(0, 0);
-          sprite.setDisplaySize(spike.width || 64, spike.height || 64);
-          sprite.refreshBody();
-        });
-      }
-      
-      // WINDOWS - SAFE
-      if (levelData.windows?.length) {
-        levelData.windows.forEach(window => {
-          const sprite = windowsGroup.create(window.x, window.y, 'window');
-          sprite.setOrigin(0, 0);
-          sprite.setDisplaySize(window.width || 64, window.height || 64);
-          sprite.refreshBody();
-        });
-      }
-      
-      // NO-BOOST - SAFE
-      if (levelData.noBoostBlocks?.length) {
-        levelData.noBoostBlocks.forEach(block => {
-          const sprite = noBoostBlocksGroup.create(block.x, block.y, 'pixel');
-          sprite.setOrigin(0, 0);
-          sprite.setDisplaySize(block.width || 64, block.height || 64);
-          sprite.setTint(0x0000ff);
-          sprite.refreshBody();
-        });
-      }
-      
-      // START/FINISH - SAFE
-      if (levelData.start) {
-        scene.spawnPoint = scene.add.sprite(levelData.start.x, levelData.start.y, 'start')
-          .setOrigin(0, 0).setDisplaySize(levelData.start.width || 64, levelData.start.height || 64);
-      }
-      if (levelData.finish) {
-        scene.finishLine = scene.add.sprite(levelData.finish.x, levelData.finish.y, 'finish')
-          .setOrigin(0, 0).setDisplaySize(levelData.finish.width || 64, levelData.finish.height || 64);
-      }
-      
-      showInstruction(scene, "✅ LEVEL LOADED PERFECTLY!", 2000);
-      
-    } catch (error) {
-      console.error("LOAD ERROR:", error);
-      showInstruction(scene, "❌ LOAD FAILED!", 2000);
-    }
-  });
-}
+this.loadLevel = function(compressedData) {
+  // Decompress the string back to JSON
+  const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+  const levelData = JSON.parse(jsonString);
+  
+  // Clear existing level elements
+  blocksGroup.clear(true, true);
+  spikesGroup.clear(true, true);
+  windowsGroup.clear(true, true);
+  noBoostBlocksGroup.clear(true, true);
+  if (this.spawnPoint) this.spawnPoint.destroy();
+  if (this.finishLine) this.finishLine.destroy();
+  
+  // Set background & music (using short keys)
+  selectedMusicKey = levelData.m;
+  selectedBackgroundKey = levelData.bg;
+  if (menuBg && scene.textures.exists(levelData.bg)) menuBg.setTexture(levelData.bg);
+  if (levelData.m) {
+    if (this.currentMusic) this.currentMusic.stop();
+    this.currentMusic = this.sound.add(levelData.m);
+    if (this.currentMusic) this.currentMusic.play({ loop: true });
+  }
+  
+  // Load blocks: [x, y, w, h, tint]
+  if (levelData.b) {
+    levelData.b.forEach(([x, y, w, h, tint]) => {
+      const blockSprite = blocksGroup.create(x, y, 'pixel');
+      blockSprite.setOrigin(0, 0).setDisplaySize(w, h).setTint(tint).refreshBody();
+    });
+  }
+  
+  // Load spikes: [x, y, w, h]
+  if (levelData.s) {
+    levelData.s.forEach(([x, y, w, h]) => {
+      spikesGroup.create(x, y, 'spike').setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
+    });
+  }
+  
+  // Load windows: [x, y, w, h]
+  if (levelData.w) {
+    levelData.w.forEach(([x, y, w, h]) => {
+      windowsGroup.create(x, y, 'window').setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
+    });
+  }
+  
+  // Load noBoostBlocks: [x, y, w, h]
+  if (levelData.nb) {
+    levelData.nb.forEach(([x, y, w, h]) => {
+      noBoostBlocksGroup.create(x, y, 'pixel').setOrigin(0, 0).setDisplaySize(w, h).setTint(0x0000ff).refreshBody();
+    });
+  }
+  
+  // Load start: [x, y, w, h]
+  if (levelData.st) {
+    const [x, y, w, h] = levelData.st;
+    this.spawnPoint = this.add.sprite(x, y, 'start').setOrigin(0, 0).setDisplaySize(w, h);
+  }
+  
+  // Load finish: [x, y, w, h]
+  if (levelData.f) {
+    const [x, y, w, h] = levelData.f;
+    this.finishLine = this.add.sprite(x, y, 'finish').setOrigin(0, 0).setDisplaySize(w, h);
+  }
+  
+  console.log("✅ Level loaded successfully!");
+};
 
 
 
@@ -2303,6 +2287,7 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
 
 
