@@ -1073,7 +1073,8 @@ if (touchingDown) {
 if (!touchingDown) {
     const horizSpeed = Math.abs(player.body.velocity.x);
     if (horizSpeed <= 360) {
-        player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -MAXNORMALGROUNDSPEED, MAXNORMALGROUNDSPEED);
+       player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -MAX_NORMAL_GROUND_SPEED, MAX_NORMAL_GROUND_SPEED);
+
     }
 }
 
