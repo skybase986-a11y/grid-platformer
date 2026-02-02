@@ -1080,17 +1080,7 @@ if (touchingDown) {
 }
 
 
-// Clamp ONLY low-speed air (AFTER all acceleration)
-if (!touchingDown) {
-    const horizSpeed = Math.abs(player.body.velocity.x);
-    if (horizSpeed <= 360) {
-        player.body.velocity.x = Phaser.Math.Clamp(
-            player.body.velocity.x, 
-            -MAX_NORMAL_GROUND_SPEED, 
-            MAX_NORMAL_GROUND_SPEED
-        );
-    }
-}
+
 
 
 
@@ -2294,6 +2284,7 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
 
 
