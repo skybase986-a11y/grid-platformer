@@ -346,7 +346,9 @@ loadLeve = function(levelData) {
 
 function create() {
 
-  
+
+
+    
   window.myGameScene = this;
 spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
@@ -399,6 +401,12 @@ player.boostOutline = this.add.rectangle(player.x, player.y, player.displayWidth
   .setOrigin(0, 0).setStrokeStyle(3, 0xffff00).setVisible(false);
   cursors = this.input.keyboard.createCursorKeys();
 
+
+    // Add this in create() after player is created
+player.body.setDragX(100);  // Low drag in air for smooth control (adjust 50-200 as needed)
+player.body.setDragY(0);    // No vertical drag (gravity handles Y)
+
+    
   // === SPAWN POINTS ===
   spawnPoint = this.add.sprite(100, 500, 'start').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
   finishLine = this.add.sprite(1400, 500, 'finish').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
@@ -1051,32 +1059,34 @@ function handleMovementAndBoost() {
     (touchingDown && floorInBoostWindow) || (touchingUp && ceilingInBoostWindow)
   );
 
---- HORIZONTAL MOVEMENT ---
+// --- HORIZONTAL MOVEMENT ---
 let moveInput = 0;
 if (cursors.left.isDown) moveInput = -1;
 else if (cursors.right.isDown) moveInput = 1;
 
-// DEBUG: Log input
-console.log("Input:", moveInput, "TouchingDown:", touchingDown);
-
+// Set drag for deceleration (higher on ground for snappier stops)
 if (touchingDown) {
-    player.setAccelerationX(moveInput * GROUND_ACCEL);
+    player.body.setDragX(400);  // Strong drag on ground (adjust 200-600)
 } else {
-    const horizSpeed = Math.abs(player.body.velocity.x);
-    console.log("AIR - Speed:", horizSpeed, "Accel will be:", moveInput * 600);
-    
-    // FORCE high-speed air control for testing
-    player.setAccelerationX(moveInput * 600);
-    
-    // Only clamp if BELOW threshold
-    if (horizSpeed <= 360) {
-        console.log("CLAMPING to 360");
-        player.body.velocity.x = Phaser.Math.Clamp(
-            player.body.velocity.x, 
-            -MAX_NORMAL_GROUND_SPEED, 
-            MAX_NORMAL_GROUND_SPEED
-        );
-    }
+    player.body.setDragX(150);  // Light drag in air for control (adjust 50-200)
+}
+
+// Set acceleration based on input
+const BASE_ACCEL = 800;  // Base acceleration (tweak 600-1000)
+const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
+let accel = moveInput * BASE_ACCEL;
+if (!touchingDown) accel *= AIR_ACCEL_MULTIPLIER;  // Boost air control
+player.setAccelerationX(accel);
+
+// Clamp velocity to prevent runaway speeds, but allow boosts above normal
+const MAX_GROUND_SPEED = 360;
+const MAX_AIR_SPEED = 500;  // Higher to allow boosts
+const maxSpeed = touchingDown ? MAX_GROUND_SPEED : MAX_AIR_SPEED;
+player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -maxSpeed, maxSpeed);
+
+// Optional: Debug logging (remove after testing)
+if (!touchingDown) {
+    console.log("Air - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1), "Drag:", player.body.drag.x);
 }
 
 
@@ -2284,6 +2294,7 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
 
 
