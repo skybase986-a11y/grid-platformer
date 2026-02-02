@@ -1051,23 +1051,32 @@ function handleMovementAndBoost() {
     (touchingDown && floorInBoostWindow) || (touchingUp && ceilingInBoostWindow)
   );
 
-  // --- HORIZONTAL MOVEMENT ---
-  let moveInput = 0;
-  if (cursors.left.isDown) moveInput = -1;
-  else if (cursors.right.isDown) moveInput = 1;
+--- HORIZONTAL MOVEMENT ---
+let moveInput = 0;
+if (cursors.left.isDown) moveInput = -1;
+else if (cursors.right.isDown) moveInput = 1;
 
-  if (touchingDown) {
-    player.setAccelerationX(moveInput * GROUND_ACCEL);
-    if (!justLanded && !floorInBoostWindow) {
-      player.body.velocity.x = Phaser.Math.Clamp(
-        player.body.velocity.x,
-        -MAX_NORMAL_GROUND_SPEED,
-        MAX_NORMAL_GROUND_SPEED
-      );
+if (touchingDown) {
+    player.setAccelerationX(moveInput * GROUNDACCEL);
+} else {
+    // Air control: only when speed >= 360
+    const horizSpeed = Math.abs(player.body.velocity.x);
+    if (horizSpeed >= 360) {
+        const AIRACCEL_HIGH_SPEED = 400;  // Tune this value (300-600 works well)
+        player.setAccelerationX(moveInput * AIRACCEL_HIGH_SPEED);
+    } else {
+        player.setAccelerationX(moveInput * AIRACCEL);  // Still 0 for low-speed air
     }
-  } else {
-    player.setAccelerationX(moveInput * AIR_ACCEL);
-  }
+}
+
+// Only clamp low-speed air movement, let high speeds go free
+if (!touchingDown) {
+    const horizSpeed = Math.abs(player.body.velocity.x);
+    if (horizSpeed <= 360) {
+        player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -MAXNORMALGROUNDSPEED, MAXNORMALGROUNDSPEED);
+    }
+}
+
 
   // --- JUMP / BOOST ---
   if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
@@ -2269,4 +2278,5 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
