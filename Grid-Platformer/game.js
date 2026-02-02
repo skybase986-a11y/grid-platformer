@@ -1056,19 +1056,29 @@ let moveInput = 0;
 if (cursors.left.isDown) moveInput = -1;
 else if (cursors.right.isDown) moveInput = 1;
 
+// DEBUG: Log input
+console.log("Input:", moveInput, "TouchingDown:", touchingDown);
+
 if (touchingDown) {
     player.setAccelerationX(moveInput * GROUND_ACCEL);
 } else {
-    // ALWAYS apply some acceleration first
-    player.setAccelerationX(moveInput * 200);  // Base air accel
-    
-    // THEN check if we should allow high-speed control
     const horizSpeed = Math.abs(player.body.velocity.x);
-    if (horizSpeed >= 360) {
-        // Extra control at high speeds
-        player.setAccelerationX(moveInput * 600);
+    console.log("AIR - Speed:", horizSpeed, "Accel will be:", moveInput * 600);
+    
+    // FORCE high-speed air control for testing
+    player.setAccelerationX(moveInput * 600);
+    
+    // Only clamp if BELOW threshold
+    if (horizSpeed <= 360) {
+        console.log("CLAMPING to 360");
+        player.body.velocity.x = Phaser.Math.Clamp(
+            player.body.velocity.x, 
+            -MAX_NORMAL_GROUND_SPEED, 
+            MAX_NORMAL_GROUND_SPEED
+        );
     }
 }
+
 
 // Clamp ONLY low-speed air (AFTER all acceleration)
 if (!touchingDown) {
@@ -2284,6 +2294,7 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
 
 
 
