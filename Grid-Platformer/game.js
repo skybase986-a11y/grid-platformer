@@ -194,9 +194,9 @@ function preload() {
   this.load.image('pause', 'assets/images/Pause.png');
   this.load.image('welcome1', 'assets/images/welcome1.png');
   this.load.image('welcome2', 'assets/images/welcome2.png');
-  this.load.image('Help', 'assets/images/Help.png'); // make sure the path matches your file
-  this.load.audio('Adventure', 'assets/Adventure.WAV');
-this.load.audio('Scary', 'assets/Scary.m4A');
+  this.load.image('Help', 'assets/images/Help.png'); 
+  this.load.audio('Adventure', 'assets/adventure.mp3')
+this.load.audio('Scary', 'assets/scary.mp3');
 this.load.audio('Happy', 'assets/Happy.mp3');
 this.load.image('Dark', 'assets/Dark.png');
 this.load.image('Forest', 'assets/Forest.png');
@@ -2269,3 +2269,4 @@ function playSelectedMusic(scene) {
   currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
   currentMusic.play();
 }
+
