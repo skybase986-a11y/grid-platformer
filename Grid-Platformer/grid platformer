@@ -504,6 +504,12 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
   createBlockColorMenu(this);
 
 this.loadLevel = function(compressedData) {
+
+      if (typeof LZString === 'undefined') {
+    throw new Error("LZString not loaded! Check your HTML script tag.");
+  }
+
+    
   console.log("Starting loadLevel with data:", compressedData);  // Debug (remove later)
   
   try {
@@ -589,7 +595,6 @@ this.loadLevel = function(compressedData) {
     showInstruction(this, "❌ LOAD FAILED! Check console.", 3000);
   }
 };
-
   // === CAMERA IGNORE LISTS ===
 
 // ✅ FIXED - UI camera shows buttons, main camera shows game
@@ -2322,6 +2327,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
