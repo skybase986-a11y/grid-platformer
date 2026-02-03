@@ -685,6 +685,8 @@ this.exportLevel = function() {
   return compressed;
 };
 
+}
+
 
 
 
@@ -2329,6 +2331,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
