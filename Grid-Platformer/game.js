@@ -661,6 +661,11 @@ editorButtons.forEach(btn => {
 
   // Export level data
 this.exportLevel = function() {
+  // Check if LZString is available
+  if (typeof LZString === 'undefined') {
+    throw new Error("LZString not loaded! Check your HTML script tag.");
+  }
+  
   // Shortened keys and array format for compactness
   const levelData = {
     m: selectedMusicKey || 'X',  // music
@@ -679,9 +684,6 @@ this.exportLevel = function() {
   
   return compressed;
 };
-
-  
-}
 
 
 
@@ -2327,6 +2329,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
