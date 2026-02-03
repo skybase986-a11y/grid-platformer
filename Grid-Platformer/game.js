@@ -503,7 +503,6 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
   // Block color menu
   createBlockColorMenu(this);
 
- // === LOAD LEVEL FUNCTION ===
 this.loadLevel = function(compressedData) {
   console.log("Starting loadLevel with data:", compressedData);  // Debug (remove later)
   
@@ -2323,6 +2322,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
