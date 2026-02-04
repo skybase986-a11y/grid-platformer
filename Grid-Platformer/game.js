@@ -680,7 +680,6 @@ this.exportLevel = function () {
 };
 
 
-}
 
 
 
@@ -2360,6 +2359,7 @@ function loadLevelFromClipboard(scene) {
             console.error('Failed to read from clipboard', err);
         });
 }
+
 
 
 
