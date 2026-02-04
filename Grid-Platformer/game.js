@@ -215,7 +215,7 @@ if (!this.textures.exists('pixel')) {
 
 
 
-  // Only generate pixel texture if it doesnâ€™t exist
+  // Only generate pixel texture if it doesnÃ¢â‚¬â„¢t exist
   if (!this.textures.exists('pixel')) {
     this.textures.generate('pixel', { data: ['.'], pixelWidth: 1 });
   }
@@ -396,7 +396,7 @@ player = this.physics.add.sprite(100, 100, 'pixel')
 
 player.sfx = { death: this.sound.add('death1') };
 
-// ✅ ADD THIS LINE - FIXES ERROR
+// âœ… ADD THIS LINE - FIXES ERROR
 player.boostOutline = this.add.rectangle(player.x, player.y, player.displayWidth + 8, player.displayHeight + 8)
   .setOrigin(0, 0).setStrokeStyle(3, 0xffff00).setVisible(false);
   cursors = this.input.keyboard.createCursorKeys();
@@ -589,22 +589,22 @@ this.loadLevel = function(compressedData) {
       this.finishLine = this.add.sprite(x, y, 'finish').setOrigin(0, 0).setDisplaySize(w, h);
     }
     
-    console.log("✅ Level loaded successfully!");
+    console.log("âœ… Level loaded successfully!");
   } catch (error) {
     console.error("LOAD ERROR:", error);
-    showInstruction(this, "❌ LOAD FAILED! Check console.", 3000);
+    showInstruction(this, "âŒ LOAD FAILED! Check console.", 3000);
   }
 };
   // === CAMERA IGNORE LISTS ===
 
-// ✅ FIXED - UI camera shows buttons, main camera shows game
-uiCamera.setViewport(0, 0, 150, height);  // ✅ BUTTONS VISIBLE
+// âœ… FIXED - UI camera shows buttons, main camera shows game
+uiCamera.setViewport(0, 0, 150, height);  // âœ… BUTTONS VISIBLE
 
 this.cameras.main.ignore([pauseButton]);   // Main cam ignores ONLY pause button
 pauseButton.setScrollFactor(0).setDepth(10000);  // UI properties
 
 
-// ✅ FIXED - MAKE UI CAMERA SHOW BUTTONS
+// âœ… FIXED - MAKE UI CAMERA SHOW BUTTONS
 editorButtons.forEach(btn => {
   btn.setScrollFactor(0);           // UI fixed position
   btn.setDepth(10000);              // On top
@@ -660,26 +660,32 @@ editorButtons.forEach(btn => {
   });
 
   // Export level data
-this.exportLevel = function () {
-    if (typeof LZString === 'undefined')
-        throw new Error('LZString not loaded! Check your HTML script tag.');
-
-    const levelData = {
-        m: selectedMusicKey || 'X',
-        bg: selectedBackgroundKey || 'A',
-        b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),
-        s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),
-        w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),
-        nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),
-        st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,
-        f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null,
-    };
-
-    const jsonString = JSON.stringify(levelData);
-    return LZString.compressToEncodedURIComponent(jsonString);
+this.exportLevel = function() {
+  // Check if LZString is available
+  if (typeof LZString === 'undefined') {
+    throw new Error("LZString not loaded! Check your HTML script tag.");
+  }
+  
+  // Shortened keys and array format for compactness
+  const levelData = {
+    m: selectedMusicKey || 'X',  // music
+    bg: selectedBackgroundKey || 'A',  // background
+    b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
+    s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
+    w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
+    nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),  // noBoostBlocks: [x, y, w, h]
+    st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
+    f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
+  };
+  
+  // Convert to JSON string, then compress
+  const jsonString = JSON.stringify(levelData);
+  const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
+  
+  return compressed;
 };
 
-
+}
 
 
 
@@ -699,9 +705,9 @@ function createEditorButtons(scene) {
   const size = 64;
   const spacing = 16;
 
-  // 🔥 FIX: Position for UI CAMERA (left side)
-  const startX = 20;  // ← UI CAMERA X
-  const startY = 100; // ← START HIGH UP
+  // ðŸ”¥ FIX: Position for UI CAMERA (left side)
+  const startX = 20;  // â† UI CAMERA X
+  const startY = 100; // â† START HIGH UP
 
   editorButtons = [];
 
@@ -775,7 +781,7 @@ function createEditorButtons(scene) {
   noboostBtn.setTint(0x0000ff);
 
   // Hide everything initially
-// 🔥 MAKE EDITOR BUTTONS VISIBLE ON UI CAMERA
+// ðŸ”¥ MAKE EDITOR BUTTONS VISIBLE ON UI CAMERA
 editorButtons.forEach(btn => {
   uiCamera.ignore(false);  // SHOW on UI cam
   btn.setPosition(btn.x, btn.y);  // Force position
@@ -856,7 +862,7 @@ function placeObject(x, y) {
       blocksGroup.create(x, y, 'pixel')
     .setOrigin(0, 0)
     .setDisplaySize(gridSize, gridSize)
-    .setTint(blockColorHex) // âœ… use selected color
+    .setTint(blockColorHex) // Ã¢Å“â€¦ use selected color
     .refreshBody();
 
     }
@@ -904,16 +910,6 @@ function placeObject(x, y) {
 
 function update() {
   // UI positioning FIRST (always runs)\
-
-    
-if (gameStarted) {
-    if (Phaser.Input.Keyboard.JustDown(saveKey)) saveLevelToClipboard(this);
-    if (Phaser.Input.Keyboard.JustDown(loadKey)) loadLevelFromClipboard(this);
-}
-
-
-
-    
   if (!pauseOverlay || !resumeButton || !pauseButton) return;
   
 
@@ -960,7 +956,7 @@ if (currentBackground && player) {
     bgX = WORLD_WIDTH / 2 + (player.x - WORLD_WIDTH / 2) * 0.5;
     bgY = WORLD_HEIGHT / 2 + (player.y - WORLD_HEIGHT / 2) * 0.5;
 
-    // Clamp so edges donâ€™t leave world bounds
+    // Clamp so edges donÃ¢â‚¬â„¢t leave world bounds
     const halfW = bgWidth / 2;
     const halfH = bgHeight / 2;
 
@@ -1218,7 +1214,7 @@ function startGame() {
   gameStarted = true;
   playSelectedMusic(this);
 
-  // ✅ SINGLE BACKGROUND - destroy menuBg, create gameplay bg
+  // âœ… SINGLE BACKGROUND - destroy menuBg, create gameplay bg
   if (menuBg) menuBg.destroy();
   createGameplayBackground(this); // creates currentBackground
 
@@ -1610,7 +1606,7 @@ function openSelectMusicMenu() {
     levelOptionsText,
     backFromLevelOptionsButton,
     selectMusicButton,
-    selectBackgroundButton   // ðŸ‘ˆ THIS
+    selectBackgroundButton   // Ã°Å¸â€˜Ë† THIS
 ], false);
 
 
@@ -1937,7 +1933,7 @@ function openBlockColorsMenu() {
 
 
 function toggleBlockColorsMenu() {
-    // If menu exists and is visible â†’ close it
+    // If menu exists and is visible Ã¢â€ â€™ close it
     if (blockColorsOverlay?.visible) {
         closeBlockColorsMenu.call(this);
     } else {
@@ -2120,113 +2116,91 @@ function forceBackButtonsHidden() {
 
 
 
-// 🔥 SAVE LEVEL TO CLIPBOARD (S key)
+// ðŸ”¥ SAVE LEVEL TO CLIPBOARD (S key)
+// ðŸ”¥ SAVE LEVEL TO CLIPBOARD (S key)
 function saveLevelToClipboard(scene) {
-    const compressedData = scene.exportLevel();
-    navigator.clipboard.writeText(compressedData)
-        .then(() => showInstruction(scene, 'LEVEL SAVED TO CLIPBOARD! Press L to load', 2000))
-        .catch(err => console.error('Failed to save to clipboard', err));
+  const compressedData = scene.exportLevel();  // Use the compressed exportLevel()
+  
+  navigator.clipboard.writeText(compressedData).then(() => {
+    showInstruction(scene, "LEVEL SAVED TO CLIPBOARD! (Press L to load)", 2000);
+  }).catch(err => {
+    console.error('Failed to save to clipboard:', err);
+  });
 }
-}
 
-this.loadLevel = function (compressedData) {
-    if (typeof LZString === 'undefined')
-        throw new Error('LZString not loaded! Check your HTML script tag.');
-
-    const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
-    if (!jsonString) throw new Error('Decompression failed - invalid compressed data.');
-
-    const levelData = JSON.parse(jsonString);
-
-    // Clear existing
-    blocksGroup.clear(true, true);
-    spikesGroup.clear(true, true);
-    windowsGroup.clear(true, true);
-    noBoostBlocksGroup.clear(true, true);
-    if (this.spawnPoint) this.spawnPoint.destroy();
-    if (this.finishLine) this.finishLine.destroy();
-
-    // Apply music/background using compact keys
-    selectedMusicKey = levelData.m || 'X';
-    selectedBackgroundKey = levelData.bg || 'A';
-
-    if (menuBg && this.textures.exists(levelData.bg)) {
-        menuBg.setTexture(levelData.bg);
-    }
-
-    if (levelData.m) {
-        if (this.currentMusic) this.currentMusic.stop();
-        this.currentMusic = this.sound.add(levelData.m);
-        this.currentMusic.play({ loop: true });
-    }
-
-    // Blocks
-    if (levelData.b) {
-        levelData.b.forEach(([x, y, w, h, tint]) => {
-            const blockSprite = blocksGroup.create(x, y, 'pixel');
-            blockSprite.setOrigin(0, 0)
-                .setDisplaySize(w, h)
-                .setTint(tint)
-                .refreshBody();
-        });
-    }
-
-    // Spikes
-    if (levelData.s) {
-        levelData.s.forEach(([x, y, w, h]) => {
-            const spikeSprite = spikesGroup.create(x, y, 'spike');
-            spikeSprite.setOrigin(0, 0)
-                .setDisplaySize(w, h)
-                .refreshBody();
-        });
-    }
-
-    // Windows
-    if (levelData.w) {
-        levelData.w.forEach(([x, y, w, h]) => {
-            const winSprite = windowsGroup.create(x, y, 'window');
-            winSprite.setOrigin(0, 0)
-                .setDisplaySize(w, h)
-                .refreshBody();
-        });
-    }
-
-    // No-boost blocks
-    if (levelData.nb) {
-        levelData.nb.forEach(([x, y, w, h]) => {
-            const nbSprite = noBoostBlocksGroup.create(x, y, 'pixel');
-            nbSprite.setOrigin(0, 0)
-                .setDisplaySize(w, h)
-                .setTint(0x0000ff)
-                .refreshBody();
-        });
-    }
-
-    // Start
-    if (levelData.st) {
-        const [x, y, w, h] = levelData.st;
-        this.spawnPoint = this.add.sprite(x, y, 'start')
-            .setOrigin(0, 0)
-            .setDisplaySize(w, h);
-    }
-
-    // Finish
-    if (levelData.f) {
-        const [x, y, w, h] = levelData.f;
-        this.finishLine = this.add.sprite(x, y, 'finish')
-            .setOrigin(0, 0)
-            .setDisplaySize(w, h);
-    }
-
-    console.log('Level loaded successfully!');
+// ðŸ”¥ LOAD LEVEL FROM CLIPBOARD (L key)
+this.loadLevel = function(compressedData) {
+  // Decompress the string back to JSON
+  const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+  const levelData = JSON.parse(jsonString);
+  
+  // Clear existing level elements
+  blocksGroup.clear(true, true);
+  spikesGroup.clear(true, true);
+  windowsGroup.clear(true, true);
+  noBoostBlocksGroup.clear(true, true);
+  if (this.spawnPoint) this.spawnPoint.destroy();
+  if (this.finishLine) this.finishLine.destroy();
+  
+  // Set background & music (using short keys)
+  selectedMusicKey = levelData.m;
+  selectedBackgroundKey = levelData.bg;
+  if (menuBg && scene.textures.exists(levelData.bg)) menuBg.setTexture(levelData.bg);
+  if (levelData.m) {
+    if (this.currentMusic) this.currentMusic.stop();
+    this.currentMusic = this.sound.add(levelData.m);
+    if (this.currentMusic) this.currentMusic.play({ loop: true });
+  }
+  
+  // Load blocks: [x, y, w, h, tint]
+  if (levelData.b) {
+    levelData.b.forEach(([x, y, w, h, tint]) => {
+      const blockSprite = blocksGroup.create(x, y, 'pixel');
+      blockSprite.setOrigin(0, 0).setDisplaySize(w, h).setTint(tint).refreshBody();
+    });
+  }
+  
+  // Load spikes: [x, y, w, h]
+  if (levelData.s) {
+    levelData.s.forEach(([x, y, w, h]) => {
+      spikesGroup.create(x, y, 'spike').setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
+    });
+  }
+  
+  // Load windows: [x, y, w, h]
+  if (levelData.w) {
+    levelData.w.forEach(([x, y, w, h]) => {
+      windowsGroup.create(x, y, 'window').setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
+    });
+  }
+  
+  // Load noBoostBlocks: [x, y, w, h]
+  if (levelData.nb) {
+    levelData.nb.forEach(([x, y, w, h]) => {
+      noBoostBlocksGroup.create(x, y, 'pixel').setOrigin(0, 0).setDisplaySize(w, h).setTint(0x0000ff).refreshBody();
+    });
+  }
+  
+  // Load start: [x, y, w, h]
+  if (levelData.st) {
+    const [x, y, w, h] = levelData.st;
+    this.spawnPoint = this.add.sprite(x, y, 'start').setOrigin(0, 0).setDisplaySize(w, h);
+  }
+  
+  // Load finish: [x, y, w, h]
+  if (levelData.f) {
+    const [x, y, w, h] = levelData.f;
+    this.finishLine = this.add.sprite(x, y, 'finish').setOrigin(0, 0).setDisplaySize(w, h);
+  }
+  
+  console.log("âœ… Level loaded successfully!");
 };
 
 
 
 
-
-function openLevelOptions() {  // ← NO (scene) PARAMETER
-  const scene = window.myGameScene;  // ← GET SCENE FROM GLOBAL
+function openLevelOptions() {  // â† NO (scene) PARAMETER
+  const scene = window.myGameScene;  // â† GET SCENE FROM GLOBAL
   
   // Hide other menus
   if (pauseOverlay) pauseOverlay.setVisible(true);
@@ -2271,7 +2245,7 @@ function openLevelOptions() {  // ← NO (scene) PARAMETER
   currentPauseMenu = 'levelOptions';
 }
 
-function closeLevelOptions() {  // ← NO PARAMETER
+function closeLevelOptions() {  // â† NO PARAMETER
   const scene = window.myGameScene;
   
   if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
@@ -2288,7 +2262,7 @@ function closeLevelOptions() {  // ← NO PARAMETER
   currentPauseMenu = 'main';
 }
 
-function openSelectMusicMenu() {  // ← NO PARAMETER
+function openSelectMusicMenu() {  // â† NO PARAMETER
   closeLevelOptions();
   
   if (musicTitleText) musicTitleText.setVisible(true);
@@ -2328,9 +2302,9 @@ function playSelectedMusic(scene) {
     return;
   }
 
-  // If audio wasn’t loaded or key typo, bail
+  // If audio wasnâ€™t loaded or key typo, bail
   if (!scene.sound || !scene.sound.exists || !scene.sound.exists(soundKey)) {
-    // In older Phaser versions, exists() may not exist – in that case just try/catch play.
+    // In older Phaser versions, exists() may not exist â€“ in that case just try/catch play.
     console.warn('Sound not loaded or key invalid:', soundKey);
     return;
   }
@@ -2343,27 +2317,20 @@ function playSelectedMusic(scene) {
 
 
 
-// 🔥 LOAD LEVEL FROM CLIPBOARD (L key)
+// ðŸ”¥ LOAD LEVEL FROM CLIPBOARD (L key)
 function loadLevelFromClipboard(scene) {
-    navigator.clipboard.readText()
-        .then(compressedData => {
-            try {
-                scene.loadLevel(compressedData);
-                showInstruction(scene, 'LEVEL LOADED PERFECTLY!', 2000);
-            } catch (error) {
-                console.error('LOAD ERROR', error);
-                showInstruction(scene, 'LOAD FAILED!', 2000);
-            }
-        })
-        .catch(err => {
-            console.error('Failed to read from clipboard', err);
-        });
+  navigator.clipboard.readText().then(compressedData => {
+    try {
+      scene.loadLevel(compressedData);  // Pass compressed data directly to scene.loadLevel()
+      showInstruction(scene, "âœ… LEVEL LOADED PERFECTLY!", 2000);
+    } catch (error) {
+      console.error("LOAD ERROR:", error);
+      showInstruction(scene, "âŒ LOAD FAILED!", 2000);
+    }
+  }).catch(err => {
+    console.error('Failed to read from clipboard:', err);
+  });
 }
-
-
-
-
-
 
 
 
