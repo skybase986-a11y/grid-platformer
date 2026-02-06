@@ -642,12 +642,29 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
       console.log(`🏁 Finish at ${x},${y}`);
     }
     
-    // ✅ RE-ATTACH COLLISIONS
-    if (scene.player) {
-      scene.physics.add.collider(scene.player, scene.blocksGroup);
-      scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-      scene.physics.add.overlap(scene.player, scene.spikesGroup, () => killPlayer(scene));
-      scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
+// ✅ RESET PLAYER + FORCE COLLISIONS (AFTER loading everything)
+if (scene.player && scene.spawnPoint) {
+  // Move player to new spawn IMMEDIATELY
+  scene.player.setPosition(scene.spawnPoint.x + 10, scene.spawnPoint.y - 50);
+  scene.player.body.setVelocity(0, 0);
+  
+  // Wait 1 frame for physics to settle, THEN re-attach
+  scene.time.delayedCall(16, () => {
+    // Remove ALL old colliders first
+    scene.physics.world.colliders.getActive().forEach(collider => {
+      if (collider.object1 === scene.player || collider.object2 === scene.player) {
+        collider.destroy();
+      }
+    });
+    
+    // Add FRESH colliders
+    scene.physics.add.collider(scene.player, scene.blocksGroup);
+    scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+    scene.physics.add.overlap(scene.player, scene.spikesGroup, () => killPlayer(scene));
+    scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
+  });
+}
+
     }
     
     // ✅ REFRESH PHYSICS WORLD
@@ -2332,6 +2349,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
