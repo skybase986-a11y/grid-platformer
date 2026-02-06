@@ -536,9 +536,7 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
   console.log("Starting loadLevel with data:", compressedData);
   
   try {
-    if (typeof LZString === 'undefined') {
-      throw new Error("LZString not loaded!");
-    }
+    if (typeof LZString === 'undefined') throw new Error("LZString not loaded!");
     
     const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
     if (!jsonString) throw new Error("Decompression failed");
@@ -546,96 +544,81 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
     const levelData = JSON.parse(jsonString);
     console.log("Parsed levelData:", levelData);
     
-    // ✅ USE SCENE'S GROUPS (not globals)
-// ✅ CORRECT - ensures STATIC groups
-const blocks = scene.blocksGroup || scene.physics.add.staticGroup();
-const spikes = scene.spikesGroup || scene.physics.add.staticGroup();
-const windows = scene.windowsGroup || scene.physics.add.staticGroup();
-const noBoost = scene.noBoostBlocksGroup || scene.physics.add.staticGroup();
-
-
-
+    // ✅ ENSURE GROUPS EXIST (don't destroy scene refs)
+    if (!scene.blocksGroup) scene.blocksGroup = scene.physics.add.staticGroup();
+    if (!scene.spikesGroup) scene.spikesGroup = scene.physics.add.staticGroup();
+    if (!scene.windowsGroup) scene.windowsGroup = scene.physics.add.staticGroup();
+    if (!scene.noBoostBlocksGroup) scene.noBoostBlocksGroup = scene.physics.add.staticGroup();
     
-    // Clear everything first
-    blocks.clear(true, true);
-    spikes.clear(true, true);
-    windows.clear(true, true);
-    noBoost.clear(true, true);
-      // ✅ CRITICAL: Force refresh physics after clearing
-blocks.refresh();
-spikes.refresh(); 
-windows.refresh();
-noBoost.refresh();
+    // ✅ SAFE CLEAR - only children, preserve group refs
+    scene.blocksGroup.clear(false, false);
+    scene.spikesGroup.clear(false, false);
+    scene.windowsGroup.clear(false, false);
+    scene.noBoostBlocksGroup.clear(false, false);
     
+    // Destroy old start/finish
     if (scene.spawnPoint) scene.spawnPoint.destroy();
     if (scene.finishLine) scene.finishLine.destroy();
     
-    // Load blocks: [x,y,w,h,tint]
+    // Load blocks
     if (levelData.b) {
       levelData.b.forEach(([x, y, w, h, tint]) => {
-        blocks.create(x, y, 'pixel')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .setTint(tint || 0xffffff)
+        scene.blocksGroup.create(x, y, 'pixel')
+          .setOrigin(0, 0).setDisplaySize(w, h).setTint(tint || 0xffffff)
           .refreshBody();
       });
     }
     
-    // Load spikes: [x,y,w,h]
+    // Load spikes
     if (levelData.s) {
       levelData.s.forEach(([x, y, w, h]) => {
-        spikes.create(x, y, 'spike')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
+        scene.spikesGroup.create(x, y, 'spike')
+          .setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
       });
     }
     
-    // Load windows: [x,y,w,h]
+    // Load windows  
     if (levelData.w) {
       levelData.w.forEach(([x, y, w, h]) => {
-        windows.create(x, y, 'window')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
+        scene.windowsGroup.create(x, y, 'window')
+          .setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
       });
     }
     
-    // Load noBoostBlocks: [x,y,w,h]
+    // Load noBoost
     if (levelData.nb) {
       levelData.nb.forEach(([x, y, w, h]) => {
-        noBoost.create(x, y, 'pixel')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .setTint(0x0000ff)
+        scene.noBoostBlocksGroup.create(x, y, 'pixel')
+          .setOrigin(0, 0).setDisplaySize(w, h).setTint(0x0000ff)
           .refreshBody();
       });
     }
     
-    // Load start/finish
-
-if (levelData.st) {
-  const [x, y, w, h] = levelData.st;
-  scene.spawnPoint = scene.add.sprite(x, y, 'start')
-    .setOrigin(0, 0)
-    .setDisplaySize(w, h)
-    .setDepth(100);  // Above blocks
-}
-
-if (levelData.f) {
-  const [x, y, w, h] = levelData.f;
-  scene.finishLine = scene.add.sprite(x, y, 'finish')
-    .setOrigin(0, 0)
-    .setDisplaySize(w, h)
-    .setDepth(100);  // Above blocks
-}
-
+    // Load start/finish - UPDATE REFERENCES
+    if (levelData.st) {
+      const [x, y, w, h] = levelData.st;
+      scene.spawnPoint = scene.add.sprite(x, y, 'start').setOrigin(0, 0).setDisplaySize(w, h);
+    }
+    if (levelData.f) {
+      const [x, y, w, h] = levelData.f;
+      scene.finishLine = scene.add.sprite(x, y, 'finish').setOrigin(0, 0).setDisplaySize(w, h);
+    }
+    
+    // Refresh physics
+    scene.blocksGroup.refresh();
+    scene.spikesGroup.refresh();
+    scene.windowsGroup.refresh();
+    scene.noBoostBlocksGroup.refresh();
     
     console.log("✅ Level loaded! Blocks:", levelData.b?.length || 0);
+    showInstruction(scene, `✅ LOADED ${levelData.b?.length || 0} BLOCKS`, 2000);
+    
   } catch (error) {
     console.error("LOAD ERROR:", error);
+    showInstruction(scene, "❌ LOAD FAILED", 2000);
   }
 };
+
 
   // === CAMERA IGNORE LISTS ===
 
@@ -2371,6 +2354,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
