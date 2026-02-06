@@ -186,6 +186,35 @@ function startEditorMode(scene) {
 
 
 function preload() {
+
+    const width = this.scale.width;
+  const height = this.scale.height;
+
+  const progressBox = this.add.rectangle(
+    width / 2, height / 2, 400, 50, 0x222222
+  );
+  const progressBar = this.add.rectangle(
+    width / 2 - 190, height / 2, 0, 30, 0xffffff
+  );
+  const loadingText = this.add.text(
+    width / 2, height / 2 - 60,
+    'Loading...',
+    { fontSize: '32px', fill: '#ffffff' }
+  ).setOrigin(0.5);
+
+  // Update bar as files load
+  this.load.on('progress', (value) => {
+    progressBar.width = 380 * value;
+  });
+
+  // Cleanup when complete
+  this.load.on('complete', () => {
+    progressBox.destroy();
+    progressBar.destroy();
+    loadingText.destroy();
+  });
+
+    
   this.load.audio('death1', 'assets/death1.mp3');
   this.load.image('spike', 'assets/images/spike.png');
   this.load.image('finish', 'assets/images/FinishLine.png');
@@ -1056,9 +1085,7 @@ if (currentBackground && player) {
   if (player) {
     player.boostOutline.setPosition(player.x - 4, player.y - 4);
   }
-  if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-    openUploadedLevelsTab(this);
-}
+
 
 }
 
@@ -2331,6 +2358,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
