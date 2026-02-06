@@ -547,16 +547,25 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
     console.log("Parsed levelData:", levelData);
     
     // ✅ USE SCENE'S GROUPS (not globals)
-    const blocks = scene.blocksGroup || scene.physics.add.staticGroup();
-    const spikes = scene.spikesGroup || scene.physics.add.staticGroup();
-    const windows = scene.windowsGroup || scene.physics.add.staticGroup();
-    const noBoost = scene.noBoostBlocksGroup || scene.physics.add.staticGroup();
+// ✅ CORRECT - ensures STATIC groups
+const blocks = scene.blocksGroup || scene.physics.add.staticGroup();
+const spikes = scene.spikesGroup || scene.physics.add.staticGroup();
+const windows = scene.windowsGroup || scene.physics.add.staticGroup();
+const noBoost = scene.noBoostBlocksGroup || scene.physics.add.staticGroup();
+
+
+
     
     // Clear everything first
     blocks.clear(true, true);
     spikes.clear(true, true);
     windows.clear(true, true);
     noBoost.clear(true, true);
+      // ✅ CRITICAL: Force refresh physics after clearing
+blocks.refresh();
+spikes.refresh(); 
+windows.refresh();
+noBoost.refresh();
     
     if (scene.spawnPoint) scene.spawnPoint.destroy();
     if (scene.finishLine) scene.finishLine.destroy();
@@ -604,14 +613,23 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
     }
     
     // Load start/finish
-    if (levelData.st) {
-      const [x, y, w, h] = levelData.st;
-      scene.spawnPoint = scene.add.sprite(x, y, 'start').setOrigin(0, 0).setDisplaySize(w, h);
-    }
-    if (levelData.f) {
-      const [x, y, w, h] = levelData.f;
-      scene.finishLine = scene.add.sprite(x, y, 'finish').setOrigin(0, 0).setDisplaySize(w, h);
-    }
+
+if (levelData.st) {
+  const [x, y, w, h] = levelData.st;
+  scene.spawnPoint = scene.add.sprite(x, y, 'start')
+    .setOrigin(0, 0)
+    .setDisplaySize(w, h)
+    .setDepth(100);  // Above blocks
+}
+
+if (levelData.f) {
+  const [x, y, w, h] = levelData.f;
+  scene.finishLine = scene.add.sprite(x, y, 'finish')
+    .setOrigin(0, 0)
+    .setDisplaySize(w, h)
+    .setDepth(100);  // Above blocks
+}
+
     
     console.log("✅ Level loaded! Blocks:", levelData.b?.length || 0);
   } catch (error) {
@@ -2353,6 +2371,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
