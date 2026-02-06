@@ -10,7 +10,6 @@ let gameMode = null; // 'editor', 'custom', or null
 this.currentMusic = null;
 let gameStarted = false;
 let backgroundOverlay;
-let backgroundButtons = {};
 let UI_WIDTH;
 let GAME_WIDTH;
 let width;
@@ -2414,6 +2413,7 @@ function openBackgroundMenu(scene) {
   backgroundOverlay.setVisible(true);
   backgroundTitleText.setVisible(true);
 }
+
 
 
 
