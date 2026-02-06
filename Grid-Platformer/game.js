@@ -2444,6 +2444,34 @@ function playSelectedMusic(scene) {
 
 
 
+function openLevelOptions() {
+  levelOptionsOverlay?.setVisible(true);
+  levelOptionsText?.setVisible(true);
+  selectMusicButton?.setVisible(true);
+  selectBackgroundButton?.setVisible(true);
+  backFromLevelOptionsButton?.setVisible(true);
+}
+
+function closeLevelOptions() {
+  levelOptionsOverlay?.setVisible(false);
+  levelOptionsText?.setVisible(false);
+  selectMusicButton?.setVisible(false);
+  selectBackgroundButton?.setVisible(false);
+  backFromLevelOptionsButton?.setVisible(false);
+}
+
+function openSelectMusicMenu() {
+  selectMusicOverlay?.setVisible(true);
+  musicTitleText?.setVisible(true);
+  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+  selectMusicBackButton?.setVisible(true);
+}
+
+function openBackgroundMenu() {
+  // Add background selection UI here if needed
+  showInstruction(this, 'Background menu coming soon!', 2000);
+}
+
 
 
 
