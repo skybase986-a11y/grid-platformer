@@ -533,91 +533,135 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
   createBlockColorMenu(this);
 
 window.loadLevel = function(compressedData, scene = window.myGameScene) {
-  console.log("Starting loadLevel with data:", compressedData);
+  console.log("🔄 Loading level...");
   
   try {
-    if (typeof LZString === 'undefined') throw new Error("LZString not loaded!");
-    
     const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
-    if (!jsonString) throw new Error("Decompression failed");
-    
     const levelData = JSON.parse(jsonString);
-    console.log("Parsed levelData:", levelData);
+    console.log("📦 Level data:", levelData);
     
-    // ✅ ENSURE GROUPS EXIST (don't destroy scene refs)
-    if (!scene.blocksGroup) scene.blocksGroup = scene.physics.add.staticGroup();
-    if (!scene.spikesGroup) scene.spikesGroup = scene.physics.add.staticGroup();
-    if (!scene.windowsGroup) scene.windowsGroup = scene.physics.add.staticGroup();
-    if (!scene.noBoostBlocksGroup) scene.noBoostBlocksGroup = scene.physics.add.staticGroup();
+    // ✅ DESTROY OLD GROUPS COMPLETELY (no half-measures)
+    if (scene.blocksGroup) {
+      scene.blocksGroup.clear(true, true);  // destroy=true
+      scene.blocksGroup.destroy(true);
+      scene.blocksGroup = null;
+    }
+    if (scene.spikesGroup) {
+      scene.spikesGroup.clear(true, true);
+      scene.spikesGroup.destroy(true);
+      scene.spikesGroup = null;
+    }
+    if (scene.windowsGroup) {
+      scene.windowsGroup.clear(true, true);
+      scene.windowsGroup.destroy(true);
+      scene.windowsGroup = null;
+    }
+    if (scene.noBoostBlocksGroup) {
+      scene.noBoostBlocksGroup.clear(true, true);
+      scene.noBoostBlocksGroup.destroy(true);
+      scene.noBoostBlocksGroup = null;
+    }
     
-    // ✅ SAFE CLEAR - only children, preserve group refs
-    scene.blocksGroup.clear(false, false);
-    scene.spikesGroup.clear(false, false);
-    scene.windowsGroup.clear(false, false);
-    scene.noBoostBlocksGroup.clear(false, false);
+    // ✅ DESTROY OLD START/FINISH
+    if (scene.spawnPoint) {
+      scene.spawnPoint.destroy();
+      scene.spawnPoint = null;
+    }
+    if (scene.finishLine) {
+      scene.finishLine.destroy();
+      scene.finishLine = null;
+    }
     
-    // Destroy old start/finish
-    if (scene.spawnPoint) scene.spawnPoint.destroy();
-    if (scene.finishLine) scene.finishLine.destroy();
+    // ✅ RECREATE FRESH STATIC GROUPS
+    scene.blocksGroup = scene.physics.add.staticGroup();
+    scene.spikesGroup = scene.physics.add.staticGroup();
+    scene.windowsGroup = scene.physics.add.staticGroup();
+    scene.noBoostBlocksGroup = scene.physics.add.staticGroup();
     
-    // Load blocks
+    // ✅ LOAD BLOCKS WITH COLLISION
     if (levelData.b) {
-      levelData.b.forEach(([x, y, w, h, tint]) => {
-        scene.blocksGroup.create(x, y, 'pixel')
-          .setOrigin(0, 0).setDisplaySize(w, h).setTint(tint || 0xffffff)
-          .refreshBody();
+      levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
+        const block = scene.blocksGroup.create(x, y, 'pixel')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .setTint(tint)
+          .refreshBody()
+          .setActive(true)
+          .setVisible(true);
+        console.log(`🧱 Block at ${x},${y}`);
       });
     }
     
-    // Load spikes
+    // ✅ LOAD SPIKES
     if (levelData.s) {
       levelData.s.forEach(([x, y, w, h]) => {
         scene.spikesGroup.create(x, y, 'spike')
-          .setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
-      });
-    }
-    
-    // Load windows  
-    if (levelData.w) {
-      levelData.w.forEach(([x, y, w, h]) => {
-        scene.windowsGroup.create(x, y, 'window')
-          .setOrigin(0, 0).setDisplaySize(w, h).refreshBody();
-      });
-    }
-    
-    // Load noBoost
-    if (levelData.nb) {
-      levelData.nb.forEach(([x, y, w, h]) => {
-        scene.noBoostBlocksGroup.create(x, y, 'pixel')
-          .setOrigin(0, 0).setDisplaySize(w, h).setTint(0x0000ff)
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
           .refreshBody();
       });
     }
     
-    // Load start/finish - UPDATE REFERENCES
+    // ✅ LOAD WINDOWS
+    if (levelData.w) {
+      levelData.w.forEach(([x, y, w, h]) => {
+        scene.windowsGroup.create(x, y, 'window')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .refreshBody();
+      });
+    }
+    
+    // ✅ LOAD NO-BOOST BLOCKS
+    if (levelData.nb) {
+      levelData.nb.forEach(([x, y, w, h]) => {
+        scene.noBoostBlocksGroup.create(x, y, 'pixel')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .setTint(0x0000ff)
+          .refreshBody();
+      });
+    }
+    
+    // ✅ LOAD START/FINISH - PROPER REFERENCES
     if (levelData.st) {
       const [x, y, w, h] = levelData.st;
-      scene.spawnPoint = scene.add.sprite(x, y, 'start').setOrigin(0, 0).setDisplaySize(w, h);
+      scene.spawnPoint = scene.add.sprite(x, y, 'start')
+        .setOrigin(0, 0)
+        .setDisplaySize(w, h)
+        .setDepth(10);
+      console.log(`🚀 Start at ${x},${y}`);
     }
+    
     if (levelData.f) {
       const [x, y, w, h] = levelData.f;
-      scene.finishLine = scene.add.sprite(x, y, 'finish').setOrigin(0, 0).setDisplaySize(w, h);
+      scene.finishLine = scene.add.sprite(x, y, 'finish')
+        .setOrigin(0, 0)
+        .setDisplaySize(w, h)
+        .setDepth(10);
+      console.log(`🏁 Finish at ${x},${y}`);
     }
     
-    // Refresh physics
-    scene.blocksGroup.refresh();
-    scene.spikesGroup.refresh();
-    scene.windowsGroup.refresh();
-    scene.noBoostBlocksGroup.refresh();
+    // ✅ RE-ATTACH COLLISIONS
+    if (scene.player) {
+      scene.physics.add.collider(scene.player, scene.blocksGroup);
+      scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+      scene.physics.add.overlap(scene.player, scene.spikesGroup, () => killPlayer(scene));
+      scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
+    }
     
-    console.log("✅ Level loaded! Blocks:", levelData.b?.length || 0);
-    showInstruction(scene, `✅ LOADED ${levelData.b?.length || 0} BLOCKS`, 2000);
+    // ✅ REFRESH PHYSICS WORLD
+    scene.blocksGroup.refresh();
+    
+    console.log(`✅ LOADED: ${levelData.b?.length || 0} blocks, start/finish OK`);
+    showInstruction(scene, `✅ ${levelData.b?.length || 0} BLOCKS LOADED`, 3000);
     
   } catch (error) {
-    console.error("LOAD ERROR:", error);
-    showInstruction(scene, "❌ LOAD FAILED", 2000);
+    console.error("💥 LOAD FAILED:", error);
+    showInstruction(scene, "❌ LOAD FAILED - check console", 3000);
   }
 };
+
 
 
   // === CAMERA IGNORE LISTS ===
@@ -2354,6 +2398,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
