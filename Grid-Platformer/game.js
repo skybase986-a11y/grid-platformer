@@ -2343,16 +2343,18 @@ function playSelectedMusic(scene) {
 function loadLevelFromClipboard(scene) {
   navigator.clipboard.readText().then(compressedData => {
     try {
-      scene.loadLevel(compressedData);  // Pass compressed data directly to scene.loadLevel()
-      showInstruction(scene, "âœ… LEVEL LOADED PERFECTLY!", 2000);
+      window.loadLevel(compressedData, scene);  // ✅ Use GLOBAL function
+      showInstruction(scene, "✅ LEVEL LOADED PERFECTLY!", 2000);
     } catch (error) {
       console.error("LOAD ERROR:", error);
-      showInstruction(scene, "âŒ LOAD FAILED!", 2000);
+      showInstruction(scene, "❌ LOAD FAILED!", 2000);
     }
   }).catch(err => {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
+
 
 
 
