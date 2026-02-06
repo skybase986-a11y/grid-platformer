@@ -665,7 +665,7 @@ if (scene.player && scene.spawnPoint) {
   });
 }
 
-    }
+    
     
     // ✅ REFRESH PHYSICS WORLD
     scene.blocksGroup.refresh();
@@ -2349,6 +2349,7 @@ function loadLevelFromClipboard(scene) {
     console.error('Failed to read from clipboard:', err);
   });
 }
+
 
 
 
