@@ -9,7 +9,8 @@ let gameMode = null; // 'editor', 'custom', or null
 
 this.currentMusic = null;
 let gameStarted = false;
-
+let backgroundOverlay, backgroundTitleText;
+let backgroundButtons = {};
 let UI_WIDTH;
 let GAME_WIDTH;
 let width;
@@ -165,8 +166,6 @@ function createLevelEditor(scene) {
     scene.spawnPoint = null;
     scene.finishLine = null;
 
-    // menu background (if you use it)
-    scene.menuBg = scene.add.image(0, 0, 'Dark').setOrigin(0, 0);
 
     console.log("Editor/game objects initialized.");
 }
@@ -656,6 +655,68 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
     showInstruction(scene, "❌ LOAD FAILED - Check console", 4000);
   }
 };
+
+
+    // ✅ BACKGROUND SELECTION
+function openLevelOptions(scene) {
+  if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
+  if (levelOptionsText) levelOptionsText.setVisible(true);
+  if (selectMusicButton) selectMusicButton.setVisible(true);
+  if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
+  if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
+}
+
+function closeLevelOptions(scene) {
+  if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+  if (levelOptionsText) levelOptionsText.setVisible(false);
+  if (selectMusicButton) selectMusicButton.setVisible(false);
+  if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
+  if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
+}
+
+// ✅ MUSIC SELECTION
+function selectMusic(scene, key) {
+  selectedMusicKey = key;
+  playSelectedMusic(scene);
+  closeSelectMusicMenu(scene);
+  showInstruction(scene, `♪ ${MUSIC_MAP[key]}`, 1500);
+}
+
+function openSelectMusicMenu(scene) {
+  if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
+  if (musicTitleText) musicTitleText.setVisible(true);
+  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+  if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
+}
+
+function closeSelectMusicMenu(scene) {
+  if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+  if (musicTitleText) musicTitleText.setVisible(false);
+  Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+  if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+}
+
+// ✅ BACKGROUND SELECTION  
+function selectBackground(scene, key) {
+  selectedBackgroundKey = key;
+  if (currentBackground) {
+    currentBackground.setTexture(BACKGROUND_MAP[key]);
+  }
+  showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
+}
+
+// ✅ MUSIC PLAYER
+function playSelectedMusic(scene) {
+  if (currentMusic) {
+    currentMusic.stop();
+    currentMusic.destroy();
+  }
+  const musicName = MUSIC_MAP[selectedMusicKey];
+  currentMusic = scene.sound.add(musicName);
+  if (currentMusic) {
+    currentMusic.play({ loop: true, volume: 0.3 });
+  }
+}
 
 
 
@@ -1274,7 +1335,8 @@ function createGameplayBackground(scene) {
 function startGame() {
   gameState = 'playing';
   gameStarted = true;
-  playSelectedMusic(this);
+ 
+      playSelectedMusic(scene);
 
   // âœ… SINGLE BACKGROUND - destroy menuBg, create gameplay bg
   if (menuBg) menuBg.destroy();
@@ -2338,6 +2400,20 @@ function loadLevelFromClipboard(scene) {
 
 
 
+
+
+
+function openBackgroundMenu(scene) {
+  if (!backgroundOverlay) {
+    backgroundOverlay = scene.add.rectangle(0, 0, 800, 600, 0x000000, 0.8)
+      .setOrigin(0.5).setScrollFactor(0).setDepth(2000).setVisible(false);
+    backgroundTitleText = scene.add.text(0, 0, 'SELECT BACKGROUND', {
+      fontSize: '64px', fill: '#ffffff'
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
+  }
+  backgroundOverlay.setVisible(true);
+  backgroundTitleText.setVisible(true);
+}
 
 
 
