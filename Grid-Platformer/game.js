@@ -779,9 +779,10 @@ editorButtons.forEach(btn => {
     else if (isPaused) togglePause.call(this);
   });
 
-  enterKey.on('down', () => {
-    if (gameState === 'title') startGame.call(this);
-  });
+enterKey.on('down', () => {
+  if (gameState === 'title') startGame.call(this);  // ✅ Use .call(this)
+});
+
 
   // Export level data
 this.exportLevel = function() {
@@ -1334,18 +1335,23 @@ function createGameplayBackground(scene) {
 function startGame() {
   gameState = 'playing';
   gameStarted = true;
- 
-      playSelectedMusic(scene);
-
-  // âœ… SINGLE BACKGROUND - destroy menuBg, create gameplay bg
-  if (menuBg) menuBg.destroy();
-  createGameplayBackground(this); // creates currentBackground
-
-  const cam = this.cameras.main;
-  cam.setZoom(baseCamZoom);
-  cam.startFollow(player, true, 0.08, 0.08);
-
-  // Show game objects
+  
+  // ✅ DESTROY TITLE SCREEN BACKGROUND
+  if (menuBg) {
+    menuBg.destroy();
+    menuBg = null;
+  }
+  
+  // ✅ CREATE GAMEPLAY BACKGROUND
+  createGameplayBackground(this);
+  
+  // ✅ START DEFAULT MUSIC
+  playSelectedMusic(this);
+  
+  // ✅ SHOW GAME ELEMENTS
+  this.cameras.main.setZoom(baseCamZoom);
+  this.cameras.main.startFollow(player, true, 0.08, 0.08);
+  
   player.setVisible(true);
   pauseButton.setVisible(true);
   speedText.setVisible(true);
@@ -1356,8 +1362,10 @@ function startGame() {
   finishLine.setVisible(true);
   spawnPoint.setVisible(true);
   titleText?.setVisible(false);
-
+  
+  // ✅ RESET PLAYER POSITION
   player.setPosition(spawnPoint.x, spawnPoint.y);
+  player.body.setVelocity(0, 0);
 }
 
 
@@ -2415,6 +2423,24 @@ function openBackgroundMenu(scene) {
 }
 
 
+
+function playSelectedMusic(scene) {
+  if (currentMusic) {
+    currentMusic.stop();
+    currentMusic.destroy();
+  }
+  
+  const musicName = MUSIC_MAP[selectedMusicKey] || 'Adventure';
+  currentMusic = scene.sound.add(musicName, { 
+    loop: true, 
+    volume: 0.3 
+  });
+  
+  if (currentMusic) {
+    currentMusic.play();
+    console.log(`♪ Playing: ${musicName}`);
+  }
+}
 
 
 
