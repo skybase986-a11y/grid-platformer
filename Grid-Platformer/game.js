@@ -507,6 +507,30 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
     fontSize: '128px', fill: '#ffffff', fontFamily: 'Arial'
   }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
 
+
+
+    // ✅ LEVEL OPTIONS MENU (was missing!)
+levelOptionsOverlay = this.add.rectangle(config.width / 2, config.height / 2, config.width * 0.8, config.height * 0.8, 0x000000, 0.9)
+  .setScrollFactor(0).setDepth(2000).setVisible(false);
+  
+levelOptionsText = this.add.text(config.width / 2, config.height * 0.3, 'LEVEL OPTIONS', {
+  fontSize: '96px', fill: '#ffffff', fontFamily: 'Arial'
+}).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
+
+// Level options buttons
+const btnY = config.height * 0.5;
+selectMusicButton = makeMenuButton(this, config.width * 0.3, btnY, 'MUSIC', () => openSelectMusicMenu.call(this));
+selectBackgroundButton = makeMenuButton(this, config.width * 0.7, btnY, 'BACKGROUND', () => openBackgroundMenu.call(this));
+backFromLevelOptionsButton = makeMenuButton(this, config.width / 2, btnY + 150, 'BACK', () => closeLevelOptions.call(this));
+
+selectMusicButton.setVisible(false);
+selectBackgroundButton.setVisible(false);
+backFromLevelOptionsButton.setVisible(false);
+
+
+
+    
+
   // Win UI
   winText = this.add.text(config.width / 2, config.height / 2 - 60, "YOU WIN!", { fontSize: "96px", fill: "#05fde9ff" })
     .setOrigin(0.5).setScrollFactor(0).setVisible(false);
@@ -2446,5 +2470,33 @@ function playSelectedMusic(scene) {
 
 
 
+
+function openLevelOptions() {
+  levelOptionsOverlay?.setVisible(true);
+  levelOptionsText?.setVisible(true);
+  selectMusicButton?.setVisible(true);
+  selectBackgroundButton?.setVisible(true);
+  backFromLevelOptionsButton?.setVisible(true);
+}
+
+function closeLevelOptions() {
+  levelOptionsOverlay?.setVisible(false);
+  levelOptionsText?.setVisible(false);
+  selectMusicButton?.setVisible(false);
+  selectBackgroundButton?.setVisible(false);
+  backFromLevelOptionsButton?.setVisible(false);
+}
+
+function openSelectMusicMenu() {
+  selectMusicOverlay?.setVisible(true);
+  musicTitleText?.setVisible(true);
+  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+  selectMusicBackButton?.setVisible(true);
+}
+
+function openBackgroundMenu() {
+  // Add background selection UI here if needed
+  showInstruction(this, 'Background menu coming soon!', 2000);
+}
 
 
