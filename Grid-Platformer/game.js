@@ -499,6 +499,9 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
   returnToMenuButton = makeMenuButton(this, config.width / 2, config.height / 2 + 100, 'RETURN TO MAINMENU (WILL KICK YOU OUT OF GAME)', () => window.location.reload());
   levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'LEVEL OPTIONS', () => openLevelOptions.call(this));
   helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'HELP', () => openHelpMenu.call(this));
+levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'LEVEL OPTIONS', () => {
+  openLevelOptions.call(this);  // ✅ Pass 'this' (scene)
+});
 
   // Pause overlay
   pauseOverlay = this.add.rectangle(config.width / 2, config.height / 2, config.width * 2, config.height * 2, 0x000000, 0.55)
@@ -506,6 +509,7 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
   pauseText = this.add.text(config.width / 2, config.height * 0.25, 'Press pause again to return from any menu', {
     fontSize: '128px', fill: '#ffffff', fontFamily: 'Arial'
   }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
+    
 
   // Win UI
   winText = this.add.text(config.width / 2, config.height / 2 - 60, "YOU WIN!", { fontSize: "96px", fill: "#05fde9ff" })
@@ -2471,6 +2475,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
