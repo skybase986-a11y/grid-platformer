@@ -628,7 +628,9 @@ function window.loadLevel(compressedData, scene) {
     scene.windowsGroup.refresh();
 
     console.log('SUCCESS: Level loaded!');
-    showInstruction(scene, `${levelData.b?.length || 0} BLOCKS READY`, 3000);
+const blockCount = levelData.b ? levelData.b.length : 0;
+showInstruction(scene, `${blockCount} BLOCKS READY`, 3000);
+
 
   } catch (error) {
     console.error('LOAD ERROR:', error);
@@ -2453,6 +2455,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
