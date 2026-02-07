@@ -534,62 +534,50 @@ levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 
   // Block color menu
   createBlockColorMenu(this);
 
-window.loadLevel = function(compressedData, scene = window.myGameScene) {
-  console.log("🔄 Loading level...");
-  
+function window.loadLevel(compressedData, scene) {
+  console.log('Loading level...');
   try {
-    if (typeof LZString === 'undefined') throw new Error("LZString missing");
-    
+    if (typeof LZString === 'undefined') throw new Error('LZString missing');
     const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
     const levelData = JSON.parse(jsonString);
-    console.log("📦 Loaded data:", levelData);
-    
-    // ✅ DESTROY + RECREATE ALL GROUPS
-    ['blocksGroup', 'spikesGroup', 'windowsGroup', 'noBoostBlocksGroup'].forEach(groupName => {
-      if (scene[groupName]) {
-        scene[groupName].clear(true, true);
-        scene[groupName].destroy(true);
-      }
-      scene[groupName] = scene.physics.add.staticGroup();
-    });
-    
-    // ✅ DESTROY OLD START/FINISH
+    console.log('Loaded data:', levelData);
+
+    // 1. CLEAR old objects (don't recreate groups!)
+    scene.blocksGroup.clear(true, true);
+    scene.spikesGroup.clear(true, true);
+    scene.windowsGroup.clear(true, true);
+    scene.noBoostBlocksGroup.clear(true, true);
     if (scene.spawnPoint) scene.spawnPoint.destroy();
     if (scene.finishLine) scene.finishLine.destroy();
-    
-    // ✅ LOAD BLOCKS
+
+    // 2. LOAD BLOCKS (EXACTLY like placeObject)
     if (levelData.b && Array.isArray(levelData.b)) {
       levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
         scene.blocksGroup.create(x, y, 'pixel')
           .setOrigin(0, 0)
           .setDisplaySize(w, h)
           .setTint(tint)
-          .refreshBody();
-        console.log(`🧱 Block: ${x},${y}`);
+          .refreshBody();  // ← EDITOR-STYLE
       });
+      console.log(`Loaded ${levelData.b.length} blocks`);
     }
-    
-    // ✅ LOAD SPIKES
+
+    // 3. LOAD SPIKES (EXACTLY like placeObject)
     if (levelData.s && Array.isArray(levelData.s)) {
       levelData.s.forEach(([x, y, w, h]) => {
-        scene.spikesGroup.create(x, y, 'spike')
+        const spike = scene.spikesGroup.create(x, y, 'spike')
           .setOrigin(0, 0)
           .setDisplaySize(w, h)
           .refreshBody();
+        // Custom hitbox like your editor
+        const hitboxWidth = w * 0.2;
+        const hitboxHeight = h * 0.55;
+        spike.body.setSize(hitboxWidth, hitboxHeight);
+        spike.body.setOffset((w - hitboxWidth) / 2, h - hitboxHeight);
       });
     }
-    
-    // ✅ LOAD WINDOWS
-    if (levelData.w && Array.isArray(levelData.w)) {
-      levelData.w.forEach(([x, y, w, h]) => {
-        scene.windowsGroup.create(x, y, 'window')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
-      });
-    }
-    
-    // ✅ LOAD NO-BOOST BLOCKS
+
+    // 4. LOAD NO-BOOST BLOCKS
     if (levelData.nb && Array.isArray(levelData.nb)) {
       levelData.nb.forEach(([x, y, w, h]) => {
         scene.noBoostBlocksGroup.create(x, y, 'pixel')
@@ -599,65 +587,55 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
           .refreshBody();
       });
     }
-    
-    // ✅ LOAD START POINT
+
+    // 5. LOAD WINDOWS
+    if (levelData.w && Array.isArray(levelData.w)) {
+      levelData.w.forEach(([x, y, w, h]) => {
+        scene.windowsGroup.create(x, y, 'window')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .refreshBody();
+      });
+    }
+
+    // 6. SPAWN START/FINISH (visual only)
     if (levelData.st) {
       const [x, y, w, h] = levelData.st;
       scene.spawnPoint = scene.add.sprite(x, y, 'start')
         .setOrigin(0, 0)
         .setDisplaySize(w, h)
         .setDepth(10);
-      console.log(`🚀 Start: ${x},${y}`);
     }
-    
-    // ✅ LOAD FINISH LINE
     if (levelData.f) {
       const [x, y, w, h] = levelData.f;
       scene.finishLine = scene.add.sprite(x, y, 'finish')
         .setOrigin(0, 0)
         .setDisplaySize(w, h)
         .setDepth(10);
-      console.log(`🏁 Finish: ${x},${y}`);
     }
-    
-    // ✅ UPDATE GLOBAL VARIABLES (your code uses these)
-    blocksGroup = scene.blocksGroup;
-    spikesGroup = scene.spikesGroup;
-    windowsGroup = scene.windowsGroup;
-    noBoostBlocksGroup = scene.noBoostBlocksGroup;
-    spawnPoint = scene.spawnPoint;
-    finishLine = scene.finishLine;
-    
-    // ✅ ADD COLLISIONS (only if player exists)
+
+    // 7. NO COLLIDER RECREATION NEEDED — use create()'s originals!
+    // Just reset player + refresh groups (like toggleEditorMode)
     if (scene.player) {
       scene.player.body.setVelocity(0, 0);
-      scene.player.setPosition(spawnPoint.x + 10, spawnPoint.y - 50);
-      
-      // Clear old colliders
-      scene.physics.collide = false;
-      scene.time.delayedCall(50, () => {
-        scene.physics.add.collider(scene.player, blocksGroup);
-        scene.physics.add.collider(scene.player, noBoostBlocksGroup);
-        scene.physics.add.overlap(scene.player, spikesGroup, () => killPlayer(scene));
-        scene.physics.add.overlap(scene.player, windowsGroup, () => scene.player.canOpenWindow = true);
-        scene.physics.collide = true;
-      });
+      scene.player.setPosition(scene.spawnPoint.x + 10, scene.spawnPoint.y - 50);
     }
-    
-    // ✅ FINAL PHYSICS REFRESH
-    blocksGroup.refresh();
-    spikesGroup.refresh();
-    windowsGroup.refresh();
-    noBoostBlocksGroup.refresh();
-    
-    console.log(`✅ SUCCESS: ${levelData.b?.length || 0} blocks loaded`);
-    showInstruction(scene, `✅ ${levelData.b?.length || 0} BLOCKS + COLLISION READY`, 3000);
-    
+
+    // 8. EDITOR-STYLE REFRESH (makes colliders see new bodies)
+    scene.blocksGroup.refresh();
+    scene.spikesGroup.refresh();
+    scene.noBoostBlocksGroup.refresh();
+    scene.windowsGroup.refresh();
+
+    console.log('SUCCESS: Level loaded!');
+    showInstruction(scene, `${levelData.b?.length || 0} BLOCKS READY`, 3000);
+
   } catch (error) {
-    console.error("💥 LOAD ERROR:", error);
-    showInstruction(scene, "❌ LOAD FAILED - Check console", 4000);
+    console.error('LOAD ERROR:', error);
+    showInstruction(scene, 'LOAD FAILED - Check console', 4000);
   }
-};
+}
+
 
 
     // ✅ BACKGROUND SELECTION
@@ -2475,6 +2453,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
