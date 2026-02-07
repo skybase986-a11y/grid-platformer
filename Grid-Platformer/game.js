@@ -278,6 +278,116 @@ function showInstruction(scene, message, duration = 3000) {
 }
 
 
+
+function window.loadLevel(compressedData, scene) {
+  console.log('Loading level...');
+  try {
+    if (typeof LZString === 'undefined') throw new Error('LZString missing');
+    const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+    const levelData = JSON.parse(jsonString);
+    console.log('Loaded data:', levelData);
+
+    // 1. CLEAR old objects (don't recreate groups!)
+    scene.blocksGroup.clear(true, true);
+    scene.spikesGroup.clear(true, true);
+    scene.windowsGroup.clear(true, true);
+    scene.noBoostBlocksGroup.clear(true, true);
+    if (scene.spawnPoint) scene.spawnPoint.destroy();
+    if (scene.finishLine) scene.finishLine.destroy();
+
+    // 2. LOAD BLOCKS (EXACTLY like placeObject)
+    if (levelData.b && Array.isArray(levelData.b)) {
+      levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
+        scene.blocksGroup.create(x, y, 'pixel')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .setTint(tint)
+          .refreshBody();  // ← EDITOR-STYLE
+      });
+      console.log(`Loaded ${levelData.b.length} blocks`);
+    }
+
+    // 3. LOAD SPIKES (EXACTLY like placeObject)
+    if (levelData.s && Array.isArray(levelData.s)) {
+      levelData.s.forEach(([x, y, w, h]) => {
+        const spike = scene.spikesGroup.create(x, y, 'spike')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .refreshBody();
+        // Custom hitbox like your editor
+        const hitboxWidth = w * 0.2;
+        const hitboxHeight = h * 0.55;
+        spike.body.setSize(hitboxWidth, hitboxHeight);
+        spike.body.setOffset((w - hitboxWidth) / 2, h - hitboxHeight);
+      });
+    }
+
+    // 4. LOAD NO-BOOST BLOCKS
+    if (levelData.nb && Array.isArray(levelData.nb)) {
+      levelData.nb.forEach(([x, y, w, h]) => {
+        scene.noBoostBlocksGroup.create(x, y, 'pixel')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .setTint(0x0000ff)
+          .refreshBody();
+      });
+    }
+
+    // 5. LOAD WINDOWS
+    if (levelData.w && Array.isArray(levelData.w)) {
+      levelData.w.forEach(([x, y, w, h]) => {
+        scene.windowsGroup.create(x, y, 'window')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .refreshBody();
+      });
+    }
+
+    // 6. SPAWN START/FINISH (visual only)
+    if (levelData.st) {
+      const [x, y, w, h] = levelData.st;
+      scene.spawnPoint = scene.add.sprite(x, y, 'start')
+        .setOrigin(0, 0)
+        .setDisplaySize(w, h)
+        .setDepth(10);
+    }
+    if (levelData.f) {
+      const [x, y, w, h] = levelData.f;
+      scene.finishLine = scene.add.sprite(x, y, 'finish')
+        .setOrigin(0, 0)
+        .setDisplaySize(w, h)
+        .setDepth(10);
+    }
+
+    // 7. NO COLLIDER RECREATION NEEDED — use create()'s originals!
+    // Just reset player + refresh groups (like toggleEditorMode)
+    if (scene.player) {
+      scene.player.body.setVelocity(0, 0);
+      scene.player.setPosition(scene.spawnPoint.x + 10, scene.spawnPoint.y - 50);
+    }
+
+    // 8. EDITOR-STYLE REFRESH (makes colliders see new bodies)
+    scene.blocksGroup.refresh();
+    scene.spikesGroup.refresh();
+    scene.noBoostBlocksGroup.refresh();
+    scene.windowsGroup.refresh();
+
+    console.log('SUCCESS: Level loaded!');
+const blockCount = levelData.b ? levelData.b.length : 0;
+showInstruction(scene, `${blockCount} BLOCKS READY`, 3000);
+
+
+  } catch (error) {
+    console.error('LOAD ERROR:', error);
+    showInstruction(scene, 'LOAD FAILED - Check console', 4000);
+  }
+}
+
+
+
+
+
+
 const MENU_BUTTON_STYLE = {
   fontSize: '64px',          // same size as PAUSED text
   fontFamily: 'Arial',
@@ -534,109 +644,7 @@ levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 
   // Block color menu
   createBlockColorMenu(this);
 
-function window.loadLevel(compressedData, scene) {
-  console.log('Loading level...');
-  try {
-    if (typeof LZString === 'undefined') throw new Error('LZString missing');
-    const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
-    const levelData = JSON.parse(jsonString);
-    console.log('Loaded data:', levelData);
 
-    // 1. CLEAR old objects (don't recreate groups!)
-    scene.blocksGroup.clear(true, true);
-    scene.spikesGroup.clear(true, true);
-    scene.windowsGroup.clear(true, true);
-    scene.noBoostBlocksGroup.clear(true, true);
-    if (scene.spawnPoint) scene.spawnPoint.destroy();
-    if (scene.finishLine) scene.finishLine.destroy();
-
-    // 2. LOAD BLOCKS (EXACTLY like placeObject)
-    if (levelData.b && Array.isArray(levelData.b)) {
-      levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
-        scene.blocksGroup.create(x, y, 'pixel')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .setTint(tint)
-          .refreshBody();  // ← EDITOR-STYLE
-      });
-      console.log(`Loaded ${levelData.b.length} blocks`);
-    }
-
-    // 3. LOAD SPIKES (EXACTLY like placeObject)
-    if (levelData.s && Array.isArray(levelData.s)) {
-      levelData.s.forEach(([x, y, w, h]) => {
-        const spike = scene.spikesGroup.create(x, y, 'spike')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
-        // Custom hitbox like your editor
-        const hitboxWidth = w * 0.2;
-        const hitboxHeight = h * 0.55;
-        spike.body.setSize(hitboxWidth, hitboxHeight);
-        spike.body.setOffset((w - hitboxWidth) / 2, h - hitboxHeight);
-      });
-    }
-
-    // 4. LOAD NO-BOOST BLOCKS
-    if (levelData.nb && Array.isArray(levelData.nb)) {
-      levelData.nb.forEach(([x, y, w, h]) => {
-        scene.noBoostBlocksGroup.create(x, y, 'pixel')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .setTint(0x0000ff)
-          .refreshBody();
-      });
-    }
-
-    // 5. LOAD WINDOWS
-    if (levelData.w && Array.isArray(levelData.w)) {
-      levelData.w.forEach(([x, y, w, h]) => {
-        scene.windowsGroup.create(x, y, 'window')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
-      });
-    }
-
-    // 6. SPAWN START/FINISH (visual only)
-    if (levelData.st) {
-      const [x, y, w, h] = levelData.st;
-      scene.spawnPoint = scene.add.sprite(x, y, 'start')
-        .setOrigin(0, 0)
-        .setDisplaySize(w, h)
-        .setDepth(10);
-    }
-    if (levelData.f) {
-      const [x, y, w, h] = levelData.f;
-      scene.finishLine = scene.add.sprite(x, y, 'finish')
-        .setOrigin(0, 0)
-        .setDisplaySize(w, h)
-        .setDepth(10);
-    }
-
-    // 7. NO COLLIDER RECREATION NEEDED — use create()'s originals!
-    // Just reset player + refresh groups (like toggleEditorMode)
-    if (scene.player) {
-      scene.player.body.setVelocity(0, 0);
-      scene.player.setPosition(scene.spawnPoint.x + 10, scene.spawnPoint.y - 50);
-    }
-
-    // 8. EDITOR-STYLE REFRESH (makes colliders see new bodies)
-    scene.blocksGroup.refresh();
-    scene.spikesGroup.refresh();
-    scene.noBoostBlocksGroup.refresh();
-    scene.windowsGroup.refresh();
-
-    console.log('SUCCESS: Level loaded!');
-const blockCount = levelData.b ? levelData.b.length : 0;
-showInstruction(scene, `${blockCount} BLOCKS READY`, 3000);
-
-
-  } catch (error) {
-    console.error('LOAD ERROR:', error);
-    showInstruction(scene, 'LOAD FAILED - Check console', 4000);
-  }
-}
 
 
 
@@ -2455,6 +2463,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
