@@ -450,11 +450,17 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
     .setInteractive({ useHandCursor: true }).setVisible(false);
   pauseButton.on('pointerup', () => togglePause.call(this));
 
- // === PHYSICS COLLISIONS ===
-  this.physics.add.collider(player, blocksGroup);
-  this.physics.add.collider(player, noBoostBlocksGroup);
-  this.physics.add.overlap(player, spikesGroup, () => killPlayer(this));
-  this.physics.add.overlap(player, windowsGroup, () => player.canOpenWindow = true);
+// === PHYSICS COLLISIONS ===
+this.physics.add.collider(player, blocksGroup);
+this.physics.add.collider(player, noBoostBlocksGroup);
+this.physics.add.collider(player, spikesGroup);  // ← NEW: solid collision
+this.physics.add.overlap(player, spikesGroup, () => killPlayer(this));     // Keep overlap for death
+this.physics.add.overlap(player, windowsGroup, () => player.canOpenWindow = true);
+
+// Refresh to ensure loaded objects have collision bodies
+blocksGroup.refresh();
+spikesGroup.refresh();
+
 
   // Example window
   windowsGroup.create(600, 500, 'window').setOrigin(0, 0).setDisplaySize(gridSize, gridSize).refreshBody();
@@ -2475,6 +2481,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
