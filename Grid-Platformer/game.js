@@ -646,12 +646,15 @@ windowsGroup.refresh();
 noBoostBlocksGroup.refresh();
 
 // ✅ ADD COLLISIONS (only if player exists)
-if (scene.player) {
-  scene.physics.add.collider(scene.player, blocksGroup);
-  scene.physics.add.collider(scene.player, spikesGroup);
-  scene.physics.add.overlap(scene.player, spikesGroup, () => killPlayer(scene));
-  scene.physics.add.overlap(scene.player, windowsGroup, () => scene.player.canOpenWindow = true);
+// Use global player variable (matches your code structure)
+if (player) {
+  scene.physics.add.collider(player, blocksGroup);
+  scene.physics.add.collider(player, spikesGroup); 
+  scene.physics.add.collider(player, noBoostBlocksGroup);
+  scene.physics.add.overlap(player, spikesGroup, () => killPlayer(scene));
+  scene.physics.add.overlap(player, windowsGroup, () => player.canOpenWindow = true);
 }
+
 
     
     console.log(`✅ SUCCESS: ${levelData.b?.length || 0} blocks loaded`);
@@ -2479,6 +2482,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
