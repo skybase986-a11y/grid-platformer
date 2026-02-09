@@ -212,7 +212,7 @@ function preload() {
     loadingText.destroy();
   });
 
-
+    
   this.load.audio('death1', 'assets/death1.mp3');
   this.load.image('spike', 'assets/images/spike.png');
   this.load.image('finish', 'assets/images/FinishLine.png');
@@ -375,7 +375,7 @@ function create() {
 
 
 
-
+    
   window.myGameScene = this;
 spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
@@ -394,7 +394,7 @@ loadKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
 
 
 
-
+  
   // === DIMENSIONS & CAMERAS (FIXED) ===
   width = this.scale.width;
   height = this.scale.height;
@@ -433,7 +433,7 @@ player.boostOutline = this.add.rectangle(player.x, player.y, player.displayWidth
 player.body.setDragX(100);  // Low drag in air for smooth control (adjust 50-200 as needed)
 player.body.setDragY(0);    // No vertical drag (gravity handles Y)
 
-
+    
   // === SPAWN POINTS ===
   spawnPoint = this.add.sprite(100, 500, 'start').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
   finishLine = this.add.sprite(1400, 500, 'finish').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
@@ -509,7 +509,7 @@ levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 
   pauseText = this.add.text(config.width / 2, config.height * 0.25, 'Press pause again to return from any menu', {
     fontSize: '128px', fill: '#ffffff', fontFamily: 'Arial'
   }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
-
+    
 
   // Win UI
   winText = this.add.text(config.width / 2, config.height / 2 - 60, "YOU WIN!", { fontSize: "96px", fill: "#05fde9ff" })
@@ -534,50 +534,62 @@ levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 
   // Block color menu
   createBlockColorMenu(this);
 
-function window.loadLevel(compressedData, scene) {
-  console.log('Loading level...');
+window.loadLevel = function(compressedData, scene = window.myGameScene) {
+  console.log("🔄 Loading level...");
+  
   try {
-    if (typeof LZString === 'undefined') throw new Error('LZString missing');
+    if (typeof LZString === 'undefined') throw new Error("LZString missing");
+    
     const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
     const levelData = JSON.parse(jsonString);
-    console.log('Loaded data:', levelData);
-
-    // 1. CLEAR old objects (don't recreate groups!)
-    scene.blocksGroup.clear(true, true);
-    scene.spikesGroup.clear(true, true);
-    scene.windowsGroup.clear(true, true);
-    scene.noBoostBlocksGroup.clear(true, true);
+    console.log("📦 Loaded data:", levelData);
+    
+    // ✅ DESTROY + RECREATE ALL GROUPS
+    ['blocksGroup', 'spikesGroup', 'windowsGroup', 'noBoostBlocksGroup'].forEach(groupName => {
+      if (scene[groupName]) {
+        scene[groupName].clear(true, true);
+        scene[groupName].destroy(true);
+      }
+      scene[groupName] = scene.physics.add.staticGroup();
+    });
+    
+    // ✅ DESTROY OLD START/FINISH
     if (scene.spawnPoint) scene.spawnPoint.destroy();
     if (scene.finishLine) scene.finishLine.destroy();
-
-    // 2. LOAD BLOCKS (EXACTLY like placeObject)
+    
+    // ✅ LOAD BLOCKS
     if (levelData.b && Array.isArray(levelData.b)) {
       levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
         scene.blocksGroup.create(x, y, 'pixel')
           .setOrigin(0, 0)
           .setDisplaySize(w, h)
           .setTint(tint)
-          .refreshBody();  // ← EDITOR-STYLE
+          .refreshBody();
+        console.log(`🧱 Block: ${x},${y}`);
       });
-      console.log(`Loaded ${levelData.b.length} blocks`);
     }
-
-    // 3. LOAD SPIKES (EXACTLY like placeObject)
+    
+    // ✅ LOAD SPIKES
     if (levelData.s && Array.isArray(levelData.s)) {
       levelData.s.forEach(([x, y, w, h]) => {
-        const spike = scene.spikesGroup.create(x, y, 'spike')
+        scene.spikesGroup.create(x, y, 'spike')
           .setOrigin(0, 0)
           .setDisplaySize(w, h)
           .refreshBody();
-        // Custom hitbox like your editor
-        const hitboxWidth = w * 0.2;
-        const hitboxHeight = h * 0.55;
-        spike.body.setSize(hitboxWidth, hitboxHeight);
-        spike.body.setOffset((w - hitboxWidth) / 2, h - hitboxHeight);
       });
     }
-
-    // 4. LOAD NO-BOOST BLOCKS
+    
+    // ✅ LOAD WINDOWS
+    if (levelData.w && Array.isArray(levelData.w)) {
+      levelData.w.forEach(([x, y, w, h]) => {
+        scene.windowsGroup.create(x, y, 'window')
+          .setOrigin(0, 0)
+          .setDisplaySize(w, h)
+          .refreshBody();
+      });
+    }
+    
+    // ✅ LOAD NO-BOOST BLOCKS
     if (levelData.nb && Array.isArray(levelData.nb)) {
       levelData.nb.forEach(([x, y, w, h]) => {
         scene.noBoostBlocksGroup.create(x, y, 'pixel')
@@ -587,58 +599,65 @@ function window.loadLevel(compressedData, scene) {
           .refreshBody();
       });
     }
-
-    // 5. LOAD WINDOWS
-    if (levelData.w && Array.isArray(levelData.w)) {
-      levelData.w.forEach(([x, y, w, h]) => {
-        scene.windowsGroup.create(x, y, 'window')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
-      });
-    }
-
-    // 6. SPAWN START/FINISH (visual only)
+    
+    // ✅ LOAD START POINT
     if (levelData.st) {
       const [x, y, w, h] = levelData.st;
       scene.spawnPoint = scene.add.sprite(x, y, 'start')
         .setOrigin(0, 0)
         .setDisplaySize(w, h)
         .setDepth(10);
+      console.log(`🚀 Start: ${x},${y}`);
     }
+    
+    // ✅ LOAD FINISH LINE
     if (levelData.f) {
       const [x, y, w, h] = levelData.f;
       scene.finishLine = scene.add.sprite(x, y, 'finish')
         .setOrigin(0, 0)
         .setDisplaySize(w, h)
         .setDepth(10);
+      console.log(`🏁 Finish: ${x},${y}`);
     }
-
-    // 7. NO COLLIDER RECREATION NEEDED — use create()'s originals!
-    // Just reset player + refresh groups (like toggleEditorMode)
+    
+    // ✅ UPDATE GLOBAL VARIABLES (your code uses these)
+    blocksGroup = scene.blocksGroup;
+    spikesGroup = scene.spikesGroup;
+    windowsGroup = scene.windowsGroup;
+    noBoostBlocksGroup = scene.noBoostBlocksGroup;
+    spawnPoint = scene.spawnPoint;
+    finishLine = scene.finishLine;
+    
+    // ✅ ADD COLLISIONS (only if player exists)
     if (scene.player) {
       scene.player.body.setVelocity(0, 0);
-      scene.player.setPosition(scene.spawnPoint.x + 10, scene.spawnPoint.y - 50);
+      scene.player.setPosition(spawnPoint.x + 10, spawnPoint.y - 50);
+      
+      // Clear old colliders
+      scene.physics.collide = false;
+      scene.time.delayedCall(50, () => {
+        scene.physics.add.collider(scene.player, blocksGroup);
+        scene.physics.add.collider(scene.player, noBoostBlocksGroup);
+        scene.physics.add.overlap(scene.player, spikesGroup, () => killPlayer(scene));
+        scene.physics.add.overlap(scene.player, windowsGroup, () => scene.player.canOpenWindow = true);
+        scene.physics.collide = true;
+      });
     }
-
-    // 8. EDITOR-STYLE REFRESH (makes colliders see new bodies)
-    scene.blocksGroup.refresh();
-    scene.spikesGroup.refresh();
-    scene.noBoostBlocksGroup.refresh();
-    scene.windowsGroup.refresh();
-
-    console.log('SUCCESS: Level loaded!');
-    showInstruction(scene, `${levelData.b?.length || 0} BLOCKS READY`, 3000);
-const blockCount = levelData.b ? levelData.b.length : 0;
-showInstruction(scene, `${blockCount} BLOCKS READY`, 3000);
-
-
+    
+    // ✅ FINAL PHYSICS REFRESH
+    blocksGroup.refresh();
+    spikesGroup.refresh();
+    windowsGroup.refresh();
+    noBoostBlocksGroup.refresh();
+    
+    console.log(`✅ SUCCESS: ${levelData.b?.length || 0} blocks loaded`);
+    showInstruction(scene, `✅ ${levelData.b?.length || 0} BLOCKS + COLLISION READY`, 3000);
+    
   } catch (error) {
-    console.error('LOAD ERROR:', error);
-    showInstruction(scene, 'LOAD FAILED - Check console', 4000);
+    console.error("💥 LOAD ERROR:", error);
+    showInstruction(scene, "❌ LOAD FAILED - Check console", 4000);
   }
-}
-
+};
 
 
     // ✅ BACKGROUND SELECTION
@@ -775,7 +794,7 @@ this.exportLevel = function() {
   if (typeof LZString === 'undefined') {
     throw new Error("LZString not loaded! Check your HTML script tag.");
   }
-
+  
   // Shortened keys and array format for compactness
   const levelData = {
     m: selectedMusicKey || 'X',  // music
@@ -787,11 +806,11 @@ this.exportLevel = function() {
     st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
     f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
   };
-
+  
   // Convert to JSON string, then compress
   const jsonString = JSON.stringify(levelData);
   const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
-
+  
   return compressed;
 };
 
@@ -1021,7 +1040,7 @@ function placeObject(x, y) {
 function update() {
   // UI positioning FIRST (always runs)\
   if (!pauseOverlay || !resumeButton || !pauseButton) return;
-
+  
 
 if (gameStarted) {
   if (Phaser.Input.Keyboard.JustDown(saveKey)) {
@@ -1230,26 +1249,26 @@ if (horizSpeed <= 340) {
     const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
     let accel = moveInput * BASE_ACCEL * AIR_ACCEL_MULTIPLIER;
     player.setAccelerationX(accel);
-
+    
     // Clamp to prevent exceeding 340
     player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -340, 340);
-
+    
     // Debug logging (remove after testing)
     console.log("Full Air Control - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1));
 } else if (horizSpeed <= 360) {
     // Partial control: drag for deceleration, no acceleration
     player.body.setDragX(150);  // Allow slowing down
     player.setAccelerationX(0);  // No speeding up
-
+    
     // No clamping here - let it decelerate naturally
-
+    
     // Debug logging (remove after testing)
     console.log("Decel Only - Velocity:", player.body.velocity.x.toFixed(1));
 } else {
     // Speed > 360: stick mode - no drag, no acceleration
     player.body.setDragX(0);
     player.setAccelerationX(0);
-
+    
     // Debug logging (remove after testing)
     console.log("Stuck Speed - Velocity:", player.body.velocity.x.toFixed(1));
 }
@@ -1320,23 +1339,23 @@ function createGameplayBackground(scene) {
 function startGame() {
   gameState = 'playing';
   gameStarted = true;
-
+  
   // ✅ DESTROY TITLE SCREEN BACKGROUND
   if (menuBg) {
     menuBg.destroy();
     menuBg = null;
   }
-
+  
   // ✅ CREATE GAMEPLAY BACKGROUND
   createGameplayBackground(this);
-
+  
   // ✅ START DEFAULT MUSIC
   playSelectedMusic(this);
-
+  
   // ✅ SHOW GAME ELEMENTS
   this.cameras.main.setZoom(baseCamZoom);
   this.cameras.main.startFollow(player, true, 0.08, 0.08);
-
+  
   player.setVisible(true);
   pauseButton.setVisible(true);
   speedText.setVisible(true);
@@ -1347,7 +1366,7 @@ function startGame() {
   finishLine.setVisible(true);
   spawnPoint.setVisible(true);
   titleText?.setVisible(false);
-
+  
   // ✅ RESET PLAYER POSITION
   player.setPosition(spawnPoint.x, spawnPoint.y);
   player.body.setVelocity(0, 0);
@@ -1944,13 +1963,13 @@ function openSelectBackgroundMenu() {
   // Background text buttons WITH PROPER VARIABLES
   const spacing = 300;
   const y = config.height / 2;
-
+  
   if (!backgroundButtons.A) {
     backgroundButtons.A = makeMenuButton(this, config.width / 2 - spacing, y, 'A', () => selectBackground('A'));
     backgroundButtons.B = makeMenuButton(this, config.width / 2, y, 'B', () => selectBackground('B'));
     backgroundButtons.C = makeMenuButton(this, config.width / 2 + spacing, y, 'C', () => selectBackground('C'));
   }
-
+  
   setVisibleObjects([backgroundButtons.A, backgroundButtons.B, backgroundButtons.C], true);
   selectBackground(selectedBackgroundKey);
 }
@@ -1987,14 +2006,14 @@ function closeSelectBackgroundMenu() {
 
 function selectBackground(key) {
   if (currentPauseMenu !== 'background') return;  // Guard stray clicks
-
+  
   selectedBackgroundKey = key;
-
+  
   // Highlight selected button
   Object.entries(backgroundButtons).forEach(([k, btn]) => {
     btn.setTint(k === key ? 0xffff00 : 0xffffff);
   });
-
+  
   // IMMEDIATELY APPLY BACKGROUND CHANGE
   if (currentBackground) {
     currentBackground.setTexture(BACKGROUND_MAP[key]);
@@ -2236,7 +2255,7 @@ function forceBackButtonsHidden() {
 // ðŸ”¥ SAVE LEVEL TO CLIPBOARD (S key)
 function saveLevelToClipboard(scene) {
   const compressedData = scene.exportLevel();  // Use the compressed exportLevel()
-
+  
   navigator.clipboard.writeText(compressedData).then(() => {
     showInstruction(scene, "LEVEL SAVED TO CLIPBOARD! (Press L to load)", 2000);
   }).catch(err => {
@@ -2251,16 +2270,16 @@ function saveLevelToClipboard(scene) {
 
 function openLevelOptions() {  // â† NO (scene) PARAMETER
   const scene = window.myGameScene;  // â† GET SCENE FROM GLOBAL
-
+  
   // Hide other menus
   if (pauseOverlay) pauseOverlay.setVisible(true);
   if (pauseText) pauseText.setVisible(false);
-
+  
   // Hide main pause buttons  
   if (resumeButton) resumeButton.setVisible(false);
   if (returnToMenuButton) returnToMenuButton.setVisible(false);
   if (helpButton) helpButton.setVisible(false);
-
+  
   // Create level options UI if missing
   if (!levelOptionsOverlay) {
     levelOptionsOverlay = scene.add.rectangle(
@@ -2268,57 +2287,57 @@ function openLevelOptions() {  // â† NO (scene) PARAMETER
       config.width * 0.8, config.height * 0.6, 
       0x333333, 0.9
     ).setScrollFactor(0).setDepth(2003);
-
+    
     levelOptionsText = scene.add.text(
       config.width / 2, config.height / 2 - 100, 
       'LEVEL OPTIONS', 
       { fontSize: '96px', fill: '#ffffff' }
     ).setOrigin(0.5).setScrollFactor(0).setDepth(2004);
-
+    
     selectMusicButton = makeMenuButton(
       scene, config.width / 2, config.height / 2, 
       'MUSIC', () => openSelectMusicMenu()
     );
-
+    
     backFromLevelOptionsButton = makeMenuButton(
       scene, config.width / 2, config.height / 2 + 120, 
       'BACK', () => closeLevelOptions()
     );
   }
-
+  
   // Show everything
   levelOptionsOverlay.setVisible(true);
   levelOptionsText.setVisible(true);
   selectMusicButton.setVisible(true);
   backFromLevelOptionsButton.setVisible(true);
-
+  
   currentPauseMenu = 'levelOptions';
 }
 
 function closeLevelOptions() {  // â† NO PARAMETER
   const scene = window.myGameScene;
-
+  
   if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
   if (levelOptionsText) levelOptionsText.setVisible(false);
   if (selectMusicButton) selectMusicButton.setVisible(false);
   if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
-
+  
   // Restore main menu
   if (resumeButton) resumeButton.setVisible(true);
   if (returnToMenuButton) returnToMenuButton.setVisible(true);
   if (levelOptionsButton) levelOptionsButton.setVisible(true);
   if (helpButton) helpButton.setVisible(true);
-
+  
   currentPauseMenu = 'main';
 }
 
 function openSelectMusicMenu() {  // â† NO PARAMETER
   closeLevelOptions();
-
+  
   if (musicTitleText) musicTitleText.setVisible(true);
   Object.values(musicButtons).forEach(btn => btn.setVisible(true));
   if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
-
+  
   currentPauseMenu = 'selectMusic';
 }
 
@@ -2326,11 +2345,11 @@ function openSelectMusicMenu() {  // â† NO PARAMETER
 
 function openSelectMusicMenu(scene) {
   closeLevelOptions(scene);
-
+  
   if (musicTitleText) musicTitleText.setVisible(true);
   Object.values(musicButtons).forEach(btn => btn.setVisible(true));
   if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
-
+  
   currentPauseMenu = 'selectMusic';
 }
 
@@ -2414,13 +2433,13 @@ function playSelectedMusic(scene) {
     currentMusic.stop();
     currentMusic.destroy();
   }
-
+  
   const musicName = MUSIC_MAP[selectedMusicKey] || 'Adventure';
   currentMusic = scene.sound.add(musicName, { 
     loop: true, 
     volume: 0.3 
   });
-
+  
   if (currentMusic) {
     currentMusic.play();
     console.log(`♪ Playing: ${musicName}`);
@@ -2456,3 +2475,10 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
+
+
+
+
+
+
