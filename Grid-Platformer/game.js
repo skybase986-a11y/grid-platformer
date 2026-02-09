@@ -976,6 +976,16 @@ function toggleEditorMode() {
     player.body.setVelocity(0, 0);
     cam.startFollow(player, true, 0.08, 0.08);
     this.physics.world.debugGraphic.visible = true;
+      this.physics.add.collider(player, blocksGroup);
+this.physics.add.collider(player, noBoostBlocksGroup);
+this.physics.add.collider(player, spikesGroup);
+this.physics.add.overlap(player, spikesGroup, killPlayer, null, this);
+this.physics.add.overlap(player, windowsGroup, () => { player.canOpenWindow = true; }, null, this);
+blocksGroup.refresh();
+noBoostBlocksGroup.refresh();
+spikesGroup.refresh();
+windowsGroup.refresh();
+
   }
 
   if (isEditorMode && !firstTimeEditorInstructionsShown) {
@@ -2482,6 +2492,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
