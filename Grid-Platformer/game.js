@@ -539,11 +539,15 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
 
 
     // SET MUSIC 
-if (levelData.music && gameState === 'playing') {  // Only if in gameplay
-    if (this.currentMusic) this.currentMusic.stop();
+// SET MUSIC 
+if (levelData.music && gameState !== 'title' && player.body?.enabled === true) {
+    if (this.currentMusic) {
+        this.currentMusic.stop();
+    }
     this.currentMusic = this.sound.add(levelData.music);
     this.currentMusic.play({ loop: true });
 }
+
 
 
 
@@ -2516,6 +2520,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
