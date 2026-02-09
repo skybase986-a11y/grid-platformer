@@ -374,9 +374,9 @@ this.add.sprite(c.x, c.y, 'colon')
 function create() {
 
 this.input.on('contextmenu', (pointer, gameObjects) => {
-if (isEditorMode) {
-pointer.event.preventDefault();  // Blocks browser context menu
-}
+    if (isEditorMode) {
+        pointer.event.preventDefault();  // Blocks browser context menu
+    }
 });
 
 
@@ -538,16 +538,16 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
 console.log("🔄 Loading level...");
 
 
-// SET MUSIC 
+    // SET MUSIC 
 if (levelData.music && gameState === 'playing') {  // Only if in gameplay
-if (this.currentMusic) this.currentMusic.stop();
-this.currentMusic = this.sound.add(levelData.music);
-this.currentMusic.play({ loop: true });
+    if (this.currentMusic) this.currentMusic.stop();
+    this.currentMusic = this.sound.add(levelData.music);
+    this.currentMusic.play({ loop: true });
 }
 
 
 
-
+    
 
 try {
 if (typeof LZString === 'undefined') throw new Error("LZString missing");
@@ -701,13 +701,18 @@ if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
 if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
 }
 
+// ✅ MUSIC SELECTION
 function selectMusic(scene, key) {
-selectedMusicKey = key;
-if (gameState === 'playing') {  // Only play if in game
-playSelectedMusic(scene);
-}
-closeSelectMusicMenu(scene);
-showInstruction(scene, MUSICMAP[key], 1500);
+  selectedMusicKey = key;
+  playSelectedMusic(scene);
+  closeSelectMusicMenu(scene);
+  showInstruction(scene, `♪ ${MUSIC_MAP[key]}`, 1500);
+    selectedMusicKey = key;
+    if (gameState === 'playing') {  // Only play if in game
+        playSelectedMusic(scene);
+    }
+    closeSelectMusicMenu(scene);
+    showInstruction(scene, MUSICMAP[key], 1500);
 }
 
 
@@ -1135,21 +1140,11 @@ currentBackground.setPosition(bgX, bgY);
 
 
 
-
-// ENTER KEY HANDLING - FIXED
-if (Phaser.Input.Keyboard.JustDown(enterKey)) {
-    if (gameState === 'title') {
-        startGame.call(this);
-    } else if (!isEditorMode) {
-        toggleEditorMode.call(this);  // Only toggles editor from PLAYING mode
-    }
+// *** FIXED ENTER KEY - EDITOR TOGGLE ***
+if (gameState !== 'title' && Phaser.Input.Keyboard.JustDown(enterKey)) {
+toggleEditorMode.call(this);
+return;
 }
-// FIXED ENTER KEY - EDITOR TOGGLE 
-if (gameState !== 'title') 
-    Phaser.Input.Keyboard.JustDown(enterKey) 
-        toggleEditorMode.call(this)  // ← FIRES IMMEDIATELY AFTER startGame()
-
-
 // *** EDITOR TOGGLE END ***
 
 // Reset interaction each frame
@@ -2521,8 +2516,6 @@ function openBackgroundMenu() {
 // Add background selection UI here if needed
 showInstruction(this, 'Background menu coming soon!', 2000);
 }
-
-
 
 
 
