@@ -450,17 +450,6 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
     .setInteractive({ useHandCursor: true }).setVisible(false);
   pauseButton.on('pointerup', () => togglePause.call(this));
 
-// === PHYSICS COLLISIONS ===
-this.physics.add.collider(player, blocksGroup);
-this.physics.add.collider(player, noBoostBlocksGroup);
-this.physics.add.collider(player, spikesGroup);  // ← NEW: solid collision
-this.physics.add.overlap(player, spikesGroup, () => killPlayer(this));     // Keep overlap for death
-this.physics.add.overlap(player, windowsGroup, () => player.canOpenWindow = true);
-
-// Refresh to ensure loaded objects have collision bodies
-blocksGroup.refresh();
-spikesGroup.refresh();
-
 
   // Example window
   windowsGroup.create(600, 500, 'window').setOrigin(0, 0).setDisplaySize(gridSize, gridSize).refreshBody();
@@ -650,11 +639,20 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
       });
     }
     
-    // ✅ FINAL PHYSICS REFRESH
-    blocksGroup.refresh();
-    spikesGroup.refresh();
-    windowsGroup.refresh();
-    noBoostBlocksGroup.refresh();
+// ✅ FINAL PHYSICS REFRESH + ADD COLLISIONS
+blocksGroup.refresh();
+spikesGroup.refresh();
+windowsGroup.refresh();
+noBoostBlocksGroup.refresh();
+
+// ✅ ADD COLLISIONS (only if player exists)
+if (scene.player) {
+  scene.physics.add.collider(scene.player, blocksGroup);
+  scene.physics.add.collider(scene.player, spikesGroup);
+  scene.physics.add.overlap(scene.player, spikesGroup, () => killPlayer(scene));
+  scene.physics.add.overlap(scene.player, windowsGroup, () => scene.player.canOpenWindow = true);
+}
+
     
     console.log(`✅ SUCCESS: ${levelData.b?.length || 0} blocks loaded`);
     showInstruction(scene, `✅ ${levelData.b?.length || 0} BLOCKS + COLLISION READY`, 3000);
@@ -2481,6 +2479,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
