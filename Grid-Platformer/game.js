@@ -373,6 +373,11 @@ loadLeve = function(levelData) {
 
 function create() {
 
+this.input.on('contextmenu', (pointer, gameObjects) => {
+    if (isEditorMode) {
+        pointer.event.preventDefault();  // Blocks browser context menu
+    }
+});
 
 
     
@@ -531,6 +536,18 @@ levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 
 
 window.loadLevel = function(compressedData, scene = window.myGameScene) {
   console.log("🔄 Loading level...");
+
+
+    // SET MUSIC 
+if (levelData.music && gameState === 'playing') {  // Only if in gameplay
+    if (this.currentMusic) this.currentMusic.stop();
+    this.currentMusic = this.sound.add(levelData.music);
+    this.currentMusic.play({ loop: true });
+}
+
+
+
+    
   
   try {
     if (typeof LZString === 'undefined') throw new Error("LZString missing");
@@ -684,13 +701,15 @@ function closeLevelOptions(scene) {
   if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
 }
 
-// ✅ MUSIC SELECTION
 function selectMusic(scene, key) {
-  selectedMusicKey = key;
-  playSelectedMusic(scene);
-  closeSelectMusicMenu(scene);
-  showInstruction(scene, `♪ ${MUSIC_MAP[key]}`, 1500);
+    selectedMusicKey = key;
+    if (gameState === 'playing') {  // Only play if in game
+        playSelectedMusic(scene);
+    }
+    closeSelectMusicMenu(scene);
+    showInstruction(scene, MUSICMAP[key], 1500);
 }
+
 
 function openSelectMusicMenu(scene) {
   if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
@@ -2492,6 +2511,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
