@@ -1135,11 +1135,16 @@ if (currentBackground && player) {
 
 
 
-  // *** FIXED ENTER KEY - EDITOR TOGGLE ***
-  if (gameState !== 'title' && Phaser.Input.Keyboard.JustDown(enterKey)) {
-    toggleEditorMode.call(this);
-    return;
-  }
+
+// ENTER KEY HANDLING - FIXED
+if (Phaser.Input.Keyboard.JustDown(enterKey)) {
+    if (gameState === 'title') {
+        startGame.call(this);
+    } else if (!isEditorMode) {
+        toggleEditorMode.call(this);  // Only toggles editor from PLAYING mode
+    }
+}
+
   // *** EDITOR TOGGLE END ***
 
   // Reset interaction each frame
@@ -2511,6 +2516,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
