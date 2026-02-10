@@ -378,9 +378,12 @@ loadLeve = function(levelData) {
 function create() {
 
 this.input.on('contextmenu', (pointer, gameObjects) => {
-    if (isEditorMode) {
-        pointer.event.preventDefault();  // Blocks browser context menu
-    }
+    pointer.event.preventDefault();  // Always block browser context menu
+});
+
+    // Additional safeguard: Block context menu directly on the canvas
+this.game.canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
 });
 
 
@@ -2892,6 +2895,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
