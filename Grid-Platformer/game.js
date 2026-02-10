@@ -1894,6 +1894,10 @@ function destroyAllMenus() {
 
 
 function openSimpleLevelOptionsMenu(scene) {
+
+    togglePause.call(this));
+
+    
     // If already open, do nothing
     if (simpleOptionsOpen) return;
 
@@ -2895,6 +2899,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
