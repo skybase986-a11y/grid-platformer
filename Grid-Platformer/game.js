@@ -538,13 +538,12 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
 console.log("🔄 Loading level...");
 
 
-    // SET MUSIC 
+// SET MUSIC 
 if (levelData.music && gameState === 'playing') {  // Only if in gameplay
-    if (this.currentMusic) this.currentMusic.stop();
-    this.currentMusic = this.sound.add(levelData.music);
-    this.currentMusic.play({ loop: true });
+if (this.currentMusic) this.currentMusic.stop();
+this.currentMusic = this.sound.add(levelData.music);
+this.currentMusic.play({ loop: true });
 }
-
 
 
 
@@ -702,19 +701,17 @@ if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
 if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
 }
 
-// ✅ MUSIC SELECTION
 function selectMusic(scene, key) {
 selectedMusicKey = key;
-playSelectedMusic(scene);
+    if (gameState === 'playing') {  // Only play if in game
+        playSelectedMusic(scene);
+    }
+    // Don't play here - let playSelectedMusic handle it during actual gameplay
 closeSelectMusicMenu(scene);
-showInstruction(scene, `♪ ${MUSIC_MAP[key]}`, 1500);
-selectedMusicKey = key;
-if (gameState === 'playing') {  // Only play if in game
-playSelectedMusic(scene);
+    showInstruction(scene, MUSICMAP[key], 1500);
+    showInstruction(scene, MUSICMAP[key] + ' selected', 1500);
 }
-closeSelectMusicMenu(scene);
-showInstruction(scene, MUSICMAP[key], 1500);
-}
+
 
 
 function openSelectMusicMenu(scene) {
@@ -742,16 +739,29 @@ showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
 
 // ✅ MUSIC PLAYER
 function playSelectedMusic(scene) {
-if (currentMusic) {
-currentMusic.stop();
-currentMusic.destroy();
+  if (currentMusic) {
+    currentMusic.stop();
+    currentMusic.destroy();
+  }
+  const musicName = MUSIC_MAP[selectedMusicKey];
+  currentMusic = scene.sound.add(musicName);
+  if (currentMusic) {
+    currentMusic.play({ loop: true, volume: 0.3 });
+  }
+    // Only play if NOT in title screen AND player physics is active (gameplay)
+    if (gameState !== 'title' && player.body?.enabled === true) {
+        if (currentMusic) {
+            currentMusic.stop();
+            currentMusic.destroy();
+        }
+        const musicName = MUSICMAP[selectedMusicKey];
+        currentMusic = scene.sound.add(musicName);
+        if (currentMusic) {
+            currentMusic.play({ loop: true, volume: 0.3 });
+        }
+    }
 }
-const musicName = MUSIC_MAP[selectedMusicKey];
-currentMusic = scene.sound.add(musicName);
-if (currentMusic) {
-currentMusic.play({ loop: true, volume: 0.3 });
-}
-}
+
 
 
 
@@ -1141,11 +1151,13 @@ currentBackground.setPosition(bgX, bgY);
 
 
 
-// *** FIXED ENTER KEY - EDITOR TOGGLE ***
-if (gameState !== 'title' && Phaser.Input.Keyboard.JustDown(enterKey)) {
-toggleEditorMode.call(this);
-return;
-}
+
+// FIXED ENTER KEY - EDITOR TOGGLE 
+if (gameState !== 'title') 
+Phaser.Input.Keyboard.JustDown(enterKey) 
+toggleEditorMode.call(this)  // ← FIRES IMMEDIATELY AFTER startGame()
+
+
 // *** EDITOR TOGGLE END ***
 
 // Reset interaction each frame
@@ -2517,6 +2529,9 @@ function openBackgroundMenu() {
 // Add background selection UI here if needed
 showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
+
+
 
 
 
