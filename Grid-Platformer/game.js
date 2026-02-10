@@ -309,12 +309,6 @@ loadLeve = function(levelData) {
         this.cameras.main.setBackgroundColor(levelData.background);
     }
 
-    // --- SET MUSIC ---
-    if (levelData.music) {
-        if (this.currentMusic) this.currentMusic.stop();
-        this.currentMusic = this.sound.add(levelData.music);
-        this.currentMusic.play({ loop: true });
-    }
 
     // --- SPAWN BLOCKS ---
     if (levelData.blocks) {
@@ -2528,6 +2522,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
