@@ -374,9 +374,9 @@ this.add.sprite(c.x, c.y, 'colon')
 function create() {
 
 this.input.on('contextmenu', (pointer, gameObjects) => {
-    if (isEditorMode) {
-        pointer.event.preventDefault();  // Blocks browser context menu
-    }
+if (isEditorMode) {
+pointer.event.preventDefault();  // Blocks browser context menu
+}
 });
 
 
@@ -538,11 +538,17 @@ window.loadLevel = function(compressedData, scene = window.myGameScene) {
 console.log("🔄 Loading level...");
 
 
+    // SET MUSIC 
+if (levelData.music && gameState === 'playing') {  // Only if in gameplay
+    if (this.currentMusic) this.currentMusic.stop();
+    this.currentMusic = this.sound.add(levelData.music);
+    this.currentMusic.play({ loop: true });
+}
 
 
 
 
-    
+
 
 try {
 if (typeof LZString === 'undefined') throw new Error("LZString missing");
@@ -679,99 +685,14 @@ showInstruction(scene, "❌ LOAD FAILED - Check console", 4000);
 };
 
 
-
-
-
-
-function openSelectBackgroundMenu(scene) {
-    if (!selectBackgroundOverlay) {
-        selectBackgroundOverlay = scene.add.rectangle(0, 0, config.width * 2, config.height * 2, 0x000000, 0.7)
-            .setOrigin(0.5).setScrollFactor(0).setDepth(4000);
-        
-        backgroundTitleText = scene.add.text(config.width/2, config.height*0.25, 'CHOOSE BACKGROUND', 
-            {fontSize: '72px', fill: '#ffffff'}).setOrigin(0.5).setScrollFactor(0).setDepth(4001);
-        
-        // 3 Background buttons
-        backgroundButtons.A = scene.add.text(config.width/2 - 300, config.height/2, 'DARK', 
-            {fontSize: '64px', fill: '#ffffff', backgroundColor: '#333'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(4002).setInteractive();
-        backgroundButtons.A.on('pointerup', () => selectBackground(scene, 'A'));
-        
-        backgroundButtons.B = scene.add.text(config.width/2, config.height/2, 'FOREST', 
-            {fontSize: '64px', fill: '#ffffff', backgroundColor: '#333'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(4002).setInteractive();
-        backgroundButtons.B.on('pointerup', () => selectBackground(scene, 'B'));
-        
-        backgroundButtons.C = scene.add.text(config.width/2 + 300, config.height/2, 'RED', 
-            {fontSize: '64px', fill: '#ffffff', backgroundColor: '#333'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(4002).setInteractive();
-        backgroundButtons.C.on('pointerup', () => selectBackground(scene, 'C'));
-        
-        backgroundBackButton = scene.add.text(config.width/2, config.height/2 + 150, 'BACK', 
-            {fontSize: '64px', fill: '#ff4444', backgroundColor: '#000'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(4002).setInteractive();
-        backgroundBackButton.on('pointerup', () => {
-            selectBackgroundOverlay.setVisible(false);
-            backgroundTitleText.setVisible(false);
-            Object.values(backgroundButtons).forEach(btn => btn.setVisible(false));
-            backgroundBackButton.setVisible(false);
-            currentPauseMenu = 'levelOptions';
-        });
-    }
-    
-    // SHOW
-    selectBackgroundOverlay.setVisible(true);
-    backgroundTitleText.setVisible(true);
-    Object.values(backgroundButtons).forEach(btn => btn.setVisible(true));
-    backgroundBackButton.setVisible(true);
-}
-
-
-
-
-
-
-    
-
 // ✅ BACKGROUND SELECTION
 function openLevelOptions(scene) {
-    // Create overlay if it doesn't exist
-    if (!levelOptionsOverlay) {
-        levelOptionsOverlay = scene.add.rectangle(0, 0, config.width * 2, config.height * 2, 0x000000, 0.7)
-            .setOrigin(0.5).setScrollFactor(0).setDepth(3000);
-        
-        levelOptionsText = scene.add.text(config.width/2, config.height*0.25, 'LEVEL OPTIONS', 
-            {fontSize: '96px', fill: '#ffffff'}).setOrigin(0.5).setScrollFactor(0).setDepth(3001);
-        
-        // MUSIC BUTTON
-        selectMusicButton = scene.add.text(config.width/2 - 200, config.height/2 - 50, 'MUSIC', 
-            {fontSize: '64px', fill: '#4aa3ff', backgroundColor: '#000'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(3002).setInteractive();
-        selectMusicButton.on('pointerup', () => openSelectMusicMenu(scene));
-        
-        // BACKGROUND BUTTON
-        selectBackgroundButton = scene.add.text(config.width/2 + 200, config.height/2 - 50, 'BACKGROUND', 
-            {fontSize: '64px', fill: '#4aa3ff', backgroundColor: '#000'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(3002).setInteractive();
-        selectBackgroundButton.on('pointerup', () => openSelectBackgroundMenu(scene));
-        
-        // BACK BUTTON
-        backFromLevelOptionsButton = scene.add.text(config.width/2, config.height/2 + 100, 'BACK', 
-            {fontSize: '64px', fill: '#ff4444', backgroundColor: '#000'}).setOrigin(0.5)
-            .setPadding(20).setScrollFactor(0).setDepth(3002).setInteractive();
-        backFromLevelOptionsButton.on('pointerup', () => closeAllMenus(scene));
-    }
-    
-    // SHOW EVERYTHING
-    levelOptionsOverlay.setVisible(true);
-    levelOptionsText.setVisible(true);
-    selectMusicButton.setVisible(true);
-    selectBackgroundButton.setVisible(true);
-    backFromLevelOptionsButton.setVisible(true);
-    
-    currentPauseMenu = 'levelOptions';
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
+if (levelOptionsText) levelOptionsText.setVisible(true);
+if (selectMusicButton) selectMusicButton.setVisible(true);
+if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
 }
-
 
 function closeLevelOptions(scene) {
 if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
@@ -783,36 +704,25 @@ if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
 
 // ✅ MUSIC SELECTION
 function selectMusic(scene, key) {
-  selectedMusicKey = key;
-  playSelectedMusic(scene);
-  closeSelectMusicMenu(scene);
-  showInstruction(scene, `♪ ${MUSIC_MAP[key]}`, 1500);
-    selectedMusicKey = key;
-    if (gameState === 'playing') {  // Only play if in game
-        playSelectedMusic(scene);
-    }
-    closeSelectMusicMenu(scene);
-    showInstruction(scene, MUSICMAP[key], 1500);
+selectedMusicKey = key;
+playSelectedMusic(scene);
+closeSelectMusicMenu(scene);
+showInstruction(scene, `♪ ${MUSIC_MAP[key]}`, 1500);
+selectedMusicKey = key;
+if (gameState === 'playing') {  // Only play if in game
+playSelectedMusic(scene);
+}
+closeSelectMusicMenu(scene);
+showInstruction(scene, MUSICMAP[key], 1500);
 }
 
 
 function openSelectMusicMenu(scene) {
-    // Hide other menus first
-    if (selectBackgroundOverlay) selectBackgroundOverlay.setVisible(false);
-    
-    if (!selectMusicOverlay) {
-        selectMusicOverlay = scene.add.rectangle(0, 0, config.width * 2, config.height * 2, 0x000000, 0.7)
-            .setOrigin(0.5).setScrollFactor(0).setDepth(4000);
-    }
-    
-    selectMusicOverlay.setVisible(true);
-    musicTitleText.setVisible(true);
-    Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-    selectMusicBackButton.setVisible(true);
-    
-    currentPauseMenu = 'selectMusic';
+if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
+if (musicTitleText) musicTitleText.setVisible(true);
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
 }
-
 
 function closeSelectMusicMenu(scene) {
 if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
@@ -1692,17 +1602,31 @@ isWindowOpen = false;
 }
 
 
-function makeMenuButton(scene, x, y, text, callback) {
-    const button = scene.add.text(x, y, text, MENU_BUTTON_STYLE)
-        .setOrigin(0.5)
-        .setScrollFactor(0)
-        .setDepth(2001)
-        .setInteractive({ useHandCursor: true });
-    
-    // 🔧 FIXED: Arrow function preserves 'scene' context
-    button.on('pointerup', () => callback(scene));
-    
-    return button;
+function makeMenuButton(scene, x, y, label, onClick) {
+const btn = scene.add.text(
+x,
+y,
+label,
+MENU_BUTTON_STYLE
+)
+.setOrigin(0.5)
+.setScrollFactor(0)
+.setDepth(2001)
+.setInteractive({ useHandCursor: true });
+
+// hover effects
+btn.on('pointerover', () => {
+btn.setStyle({ fill: '#ffffff' }); // white on hover
+});
+
+btn.on('pointerout', () => {
+btn.setStyle({ fill: '#4aa3ff' }); // blue default
+});
+
+btn.on('pointerup', onClick);
+
+btn.setVisible(false);
+return btn;
 }
 
 
@@ -2594,35 +2518,6 @@ function openBackgroundMenu() {
 showInstruction(this, 'Background menu coming soon!', 2000);
 }
 
-
-
-
-
-
-
-
-function closeAllMenus(scene) {
-    // Hide everything
-    if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-    if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
-    if (selectBackgroundOverlay) selectBackgroundOverlay.setVisible(false);
-    
-    // Hide sub-elements too
-    if (levelOptionsText) levelOptionsText.setVisible(false);
-    if (musicTitleText) musicTitleText.setVisible(false);
-    if (backgroundTitleText) backgroundTitleText.setVisible(false);
-    
-    Object.values(musicButtons).forEach(btn => btn.setVisible(false));
-    Object.values(backgroundButtons).forEach(btn => btn.setVisible(false));
-    
-    selectMusicButton?.setVisible(false);
-    selectBackgroundButton?.setVisible(false);
-    backFromLevelOptionsButton?.setVisible(false);
-    backgroundBackButton?.setVisible(false);
-    selectMusicBackButton?.setVisible(false);
-    
-    currentPauseMenu = null;
-}
 
 
 
