@@ -544,7 +544,7 @@ levelOptionsButton = makeMenuButton(
 
 susdiddyTitleText = this.add.text(config.width / 2, config.height * 0.25, 'SELECT MUSIC', {
     fontSize: '128px', fill: '#000000', fontFamily: 'Arial'
-  }).setOrigin(0.5).setScrollFactor(0).setDepth(1800).setVisible(false);
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(2004).setVisible(false);
 
 
 
@@ -2909,6 +2909,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
