@@ -703,12 +703,14 @@ window.loadLevel = function (compressedData, scene) {
         showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);
 
         // ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA, BUT DO NOT AUTO‑PLAY -----
-        if (levelData.music) {
-            selectedMusicKey = levelData.music;      // e.g. "X" / "Y" / "Z"
-        }
-        if (levelData.background) {
-            selectedBackgroundKey = levelData.background;  // e.g. "A" / "B" / "C"
-        }
+ // Store level's music/background preferences
+if (levelData.m) {
+    selectedMusicKey = levelData.m;        // ✅ Reads "m" from JSON
+}
+if (levelData.bg) {
+    selectedBackgroundKey = levelData.bg;  // ✅ Reads "bg" from JSON
+}
+
         // Your existing startGame / playSelectedMusic will handle when to actually play music.
 
     } catch (error) {
@@ -2804,6 +2806,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
