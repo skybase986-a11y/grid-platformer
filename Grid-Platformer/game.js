@@ -534,154 +534,170 @@ levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 
   // Block color menu
   createBlockColorMenu(this);
 
-window.loadLevel = function(compressedData, scene = window.myGameScene) {
-  console.log("🔄 Loading level...");
+// Replace your existing window.loadLevel with this:
+window.loadLevel = function (compressedData, scene) {
+    // Remember scene globally for menus etc.
+    window.myGameScene = scene;
+    console.log("Loading level...");
 
+    let levelData = null;
 
-    // SET MUSIC 
-if (levelData.music && gameState === 'playing') {  // Only if in gameplay
-    if (this.currentMusic) this.currentMusic.stop();
-    this.currentMusic = this.sound.add(levelData.music);
-    this.currentMusic.play({ loop: true });
-}
+    try {
+        // Decompress + parse
+        if (typeof LZString === "undefined") {
+            throw new Error("LZString missing - check script tag");
+        }
 
+        const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+        levelData = JSON.parse(jsonString);
+        console.log("Loaded data:", levelData);
 
+        // ----- DESTROY + RECREATE GROUPS -----
+        const groupNames = ["blocksGroup", "spikesGroup", "windowsGroup", "noBoostBlocksGroup"];
 
-    
-  
-  try {
-    if (typeof LZString === 'undefined') throw new Error("LZString missing");
-    
-    const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
-    const levelData = JSON.parse(jsonString);
-    console.log("📦 Loaded data:", levelData);
-    
-    // ✅ DESTROY + RECREATE ALL GROUPS
-    ['blocksGroup', 'spikesGroup', 'windowsGroup', 'noBoostBlocksGroup'].forEach(groupName => {
-      if (scene[groupName]) {
-        scene[groupName].clear(true, true);
-        scene[groupName].destroy(true);
-      }
-      scene[groupName] = scene.physics.add.staticGroup();
-    });
-    
-    // ✅ DESTROY OLD START/FINISH
-    if (scene.spawnPoint) scene.spawnPoint.destroy();
-    if (scene.finishLine) scene.finishLine.destroy();
-    
-    // ✅ LOAD BLOCKS
-    if (levelData.b && Array.isArray(levelData.b)) {
-      levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
-        scene.blocksGroup.create(x, y, 'pixel')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .setTint(tint)
-          .refreshBody();
-        console.log(`🧱 Block: ${x},${y}`);
-      });
+        groupNames.forEach((name) => {
+            if (scene[name]) {
+                scene[name].clear(true, true);
+                scene[name].destroy(true);
+            }
+            scene[name] = scene.physics.add.staticGroup();
+        });
+
+        // ----- DESTROY OLD START / FINISH -----
+        if (scene.spawnPoint) {
+            scene.spawnPoint.destroy();
+            scene.spawnPoint = null;
+        }
+        if (scene.finishLine) {
+            scene.finishLine.destroy();
+            scene.finishLine = null;
+        }
+
+        const gridSize = 64; // matches your editor grid size[file:1]
+
+        // ----- LOAD BLOCKS (b) -----
+        if (Array.isArray(levelData.b)) {
+            levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
+                const block = scene.blocksGroup.create(x, y, "pixel")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h)
+                    .setTint(tint);
+                block.refreshBody();
+            });
+        }
+
+        // ----- LOAD SPIKES (s) -----
+        if (Array.isArray(levelData.s)) {
+            levelData.s.forEach(([x, y, w, h]) => {
+                const spike = scene.spikesGroup.create(x, y, "spike")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h);
+                spike.refreshBody();
+            });
+        }
+
+        // ----- LOAD WINDOWS (w) -----
+        if (Array.isArray(levelData.w)) {
+            levelData.w.forEach(([x, y, w, h]) => {
+                const win = scene.windowsGroup.create(x, y, "window")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h);
+                win.refreshBody();
+            });
+        }
+
+        // ----- LOAD NO‑BOOST BLOCKS (nb) -----
+        if (Array.isArray(levelData.nb)) {
+            levelData.nb.forEach(([x, y, w, h]) => {
+                const nb = scene.noBoostBlocksGroup.create(x, y, "pixel")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h)
+                    .setTint(0x0000ff);
+                nb.refreshBody();
+            });
+        }
+
+        // ----- LOAD START (st) -----
+        if (levelData.st) {
+            const [x, y, w, h] = levelData.st;
+            scene.spawnPoint = scene.add.sprite(x, y, "start")
+                .setOrigin(0, 0)
+                .setDisplaySize(w, h)
+                .setDepth(10);
+            console.log("Start", x, y);
+        }
+
+        // ----- LOAD FINISH (f) -----
+        if (levelData.f) {
+            const [x, y, w, h] = levelData.f;
+            scene.finishLine = scene.add.sprite(x, y, "finish")
+                .setOrigin(0, 0)
+                .setDisplaySize(w, h)
+                .setDepth(10);
+            console.log("Finish", x, y);
+        }
+
+        // ----- UPDATE GLOBALS SO REST OF CODE USES NEW GROUPS -----
+        blocksGroup = scene.blocksGroup;
+        spikesGroup = scene.spikesGroup;
+        windowsGroup = scene.windowsGroup;
+        noBoostBlocksGroup = scene.noBoostBlocksGroup;
+        spawnPoint = scene.spawnPoint;
+        finishLine = scene.finishLine;          // all of these exist as globals in your file[file:1]
+
+        // ----- REFRESH STATIC BODIES -----
+        blocksGroup.refresh();
+        spikesGroup.refresh();
+        windowsGroup.refresh();
+        noBoostBlocksGroup.refresh();
+
+        // ----- COLLISIONS / PLAYER RESET (ONLY IF PLAYER EXISTS) -----
+        if (scene.player) {
+            // Reset player roughly at spawn; fall back to 0,0 if no spawn
+            const spawnX = spawnPoint ? spawnPoint.x + 10 : 0;
+            const spawnY = spawnPoint ? spawnPoint.y - 50 : 0;
+
+            scene.player.body.setVelocity(0, 0);
+            scene.player.setPosition(spawnX, spawnY);
+
+            // Remove old colliders by pausing collision temporarily
+            scene.physics.world.collideBounds = false;
+
+            scene.time.delayedCall(50, () => {
+                // Re‑add colliders/overlaps
+                scene.physics.add.collider(scene.player, blocksGroup);
+                scene.physics.add.collider(scene.player, noBoostBlocksGroup);
+                scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
+                scene.physics.add.overlap(
+                    scene.player,
+                    windowsGroup,
+                    () => { scene.player.canOpenWindow = true; },
+                    null,
+                    scene
+                );
+            });
+
+            scene.physics.world.collideBounds = true;
+        }
+
+        console.log("SUCCESS:", (levelData.b?.length || 0), "blocks loaded");
+        showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);[file:1]
+
+        // ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA, BUT DO NOT AUTO‑PLAY -----
+        if (levelData.music) {
+            selectedMusicKey = levelData.music;      // e.g. "X" / "Y" / "Z"[file:1]
+        }
+        if (levelData.background) {
+            selectedBackgroundKey = levelData.background;  // e.g. "A" / "B" / "C"[file:1]
+        }
+        // Your existing startGame / playSelectedMusic will handle when to actually play music.
+
+    } catch (error) {
+        console.error("LOAD ERROR:", error);
+        showInstruction(scene, "LOAD FAILED - Check console", 4000);
     }
-    
-    // ✅ LOAD SPIKES
-    if (levelData.s && Array.isArray(levelData.s)) {
-      levelData.s.forEach(([x, y, w, h]) => {
-        scene.spikesGroup.create(x, y, 'spike')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
-      });
-    }
-    
-    // ✅ LOAD WINDOWS
-    if (levelData.w && Array.isArray(levelData.w)) {
-      levelData.w.forEach(([x, y, w, h]) => {
-        scene.windowsGroup.create(x, y, 'window')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .refreshBody();
-      });
-    }
-    
-    // ✅ LOAD NO-BOOST BLOCKS
-    if (levelData.nb && Array.isArray(levelData.nb)) {
-      levelData.nb.forEach(([x, y, w, h]) => {
-        scene.noBoostBlocksGroup.create(x, y, 'pixel')
-          .setOrigin(0, 0)
-          .setDisplaySize(w, h)
-          .setTint(0x0000ff)
-          .refreshBody();
-      });
-    }
-    
-    // ✅ LOAD START POINT
-    if (levelData.st) {
-      const [x, y, w, h] = levelData.st;
-      scene.spawnPoint = scene.add.sprite(x, y, 'start')
-        .setOrigin(0, 0)
-        .setDisplaySize(w, h)
-        .setDepth(10);
-      console.log(`🚀 Start: ${x},${y}`);
-    }
-    
-    // ✅ LOAD FINISH LINE
-    if (levelData.f) {
-      const [x, y, w, h] = levelData.f;
-      scene.finishLine = scene.add.sprite(x, y, 'finish')
-        .setOrigin(0, 0)
-        .setDisplaySize(w, h)
-        .setDepth(10);
-      console.log(`🏁 Finish: ${x},${y}`);
-    }
-    
-    // ✅ UPDATE GLOBAL VARIABLES (your code uses these)
-    blocksGroup = scene.blocksGroup;
-    spikesGroup = scene.spikesGroup;
-    windowsGroup = scene.windowsGroup;
-    noBoostBlocksGroup = scene.noBoostBlocksGroup;
-    spawnPoint = scene.spawnPoint;
-    finishLine = scene.finishLine;
-    
-    // ✅ ADD COLLISIONS (only if player exists)
-    if (scene.player) {
-      scene.player.body.setVelocity(0, 0);
-      scene.player.setPosition(spawnPoint.x + 10, spawnPoint.y - 50);
-      
-      // Clear old colliders
-      scene.physics.collide = false;
-      scene.time.delayedCall(50, () => {
-        scene.physics.add.collider(scene.player, blocksGroup);
-        scene.physics.add.collider(scene.player, noBoostBlocksGroup);
-        scene.physics.add.overlap(scene.player, spikesGroup, () => killPlayer(scene));
-        scene.physics.add.overlap(scene.player, windowsGroup, () => scene.player.canOpenWindow = true);
-        scene.physics.collide = true;
-      });
-    }
-    
-// ✅ FINAL PHYSICS REFRESH + ADD COLLISIONS
-blocksGroup.refresh();
-spikesGroup.refresh();
-windowsGroup.refresh();
-noBoostBlocksGroup.refresh();
-
-// ✅ ADD COLLISIONS (only if player exists)
-// Use global player variable (matches your code structure)
-if (player) {
-  scene.physics.add.collider(player, blocksGroup);
-  scene.physics.add.collider(player, spikesGroup); 
-  scene.physics.add.collider(player, noBoostBlocksGroup);
-  scene.physics.add.overlap(player, spikesGroup, () => killPlayer(scene));
-  scene.physics.add.overlap(player, windowsGroup, () => player.canOpenWindow = true);
-}
-
-
-    
-    console.log(`✅ SUCCESS: ${levelData.b?.length || 0} blocks loaded`);
-    showInstruction(scene, `✅ ${levelData.b?.length || 0} BLOCKS + COLLISION READY`, 3000);
-    
-  } catch (error) {
-    console.error("💥 LOAD ERROR:", error);
-    showInstruction(scene, "❌ LOAD FAILED - Check console", 4000);
-  }
 };
+
 
 
     // ✅ BACKGROUND SELECTION
@@ -2512,6 +2528,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
