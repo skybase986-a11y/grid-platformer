@@ -888,6 +888,7 @@ this.exportLevel = function() {
   }
 };
 
+    }
 
 
 function drawGrid(scene, graphics) {
@@ -2823,6 +2824,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
