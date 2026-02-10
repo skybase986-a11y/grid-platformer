@@ -530,8 +530,8 @@ levelOptionsButton = makeMenuButton(
   // Pause overlay
   pauseOverlay = this.add.rectangle(config.width / 2, config.height / 2, config.width * 2, config.height * 2, 0x000000, 0.55)
     .setScrollFactor(0).setDepth(2000).setVisible(false);
-  pauseText = this.add.text(config.width / 2, config.height * 0.25, 'Press pause again to return from any menu', {
-    fontSize: '128px', fill: '#ffffff', fontFamily: 'Arial'
+  pauseText = this.add.text(config.width / 2, config.height * 0.25, 'welcome to the pausemenu! if menus overlap, press the pause button again to fix it!', {
+    fontSize: '110px', fill: '#ffffff', fontFamily: 'Arial'
   }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
     
 
@@ -2909,6 +2909,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
