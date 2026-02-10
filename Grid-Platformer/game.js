@@ -1821,20 +1821,20 @@ function openSimpleLevelOptionsMenu(scene) {
     const musicButtonY = centerY - 100;
     const spacingX = 260;
 
-    const makeSimpleButton = (x, y, label, onClick) => {
-        const btn = scene.add.text(x, y, label, MENUBUTTONSTYLE)
-            .setOrigin(0.5)
-            .setScrollFactor(0)
-            .setDepth(2001)
-            .setInteractive({ useHandCursor: true });
+const makeSimpleButton = (x, y, label, onClick) => {
+    const btn = scene.add.text(x, y, label, MENU_BUTTON_STYLE)
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(2001)
+        .setInteractive({ useHandCursor: true });
 
-        btn.on("pointerover", () => btn.setStyle({ fill: "#ffffff" }));
-        btn.on("pointerout", () => btn.setStyle({ fill: "#4aa3ff" }));
-        btn.on("pointerup", onClick);
+    btn.on("pointerover", () => btn.setStyle({ fill: "#ffffff" }));
+    btn.on("pointerout", () => btn.setStyle({ fill: "#4aa3ff" }));
+    btn.on("pointerup", onClick);
 
-        simpleOptionsContainer.add(btn);
-        return btn;
-    };
+    simpleOptionsContainer.add(btn);
+    return btn;
+};
 
     simpleOptionsButtons.music.X = makeSimpleButton(
         centerX - spacingX,
@@ -2769,6 +2769,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
