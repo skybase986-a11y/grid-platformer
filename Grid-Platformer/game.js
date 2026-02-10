@@ -780,7 +780,7 @@ function playSelectedMusic(scene) {
   const musicName = MUSIC_MAP[selectedMusicKey];
   currentMusic = scene.sound.add(musicName);
   if (currentMusic) {
-    currentMusic.play({ loop: true, volume: 0.3 });
+    currentMusic.play({ loop: true, volume: 0.2 });
   }
 }
 
@@ -1831,9 +1831,9 @@ function openSimpleLevelOptionsMenu(scene) {
     const panel = scene.add.rectangle(
         centerX,
         centerY,
-        config.width * 0.8,
-        config.height * 0.8,
-        0x000000,
+        config.width * 1.8,
+        config.height * 1.8,
+        0xFFA5B0,
         0.8
     ).setScrollFactor(0).setDepth(2000);
 
@@ -1891,6 +1891,9 @@ const makeSimpleButton = (x, y, label, onClick) => {
             playSelectedMusic(scene);
         }
     );
+
+
+    
 
     simpleOptionsButtons.music.Z = makeSimpleButton(
         centerX + spacingX,
@@ -1956,6 +1959,21 @@ simpleOptionsButtons.bg.C = makeSimpleButton(
         showInstruction(scene, BACKGROUND_MAP["C"], 1500);
     }
 );
+
+
+
+
+    // ----- APPLY MUSIC/BACKGROUND (NEW) -----
+if (levelData.m) {
+    selectedMusicKey = levelData.m;
+    playSelectedMusic(scene);  // ✅ Actually start the new music
+}
+if (levelData.bg) {
+    selectedBackgroundKey = levelData.bg;
+    if (currentBackground) {
+        currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);  // ✅ Actually change background
+    }
+}
 
 
     // --- BACK BUTTON ---
@@ -2806,6 +2824,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
