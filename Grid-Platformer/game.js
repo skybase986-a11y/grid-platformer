@@ -50,6 +50,16 @@ let canBoost = false;
 let currentBackground; // global for this scene
 let blockColorHex = 0xffffff; // default white
 
+// NEW SIMPLE LEVEL OPTIONS MENU (fresh system)
+let simpleOptionsContainer = null;
+let simpleOptionsOpen = false;
+let simpleOptionsButtons = {
+    music: {},
+    bg: {},
+    back: null,
+};
+
+
 
 // --- EDITOR STATE ---
 let isEditorMode = false;
@@ -491,7 +501,15 @@ player.body.setDragY(0);    // No vertical drag (gravity handles Y)
   // === MENU BUTTONS ===
   resumeButton = makeMenuButton(this, config.width / 2, config.height / 2, 'RESUME', () => togglePause.call(this));
   returnToMenuButton = makeMenuButton(this, config.width / 2, config.height / 2 + 100, 'RETURN TO MAINMENU (WILL KICK YOU OUT OF GAME)', () => window.location.reload());
-  levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'LEVEL OPTIONS', () => openLevelOptions.call(this));
+levelOptionsButton = makeMenuButton(
+    this,
+    config.width / 2,
+    config.height / 2 + 200,
+    "LEVEL OPTIONS",
+    () => {
+        openSimpleLevelOptionsMenu(this);
+    }
+);
   helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'HELP', () => openHelpMenu.call(this));
 levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'LEVEL OPTIONS', () => {
   openLevelOptions.call(this);  // ✅ Pass 'this' (scene)
@@ -1752,6 +1770,189 @@ musicTitleText.setVisible(false);
 
 
 
+function openSimpleLevelOptionsMenu(scene) {
+    // If already open, do nothing
+    if (simpleOptionsOpen) return;
+
+    destroyAllMenus();   // hide everything old
+
+    simpleOptionsOpen = true;
+
+    // Container so we can move / destroy whole menu at once
+    simpleOptionsContainer = scene.add.container(0, 0);
+
+    const centerX = config.width / 2;
+    const centerY = config.height / 2;
+
+    // Dark background panel
+    const panel = scene.add.rectangle(
+        centerX,
+        centerY,
+        config.width * 0.8,
+        config.height * 0.8,
+        0x000000,
+        0.8
+    ).setScrollFactor(0).setDepth(2000);
+
+    simpleOptionsContainer.add(panel);
+
+    // --- MUSIC SECTION (TOP HALF) ---
+    const musicTitle = scene.add.text(
+        centerX,
+        centerY - 200,
+        "SELECT MUSIC",
+        {
+            fontSize: "64px",
+            fill: "#ffffff",
+            fontFamily: "Arial"
+        }
+    ).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+
+    simpleOptionsContainer.add(musicTitle);
+
+    // Music buttons: Adventure (X), Scary (Y), Happy (Z)
+    const musicButtonY = centerY - 100;
+    const spacingX = 260;
+
+    const makeSimpleButton = (x, y, label, onClick) => {
+        const btn = scene.add.text(x, y, label, MENUBUTTONSTYLE)
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(2001)
+            .setInteractive({ useHandCursor: true });
+
+        btn.on("pointerover", () => btn.setStyle({ fill: "#ffffff" }));
+        btn.on("pointerout", () => btn.setStyle({ fill: "#4aa3ff" }));
+        btn.on("pointerup", onClick);
+
+        simpleOptionsContainer.add(btn);
+        return btn;
+    };
+
+    simpleOptionsButtons.music.X = makeSimpleButton(
+        centerX - spacingX,
+        musicButtonY,
+        "Adventure",
+        () => {
+            selectedMusicKey = "X";      // uses your existing mapping: X -> Adventure[file:1]
+            playSelectedMusic(scene);
+        }
+    );
+
+    simpleOptionsButtons.music.Y = makeSimpleButton(
+        centerX,
+        musicButtonY,
+        "Scary",
+        () => {
+            selectedMusicKey = "Y";
+            playSelectedMusic(scene);
+        }
+    );
+
+    simpleOptionsButtons.music.Z = makeSimpleButton(
+        centerX + spacingX,
+        musicButtonY,
+        "Happy",
+        () => {
+            selectedMusicKey = "Z";
+            playSelectedMusic(scene);
+        }
+    );
+
+    // --- BACKGROUND SECTION (BOTTOM HALF) ---
+    const bgTitle = scene.add.text(
+        centerX,
+        centerY + 40,
+        "SELECT BACKGROUND",
+        {
+            fontSize: "64px",
+            fill: "#ffffff",
+            fontFamily: "Arial"
+        }
+    ).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+
+    simpleOptionsContainer.add(bgTitle);
+
+    const bgButtonY = centerY + 140;
+
+    simpleOptionsButtons.bg.A = makeSimpleButton(
+        centerX - spacingX,
+        bgButtonY,
+        "Dark",
+        () => {
+            selectedBackgroundKey = "A";     // your BACKGROUNDMAP uses A: Dark[file:1]
+            if (currentBackground) {
+                currentBackground.setTexture(BACKGROUNDMAP["A"]);
+            }
+            showInstruction(scene, BACKGROUNDMAP["A"], 1500);
+        }
+    );
+
+    simpleOptionsButtons.bg.B = makeSimpleButton(
+        centerX,
+        bgButtonY,
+        "Forest",
+        () => {
+            selectedBackgroundKey = "B";
+            if (currentBackground) {
+                currentBackground.setTexture(BACKGROUNDMAP["B"]);
+            }
+            showInstruction(scene, BACKGROUNDMAP["B"], 1500);
+        }
+    );
+
+    simpleOptionsButtons.bg.C = makeSimpleButton(
+        centerX + spacingX,
+        bgButtonY,
+        "Red",
+        () => {
+            selectedBackgroundKey = "C";
+            if (currentBackground) {
+                currentBackground.setTexture(BACKGROUNDMAP["C"]);
+            }
+            showInstruction(scene, BACKGROUNDMAP["C"], 1500);
+        }
+    );
+
+    // --- BACK BUTTON ---
+    simpleOptionsButtons.back = makeSimpleButton(
+        centerX,
+        centerY + config.height * 0.8 / 2 - 70,
+        "BACK",
+        () => {
+            closeSimpleLevelOptionsMenu(scene);
+        }
+    );
+
+    // Keep menu visible in pause state
+    if (!isPaused) {
+        isPaused = true;
+        scene.physics.world.pause();
+    }
+}
+
+
+
+function closeSimpleLevelOptionsMenu(scene) {
+    if (!simpleOptionsOpen) return;
+
+    simpleOptionsOpen = false;
+
+    if (simpleOptionsContainer) {
+        simpleOptionsContainer.destroy(true);
+        simpleOptionsContainer = null;
+    }
+
+    // Resume game if it was paused only for this menu
+    if (isPaused && !hasWon) {
+        isPaused = false;
+        scene.physics.world.resume();
+        // Resume following player if in gameplay
+        if (!isEditorMode && scene.player) {
+            scene.cameras.main.startFollow(scene.player, true, 0.08, 0.08);
+        }
+    }
+}
 
 
 
@@ -2525,6 +2726,42 @@ function openBackgroundMenu() {
 
 
 
+
+
+
+
+
+function destroyAllMenus() {
+    // Pause overlays
+    if (pauseOverlay) pauseOverlay.setVisible(false);
+    if (pauseText) pauseText.setVisible(false);
+
+    // Old level options / background / music menus
+    if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+    if (levelOptionsText) levelOptionsText.setVisible(false);
+    if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+    if (musicTitleText) musicTitleText.setVisible(false);
+    if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+    if (selectBackgroundOverlay) selectBackgroundOverlay.setVisible(false);
+    if (backgroundTitleText) backgroundTitleText.setVisible(false);
+    if (backgroundBackButton) backgroundBackButton.setVisible(false);
+
+    if (backgroundButtons && backgroundButtons.A) {
+        backgroundButtons.A.setVisible(false);
+        backgroundButtons.B.setVisible(false);
+        backgroundButtons.C.setVisible(false);
+    }
+
+    if (musicButtons && musicButtons.X) {
+        Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+    }
+
+    if (helpOverlay) helpOverlay.setVisible(false);
+    if (helpImage) helpImage.setVisible(false);
+    if (helpBackButton) helpBackButton.setVisible(false);
+
+    currentPauseMenu = null;
+}
 
 
 
