@@ -542,7 +542,7 @@ levelOptionsButton = makeMenuButton(
     .setOrigin(0.5).setScrollFactor(0).setInteractive().setVisible(false).on("pointerup", () => restartLevel.call(this));
 
 
-susdiddyTitleText = this.add.text(config.width / 2, config.height * 0.25, 'SELECT MUSIC', {
+susdiddyTitleText = this.add.text(config.width / 2, config.height * 0.25, 'PRESS PAUSE TO FIX OVERLAP', {
     fontSize: '128px', fill: '#000000', fontFamily: 'Arial'
   }).setOrigin(0.5).setScrollFactor(0).setDepth(2004).setVisible(false);
 
@@ -2909,6 +2909,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
