@@ -117,6 +117,8 @@ let helpBackButton;
 let currentPauseMenu = null; // 'main', 'levelOptions', 'selectMusic', 'help', or null
 let selectedMusicKey = 'X'; // default selection
 
+
+let susdiddyTitleText
 let musicTitleText;
 let musicButtons = {};
 
@@ -539,6 +541,14 @@ levelOptionsButton = makeMenuButton(
   restartButton = this.add.text(config.width / 2, config.height / 2 + 40, "RESTART", { fontSize: "48px", fill: "#ffffff" })
     .setOrigin(0.5).setScrollFactor(0).setInteractive().setVisible(false).on("pointerup", () => restartLevel.call(this));
 
+
+susdiddyTitleText = this.add.text(config.width / 2, config.height * 0.25, 'SELECT MUSIC', {
+    fontSize: '128px', fill: '#000000', fontFamily: 'Arial'
+  }).setOrigin(0.5).setScrollFactor(0).setDepth(1800).setVisible(false);
+
+
+
+    
   // Music buttons (hidden initially)
   musicTitleText = this.add.text(config.width / 2, config.height * 0.25, 'SELECT MUSIC', {
     fontSize: '96px', fill: '#ffffff', fontFamily: 'Arial'
@@ -2899,6 +2909,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
