@@ -708,16 +708,24 @@ if (levelData.m) {
     selectedMusicKey = levelData.m;        // ✅ Reads "m" from JSON
 }
 if (levelData.bg) {
-    selectedBackgroundKey = levelData.bg;  // ✅ Reads "bg" from JSON
+    selectedBackgroundKey = levelData.bg;
+    
+    // Create background if it doesn't exist
+    if (!currentBackground) {
+        currentBackground = scene.add.image(
+            WORLD_WIDTH / 2, 
+            WORLD_HEIGHT / 2, 
+            BACKGROUND_MAP[levelData.bg]
+        )
+        .setOrigin(0.5)
+        .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
+        .setDepth(-4000)
+        .setScrollFactor(0);
+    } else {
+        currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);
+    }
 }
 
-        // Your existing startGame / playSelectedMusic will handle when to actually play music.
-
-    } catch (error) {
-        console.error("LOAD ERROR:", error);
-        showInstruction(scene, "LOAD FAILED - Check console", 4000);
-    }
-};
 
 
 
@@ -2815,6 +2823,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
