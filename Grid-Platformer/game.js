@@ -869,25 +869,24 @@ this.exportLevel = function() {
     const levelData = {
       m: selectedMusicKey || 'X',
       bg: selectedBackgroundKey || 'A',
-
-
-    b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
-    s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
-    w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
-    nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),  // noBoostBlocks: [x, y, w, h]
-    st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
-    f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
-  };
-  
-  // Convert to JSON string, then compress
-  const jsonString = JSON.stringify(levelData);
-  const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
-  
-  return compressed;
+      b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
+      s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
+      w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
+      nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),  // noBoostBlocks: [x, y, w, h]
+      st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
+      f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
+    };
+    
+    // Convert to JSON string, then compress
+    const jsonString = JSON.stringify(levelData);
+    const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
+    
+    return compressed;
+  } catch (error) {
+    console.error("EXPORT ERROR:", error);
+    return null;  // Indicate failure
+  }
 };
-
-}
-
 
 
 
@@ -2824,6 +2823,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
