@@ -508,7 +508,7 @@ levelOptionsButton = makeMenuButton(
     this,
     config.width / 2,
     config.height / 2 + 200,
-    "LEVEL OPTIONS",
+    "LEVEL OPTIONS (PRESS PAUSE TO FIX OVERLAP IF YOU OPEN THIS MENU)",
     () => {
         openSimpleLevelOptionsMenu(this);
     }
@@ -2895,6 +2895,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
