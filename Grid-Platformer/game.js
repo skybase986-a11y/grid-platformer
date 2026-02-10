@@ -1692,31 +1692,17 @@ isWindowOpen = false;
 }
 
 
-function makeMenuButton(scene, x, y, label, onClick) {
-const btn = scene.add.text(
-x,
-y,
-label,
-MENU_BUTTON_STYLE
-)
-.setOrigin(0.5)
-.setScrollFactor(0)
-.setDepth(2001)
-.setInteractive({ useHandCursor: true });
-
-// hover effects
-btn.on('pointerover', () => {
-btn.setStyle({ fill: '#ffffff' }); // white on hover
-});
-
-btn.on('pointerout', () => {
-btn.setStyle({ fill: '#4aa3ff' }); // blue default
-});
-
-btn.on('pointerup', onClick);
-
-btn.setVisible(false);
-return btn;
+function makeMenuButton(scene, x, y, text, callback) {
+    const button = scene.add.text(x, y, text, MENU_BUTTON_STYLE)
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(2001)
+        .setInteractive({ useHandCursor: true });
+    
+    // 🔧 FIXED: Arrow function preserves 'scene' context
+    button.on('pointerup', () => callback(scene));
+    
+    return button;
 }
 
 
@@ -2637,6 +2623,7 @@ function closeAllMenus(scene) {
     
     currentPauseMenu = null;
 }
+
 
 
 
