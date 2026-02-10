@@ -1965,16 +1965,6 @@ simpleOptionsButtons.bg.C = makeSimpleButton(
 
 
     // ----- APPLY MUSIC/BACKGROUND (NEW) -----
-if (levelData.m) {
-    selectedMusicKey = levelData.m;
-    playSelectedMusic(scene);  // ✅ Actually start the new music
-}
-if (levelData.bg) {
-    selectedBackgroundKey = levelData.bg;
-    if (currentBackground) {
-        currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);  // ✅ Actually change background
-    }
-}
 
 
     // --- BACK BUTTON ---
@@ -2825,6 +2815,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
