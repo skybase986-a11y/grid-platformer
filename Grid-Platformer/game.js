@@ -675,14 +675,14 @@ window.loadLevel = function (compressedData, scene) {
         }
 
         console.log("SUCCESS:", (levelData.b?.length || 0), "blocks loaded");
-        showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);[file:1]
+        showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);
 
         // ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA, BUT DO NOT AUTO‑PLAY -----
         if (levelData.music) {
-            selectedMusicKey = levelData.music;      // e.g. "X" / "Y" / "Z"[file:1]
+            selectedMusicKey = levelData.music;      // e.g. "X" / "Y" / "Z"
         }
         if (levelData.background) {
-            selectedBackgroundKey = levelData.background;  // e.g. "A" / "B" / "C"[file:1]
+            selectedBackgroundKey = levelData.background;  // e.g. "A" / "B" / "C"
         }
         // Your existing startGame / playSelectedMusic will handle when to actually play music.
 
@@ -2522,6 +2522,7 @@ function openBackgroundMenu() {
   // Add background selection UI here if needed
   showInstruction(this, 'Background menu coming soon!', 2000);
 }
+
 
 
 
