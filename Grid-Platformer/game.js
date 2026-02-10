@@ -1,3 +1,4 @@
+
 let player;
 let cursors;
 let spaceKey;
@@ -703,11 +704,12 @@ function closeLevelOptions(scene) {
 
 function selectMusic(scene, key) {
     selectedMusicKey = key;
-    // Don't play here - let playSelectedMusic handle it during actual gameplay
+    if (gameState === 'playing') {  // Only play if in game
+        playSelectedMusic(scene);
+    }
     closeSelectMusicMenu(scene);
-    showInstruction(scene, MUSICMAP[key] + ' selected', 1500);
+    showInstruction(scene, MUSICMAP[key], 1500);
 }
-
 
 
 function openSelectMusicMenu(scene) {
@@ -735,20 +737,16 @@ function selectBackground(scene, key) {
 
 // ✅ MUSIC PLAYER
 function playSelectedMusic(scene) {
-    // Only play if NOT in title screen AND player physics is active (gameplay)
-    if (gameState !== 'title' && player.body?.enabled === true) {
-        if (currentMusic) {
-            currentMusic.stop();
-            currentMusic.destroy();
-        }
-        const musicName = MUSICMAP[selectedMusicKey];
-        currentMusic = scene.sound.add(musicName);
-        if (currentMusic) {
-            currentMusic.play({ loop: true, volume: 0.3 });
-        }
-    }
+  if (currentMusic) {
+    currentMusic.stop();
+    currentMusic.destroy();
+  }
+  const musicName = MUSIC_MAP[selectedMusicKey];
+  currentMusic = scene.sound.add(musicName);
+  if (currentMusic) {
+    currentMusic.play({ loop: true, volume: 0.3 });
+  }
 }
-
 
 
 
