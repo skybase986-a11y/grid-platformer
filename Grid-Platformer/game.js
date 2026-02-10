@@ -513,7 +513,7 @@ levelOptionsButton = makeMenuButton(
         openSimpleLevelOptionsMenu(this);
     }
 );
-  helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'HELP', () => openHelpMenu.call(this));
+  helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'PRESS THIS BUTTON', () => openHelpMenu.call(this));
 levelOptionsButton = makeMenuButton(
     this,
     config.width / 2,
@@ -2895,6 +2895,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
