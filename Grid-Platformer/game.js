@@ -861,15 +861,16 @@ enterKey.on('down', () => {
 
   // Export level data
 this.exportLevel = function() {
-  // Check if LZString is available
-  if (typeof LZString === 'undefined') {
-    throw new Error("LZString not loaded! Check your HTML script tag.");
-  }
-  
-  // Shortened keys and array format for compactness
-  const levelData = {
-    m: selectedMusicKey || 'X',  // music
-    bg: selectedBackgroundKey || 'A',  // background
+  try {
+    if (typeof LZString === 'undefined') {
+      throw new Error("LZString not loaded! Check your HTML script tag.");
+    }
+    
+    const levelData = {
+      m: selectedMusicKey || 'X',
+      bg: selectedBackgroundKey || 'A',
+
+
     b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
     s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
     w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
@@ -2823,6 +2824,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
