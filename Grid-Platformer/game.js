@@ -1776,6 +1776,40 @@ musicTitleText.setVisible(false);
 
 
 
+function destroyAllMenus() {
+    // Hide pause menu
+    if (pauseOverlay) pauseOverlay.setVisible(false);
+    if (pauseText) pauseText.setVisible(false);
+    if (resumeButton) resumeButton.setVisible(false);
+    if (returnToMenuButton) returnToMenuButton.setVisible(false);
+    if (helpButton) helpButton.setVisible(false);
+    if (levelOptionsButton) levelOptionsButton.setVisible(false);
+
+    // Hide old level options / music / background menus (if they exist)
+    if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+    if (levelOptionsText) levelOptionsText.setVisible(false);
+    if (musicTitleText) musicTitleText.setVisible(false);
+    if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+    Object.values(musicButtons || {}).forEach(btn => btn?.setVisible(false));
+    if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+    
+    if (backgroundButtons && backgroundButtons.A) {
+        backgroundButtons.A.setVisible(false);
+        backgroundButtons.B?.setVisible(false);
+        backgroundButtons.C?.setVisible(false);
+    }
+
+    if (helpOverlay) helpOverlay.setVisible(false);
+    if (helpImage) helpImage.setVisible(false);
+    if (helpBackButton) helpBackButton.setVisible(false);
+
+    // Reset pause menu state
+    currentPauseMenu = null;
+}
+
+
+
+
 
 function openSimpleLevelOptionsMenu(scene) {
     // If already open, do nothing
@@ -2769,6 +2803,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
