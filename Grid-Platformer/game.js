@@ -511,9 +511,16 @@ levelOptionsButton = makeMenuButton(
     }
 );
   helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'HELP', () => openHelpMenu.call(this));
-levelOptionsButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'LEVEL OPTIONS', () => {
-  openLevelOptions.call(this);  // ✅ Pass 'this' (scene)
-});
+levelOptionsButton = makeMenuButton(
+    this,
+    config.width / 2,
+    config.height / 2 + 200,
+    "LEVEL OPTIONS",
+    () => {
+        openSimpleLevelOptionsMenu(this);
+    }
+);
+
 
   // Pause overlay
   pauseOverlay = this.add.rectangle(config.width / 2, config.height / 2, config.width * 2, config.height * 2, 0x000000, 0.55)
@@ -2762,6 +2769,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
