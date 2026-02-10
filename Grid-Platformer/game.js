@@ -1916,44 +1916,45 @@ const makeSimpleButton = (x, y, label, onClick) => {
 
     const bgButtonY = centerY + 140;
 
-    simpleOptionsButtons.bg.A = makeSimpleButton(
-        centerX - spacingX,
-        bgButtonY,
-        "Dark",
-        () => {
-            selectedBackgroundKey = "A";     // your BACKGROUNDMAP uses A: Dark[file:1]
-            if (currentBackground) {
-                currentBackground.setTexture(BACKGROUNDMAP["A"]);
-            }
-            showInstruction(scene, BACKGROUNDMAP["A"], 1500);
+   simpleOptionsButtons.bg.A = makeSimpleButton(
+    centerX - spacingX,
+    bgButtonY,
+    "Dark",
+    () => {
+        selectedBackgroundKey = "A";
+        if (currentBackground) {
+            currentBackground.setTexture(BACKGROUND_MAP["A"]);  // ✅ Change BACKGROUNDMAP → BACKGROUND_MAP
         }
-    );
+        showInstruction(scene, BACKGROUND_MAP["A"], 1500);   // ✅ Same here
+    }
+);
 
-    simpleOptionsButtons.bg.B = makeSimpleButton(
-        centerX,
-        bgButtonY,
-        "Forest",
-        () => {
-            selectedBackgroundKey = "B";
-            if (currentBackground) {
-                currentBackground.setTexture(BACKGROUNDMAP["B"]);
-            }
-            showInstruction(scene, BACKGROUNDMAP["B"], 1500);
+simpleOptionsButtons.bg.B = makeSimpleButton(
+    centerX,
+    bgButtonY,
+    "Forest",
+    () => {
+        selectedBackgroundKey = "B";
+        if (currentBackground) {
+            currentBackground.setTexture(BACKGROUND_MAP["B"]);  // ✅ Change here too
         }
-    );
+        showInstruction(scene, BACKGROUND_MAP["B"], 1500);
+    }
+);
 
-    simpleOptionsButtons.bg.C = makeSimpleButton(
-        centerX + spacingX,
-        bgButtonY,
-        "Red",
-        () => {
-            selectedBackgroundKey = "C";
-            if (currentBackground) {
-                currentBackground.setTexture(BACKGROUNDMAP["C"]);
-            }
-            showInstruction(scene, BACKGROUNDMAP["C"], 1500);
+simpleOptionsButtons.bg.C = makeSimpleButton(
+    centerX + spacingX,
+    bgButtonY,
+    "Red",
+    () => {
+        selectedBackgroundKey = "C";
+        if (currentBackground) {
+            currentBackground.setTexture(BACKGROUND_MAP["C"]);  // ✅ And here
         }
-    );
+        showInstruction(scene, BACKGROUND_MAP["C"], 1500);
+    }
+);
+
 
     // --- BACK BUTTON ---
     simpleOptionsButtons.back = makeSimpleButton(
@@ -2803,6 +2804,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
