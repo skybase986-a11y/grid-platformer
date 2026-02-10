@@ -1921,18 +1921,19 @@ const makeSimpleButton = (x, y, label, onClick) => {
 
     const bgButtonY = centerY + 140;
 
-   simpleOptionsButtons.bg.A = makeSimpleButton(
+simpleOptionsButtons.bg.A = makeSimpleButton(
     centerX - spacingX,
     bgButtonY,
     "Dark",
     () => {
-        selectedBackgroundKey = "A";
+        selectedBackgroundKey = "A";  // ✅ Just set the key
         if (currentBackground) {
-            currentBackground.setTexture(BACKGROUND_MAP["A"]);  // ✅ Change BACKGROUNDMAP → BACKGROUND_MAP
+            currentBackground.setTexture(BACKGROUND_MAP["A"]);  // ✅ Use the key directly
         }
-        showInstruction(scene, BACKGROUND_MAP["A"], 1500);   // ✅ Same here
+        showInstruction(scene, BACKGROUND_MAP["A"], 1500);
     }
 );
+
 
 simpleOptionsButtons.bg.B = makeSimpleButton(
     centerX,
@@ -2824,6 +2825,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
