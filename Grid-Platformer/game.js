@@ -1119,21 +1119,19 @@ function toggleEditorMode() {
     player.body.setVelocity(0, 0);
     player.body.enable = false;
     this.physics.world.debugGraphic.visible = false;
-  } else {
-    player.body.enable = true;
-    player.setPosition(spawnPoint.x, spawnPoint.y);
-    player.body.setVelocity(0, 0);
-    cam.startFollow(player, true, 0.08, 0.08);
-    this.physics.world.debugGraphic.visible = true;
-setupPlayerCollisions(this);
+} else {
+  player.body.enable = true;
+  player.setPosition(spawnPoint.x, spawnPoint.y);
+  player.body.setVelocity(0, 0);
+  cam.startFollow(player, true, 0.08, 0.08);
+  this.physics.world.debugGraphic.visible = true;
+  setupPlayerCollisions(this);
+  blocksGroup.refresh();
+  noBoostBlocksGroup.refresh();
+  spikesGroup.refresh();
+  windowsGroup.refresh();
+}
 
-
-blocksGroup.refresh();
-noBoostBlocksGroup.refresh();
-spikesGroup.refresh();
-windowsGroup.refresh();
-
-  }
 
   if (isEditorMode && !firstTimeEditorInstructionsShown) {
     showInstruction(this, "Press ENTER to playtest, and PAUSE for level settings", 4000);
@@ -1161,7 +1159,6 @@ function createSpike(group, x, y, size) {
 
 
 function placeObject(x, y) {
-  // Clamp x/y to world
   x = Phaser.Math.Clamp(x, 0, WORLD_WIDTH - gridSize);
   y = Phaser.Math.Clamp(y, 0, WORLD_HEIGHT - gridSize);
 
@@ -1169,23 +1166,20 @@ function placeObject(x, y) {
     const existing = blocksGroup.getChildren().find(b => b.x === x && b.y === y);
     if (!existing) {
       blocksGroup.create(x, y, 'pixel')
-    .setOrigin(0, 0)
-    .setDisplaySize(gridSize, gridSize)
-    .setTint(blockColorHex) // Ã¢Å“â€¦ use selected color
-    .refreshBody();
-
+        .setOrigin(0, 0)
+        .setDisplaySize(gridSize, gridSize)
+        .setTint(blockColorHex)
+        .refreshBody();
     }
   } else if (currentTool === 'finish') {
     finishLine.setPosition(x, y);
   } else if (currentTool === 'spawn') {
     spawnPoint.setPosition(x, y);
-else if (currentTool === 'spike') {
-  const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
-  if (!existing) {
-    createSpike(spikesGroup, x, y, gridSize);
-  }
-}
-
+  } else if (currentTool === 'spike') {
+    const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
+    if (!existing) {
+      createSpike(spikesGroup, x, y, gridSize);
+    }
   } else if (currentTool === 'window') {
     const existing = windowsGroup.getChildren().find(w => w.x === x && w.y === y);
     if (!existing) {
@@ -1200,11 +1194,12 @@ else if (currentTool === 'spike') {
       const block = noBoostBlocksGroup.create(x, y, 'pixel')
         .setOrigin(0, 0)
         .setDisplaySize(gridSize, gridSize)
-        .setTint(0x0000ff) // blue
+        .setTint(0x0000ff)
         .refreshBody();
     }
   }
 }
+
 
 function update() {
   // UI positioning FIRST (always runs)\
@@ -2922,6 +2917,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
