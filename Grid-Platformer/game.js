@@ -1087,12 +1087,13 @@ function setupPlayerCollisions(scene) {
   // Destroy old colliders
   scene.physics.world.colliders.destroy();
   
-  // Add fresh ones
-  scene.physics.add.collider(scene.player, blocksGroup);
-  scene.physics.add.collider(scene.player, noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
+  // Add fresh ones - USE SCENE GROUPS, not globals
+  scene.physics.add.collider(scene.player, scene.blocksGroup);
+  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
 }
+
 
 
 
@@ -2917,6 +2918,7 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
 
 
 
