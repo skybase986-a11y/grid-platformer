@@ -618,15 +618,12 @@ window.loadLevel = function (compressedData, scene) {
             });
         }
 
-        // ----- LOAD SPIKES (s) -----
-        if (Array.isArray(levelData.s)) {
-            levelData.s.forEach(([x, y, w, h]) => {
-                const spike = scene.spikesGroup.create(x, y, "spike")
-                    .setOrigin(0, 0)
-                    .setDisplaySize(w, h);
-                spike.refreshBody();
-            });
-        }
+if (Array.isArray(levelData.s)) {
+  levelData.s.forEach(([x, y, w, h]) => {
+    createSpike(scene.spikesGroup, x, y, w || 64);
+  });
+}
+
 
         // ----- LOAD WINDOWS (w) -----
         if (Array.isArray(levelData.w)) {
@@ -695,19 +692,11 @@ window.loadLevel = function (compressedData, scene) {
             // Remove old colliders by pausing collision temporarily
             scene.physics.world.collideBounds = false;
 
-            scene.time.delayedCall(50, () => {
-                // Re‑add colliders/overlaps
-                scene.physics.add.collider(scene.player, blocksGroup);
-                scene.physics.add.collider(scene.player, noBoostBlocksGroup);
-                scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
-                scene.physics.add.overlap(
-                    scene.player,
-                    windowsGroup,
-                    () => { scene.player.canOpenWindow = true; },
-                    null,
-                    scene
-                );
-            });
+  scene.time.delayedCall(50, () => {
+  setupPlayerCollisions(scene);
+  scene.physics.world.collideBounds = true;
+});
+
 
             scene.physics.world.collideBounds = true;
         }
@@ -1093,6 +1082,20 @@ function highlightButton(selected) {
   }
 }
 
+
+function setupPlayerCollisions(scene) {
+  // Destroy old colliders
+  scene.physics.world.colliders.destroy();
+  
+  // Add fresh ones
+  scene.physics.add.collider(scene.player, blocksGroup);
+  scene.physics.add.collider(scene.player, noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
+  scene.physics.add.overlap(scene.player, windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
+}
+
+
+
 function toggleEditorMode() {
   isEditorMode = !isEditorMode;
 
@@ -1122,11 +1125,9 @@ function toggleEditorMode() {
     player.body.setVelocity(0, 0);
     cam.startFollow(player, true, 0.08, 0.08);
     this.physics.world.debugGraphic.visible = true;
-      this.physics.add.collider(player, blocksGroup);
-this.physics.add.collider(player, noBoostBlocksGroup);
-this.physics.add.collider(player, spikesGroup);
-this.physics.add.overlap(player, spikesGroup, killPlayer, null, this);
-this.physics.add.overlap(player, windowsGroup, () => { player.canOpenWindow = true; }, null, this);
+setupPlayerCollisions(this);
+
+
 blocksGroup.refresh();
 noBoostBlocksGroup.refresh();
 spikesGroup.refresh();
@@ -1140,6 +1141,22 @@ windowsGroup.refresh();
   }
 }
 
+function createSpike(group, x, y, size) {
+  const spike = group.create(x, y, 'spike')
+    .setOrigin(0, 0)
+    .setDisplaySize(size, size);
+  spike.refreshBody();
+  
+  const hitboxWidth  = size * 0.2;
+  const hitboxHeight = size * 0.55;
+  const offsetX      = size - hitboxWidth / 2;
+  const offsetY      = size - hitboxHeight;
+  
+  spike.body.setSize(hitboxWidth, hitboxHeight);
+  spike.body.setOffset(offsetX, offsetY);
+  
+  return spike;
+}
 
 
 
@@ -1162,24 +1179,13 @@ function placeObject(x, y) {
     finishLine.setPosition(x, y);
   } else if (currentTool === 'spawn') {
     spawnPoint.setPosition(x, y);
-  } else if (currentTool === 'spike') {
-    const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
-    if (!existing) {
-      const spike = spikesGroup.create(x, y, 'spike')
-        .setOrigin(0, 0)
-        .setDisplaySize(gridSize, gridSize);
+else if (currentTool === 'spike') {
+  const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
+  if (!existing) {
+    createSpike(spikesGroup, x, y, gridSize);
+  }
+}
 
-      spike.refreshBody();
-
-      const hitboxWidth = gridSize * 0.2;
-      const hitboxHeight = gridSize * 0.55;
-
-      const offsetX = (gridSize - hitboxWidth) / 2;
-      const offsetY = gridSize - hitboxHeight;
-
-      spike.body.setSize(hitboxWidth, hitboxHeight);
-      spike.body.setOffset(offsetX, offsetY);
-    }
   } else if (currentTool === 'window') {
     const existing = windowsGroup.getChildren().find(w => w.x === x && w.y === y);
     if (!existing) {
@@ -1534,6 +1540,9 @@ function startGame() {
   // ✅ RESET PLAYER POSITION
   player.setPosition(spawnPoint.x, spawnPoint.y);
   player.body.setVelocity(0, 0);
+
+    setupPlayerCollisions(this);
+
 }
 
 
@@ -1619,6 +1628,8 @@ function restartLevel() {
 
   // Optional: reset finish line position if needed
   // createFinishLine(this);
+
+    
 }
 
 function updateEditorZoomLimits(cam) {
@@ -1641,6 +1652,8 @@ function updateEditorZoomLimits(cam) {
 
   // Clamp target zoom
   editorTargetZoom = Phaser.Math.Clamp(editorTargetZoom, editorMinZoom, editorMaxZoom);
+
+    
 }
 
 // --- Additional utility functions ---
@@ -2909,6 +2922,11 @@ function destroyAllMenus() {
 
     currentPauseMenu = null;
 }
+
+
+
+
+
 
 
 
