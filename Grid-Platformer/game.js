@@ -1326,7 +1326,7 @@ const w = player.displayWidth;
 const h = player.displayHeight;
 const outOfBounds = px < bounds.x || py < bounds.y || px + w > bounds.right || py + h > bounds.bottom;
 if (outOfBounds) {
-killPlayer(this);
+killPlayer(player, null);
 return;
 }
 }
@@ -2898,6 +2898,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
