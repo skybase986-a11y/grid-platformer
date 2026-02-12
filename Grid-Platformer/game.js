@@ -168,10 +168,10 @@ myGameScene = game.scene.keys.default;
 
 function createLevelEditor(scene) {
 // initialize groups
-    scene.blocksGroup = scene.physics.add.staticGroup();     // ✅ GREEN static
-    scene.spikesGroup = scene.physics.add.staticGroup();
-    scene.windowsGroup = scene.physics.add.staticGroup();
-    scene.noBoostBlocksGroup = scene.physics.add.staticGroup();
+scene.blocksGroup = scene.physics.add.group();
+scene.spikesGroup = scene.physics.add.group();
+scene.windowsGroup = scene.physics.add.group();
+scene.noBoostBlocksGroup = scene.physics.add.group();
 
 // spawn point & finish line placeholders
 scene.spawnPoint = null;
@@ -429,33 +429,18 @@ spikesGroup = this.physics.add.staticGroup();
 windowsGroup = this.physics.add.staticGroup();
 noBoostBlocksGroup = this.physics.add.staticGroup();
 
-    this.blocksGroup = blocksGroup;
-this.spikesGroup = spikesGroup;
-this.windowsGroup = windowsGroup;
-this.noBoostBlocksGroup = noBoostBlocksGroup;
-
-
 // === PLAYER ===
 player = this.physics.add.sprite(100, 100, 'pixel')
-  .setOrigin(0, 0)
-  .setDisplaySize(64, 64)
-  .setTint(0xffff00);
-
-this.player = player;  // <- CRITICAL: Set scene reference LAST
+.setOrigin(0, 0)
+.setDisplaySize(64, 64)
+.setTint(0xffff00);
 
 player.sfx = { death: this.sound.add('death1') };
-
-
 
 // âœ… ADD THIS LINE - FIXES ERROR
 player.boostOutline = this.add.rectangle(player.x, player.y, player.displayWidth + 8, player.displayHeight + 8)
 .setOrigin(0, 0).setStrokeStyle(3, 0xffff00).setVisible(false);
 cursors = this.input.keyboard.createCursorKeys();
-
-
-
-// NOW safe to call
-setupPlayerCollisions(this);
 
 
 // Add this in create() after player is created
@@ -478,8 +463,6 @@ pauseButton = this.add.image(40, height - 40, 'pause')
 .setOrigin(0.5).setDisplaySize(48, 48).setScrollFactor(0).setDepth(10000)
 .setInteractive({ useHandCursor: true }).setVisible(false);
 pauseButton.on('pointerup', () => togglePause.call(this));
-
-    setupPlayerCollisions(this);
 
 
 // Example window
@@ -583,11 +566,6 @@ selectMusicBackButton = makeMenuButton(this, config.width / 2, config.height / 2
 // Block color menu
 createBlockColorMenu(this);
 
-
-    setupCollisionDebug.call(this);
-
-
-    
 // Replace your existing window.loadLevel with this:
 window.loadLevel = function (compressedData, scene) {
 // Remember scene globally for menus etc.
@@ -718,9 +696,6 @@ scene.time.delayedCall(50, () => {
 setupPlayerCollisions(scene);
 scene.physics.world.collideBounds = true;
 });
-
-
-
 
 
 scene.physics.world.collideBounds = true;
@@ -1109,38 +1084,23 @@ selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 
 
 function setupPlayerCollisions(scene) {
-  console.log("🔧 Setting up collisions...");
-  
+  // Destroy old colliders
   scene.physics.world.colliders.destroy();
-  
-  if (!scene.player || !scene.blocksGroup) {
-    console.error("❌ Missing player/blocks");
-    return;
-  }
-  
-  // REFRESH ALL GROUPS FIRST (CRITICAL)
-  scene.blocksGroup.refresh();
-  scene.noBoostBlocksGroup.refresh();
-  scene.spikesGroup.refresh();
-  scene.windowsGroup.refresh();
-  
-  // TEST BLOCK
-  const testBlock = scene.blocksGroup.create(500, 1000, 'pixel')
-    .setTint(0x00ff00).setDisplaySize(128, 32).refreshBody();
-  
-  console.log("TEST BLOCK:", testBlock ? "✅ CREATED" : "❌ FAILED");
-  console.log("Blocks count:", scene.blocksGroup.getChildren().length);
-  console.log("First block body:", scene.blocksGroup.getChildren()[0]?.body ? "✅ HAS BODY" : "❌ NO BODY");
-  
-  // COLLIDERS
+  // SAFE version - no collider destroy
+  if (!scene.player) return;
+
+  // Add fresh ones - USE SCENE GROUPS, not globals
   scene.physics.add.collider(scene.player, scene.blocksGroup);
   scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup, (p, s) => killPlayer.call(scene, p));
-  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
-  
-  console.log("✅ COLLISIONS READY");
+  scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
+  scene.physics.add.collider(scene.player, scene.blocksGroup || blocksGroup);
+  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup || noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, scene.spikesGroup || spikesGroup, killPlayer, null, scene);
+  scene.physics.add.overlap(scene.player, scene.windowsGroup || windowsGroup, () => { 
+    scene.player.canOpenWindow = true; 
+  }, null, scene);
 }
-
 
 
 
@@ -1170,16 +1130,17 @@ player.body.setVelocity(0, 0);
 player.body.enable = false;
 this.physics.world.debugGraphic.visible = false;
 } else {
-    player.body.enable = true;
-    player.setPosition(spawnPoint.x, spawnPoint.y);
-    player.body.setVelocity(0, 0);
-    cam.startFollow(player, true, 0.08, 0.08);
-    this.physics.world.debugGraphic.visible = true;
-    
-    // ONE call does EVERYTHING (including refresh)
-    setupPlayerCollisions(this);
+player.body.enable = true;
+player.setPosition(spawnPoint.x, spawnPoint.y);
+player.body.setVelocity(0, 0);
+cam.startFollow(player, true, 0.08, 0.08);
+this.physics.world.debugGraphic.visible = true;
+setupPlayerCollisions(this);
+blocksGroup.refresh();
+noBoostBlocksGroup.refresh();
+spikesGroup.refresh();
+windowsGroup.refresh();
 }
-
 
 
 if (isEditorMode && !firstTimeEditorInstructionsShown) {
@@ -1189,25 +1150,21 @@ firstTimeEditorInstructionsShown = true;
 }
 
 function createSpike(group, x, y, size) {
-    const spike = group.create(x, y, 'spike')
-        .setOrigin(0, 0)
-        .setDisplaySize(size, size);
+const spike = group.create(x, y, 'spike')
+.setOrigin(0, 0)
+.setDisplaySize(size, size);
+spike.refreshBody();
 
-    spike.refreshBody();
+const hitboxWidth  = size * 0.2;
+const hitboxHeight = size * 0.55;
+const offsetX      = size - hitboxWidth / 2;
+const offsetY      = size - hitboxHeight;
 
-    const hitboxWidth  = size * 0.2;
-    const hitboxHeight = size * 0.55;
+spike.body.setSize(hitboxWidth, hitboxHeight);
+spike.body.setOffset(offsetX, offsetY);
 
-    // Centered horizontally, hugging the bottom
-    const offsetX = (size - hitboxWidth) / 2;
-    const offsetY = size - hitboxHeight;
-
-    spike.body.setSize(hitboxWidth, hitboxHeight);
-    spike.body.setOffset(offsetX, offsetY);
-
-    return spike;
+return spike;
 }
-
 
 
 
@@ -2969,49 +2926,6 @@ if (helpImage) helpImage.setVisible(false);
 if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
-}
-
-
-
-
-function setupCollisionDebug() {
-  this.time.addEvent({
-    delay: 1000, loop: true, callback: () => {
-      console.log('Global player:', !!player);
-      console.log('Scene player:', !!this.player);
-      console.log('Blocks:', !!this.blocksGroup);
-    }
-  });
-}
-
-
-
-
-
-
-
-function setupPlayerCollisions(scene) {
-  console.log("🔧 Setting up collisions...");
-  
-  scene.physics.world.colliders.destroy();
-  if (!scene.player || !scene.blocksGroup) {
-    console.error("❌ Missing player/blocks");
-    return;
-  }
-  
-  // CRITICAL: Refresh ALL groups
-  scene.blocksGroup.refresh();
-  scene.noBoostBlocksGroup.refresh();
-  scene.spikesGroup.refresh();
-  scene.windowsGroup.refresh();
-  
-  // Colliders
-  scene.physics.add.collider(scene.player, scene.blocksGroup);
-  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup, (p, s) => killPlayer.call(scene, p));
-  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
-  
-  console.log("✅ COLLISIONS READY");
 }
 
 
