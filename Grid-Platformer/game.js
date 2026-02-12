@@ -1109,25 +1109,38 @@ selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 
 
 function setupPlayerCollisions(scene) {
-    scene.physics.world.colliders.destroy();
-    if (!scene.player) return;
-
-    scene.physics.add.collider(scene.player, scene.blocksGroup);
-    scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-    
-scene.physics.add.overlap(
-  scene.player,
-  scene.spikesGroup,
-  (player, spike) => {
-    killPlayer.call(scene, player);
+  console.log("🔧 Setting up collisions...");
+  
+  scene.physics.world.colliders.destroy();
+  
+  if (!scene.player || !scene.blocksGroup) {
+    console.error("❌ Missing player/blocks");
+    return;
   }
-);
-
-    
-    scene.physics.add.overlap(scene.player, scene.windowsGroup,
-        () => { scene.player.canOpenWindow = true; }
-    );
+  
+  // REFRESH ALL GROUPS FIRST (CRITICAL)
+  scene.blocksGroup.refresh();
+  scene.noBoostBlocksGroup.refresh();
+  scene.spikesGroup.refresh();
+  scene.windowsGroup.refresh();
+  
+  // TEST BLOCK
+  const testBlock = scene.blocksGroup.create(500, 1000, 'pixel')
+    .setTint(0x00ff00).setDisplaySize(128, 32).refreshBody();
+  
+  console.log("TEST BLOCK:", testBlock ? "✅ CREATED" : "❌ FAILED");
+  console.log("Blocks count:", scene.blocksGroup.getChildren().length);
+  console.log("First block body:", scene.blocksGroup.getChildren()[0]?.body ? "✅ HAS BODY" : "❌ NO BODY");
+  
+  // COLLIDERS
+  scene.physics.add.collider(scene.player, scene.blocksGroup);
+  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, scene.spikesGroup, (p, s) => killPlayer.call(scene, p));
+  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
+  
+  console.log("✅ COLLISIONS READY");
 }
+
 
 
 
@@ -3000,6 +3013,7 @@ function setupPlayerCollisions(scene) {
   
   console.log("✅ COLLISIONS READY");
 }
+
 
 
 
