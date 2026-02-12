@@ -2961,6 +2961,15 @@ currentPauseMenu = null;
 
 
 
+function setupCollisionDebug() {
+  this.time.addEvent({
+    delay: 1000, loop: true, callback: () => {
+      console.log('Global player:', !!player);
+      console.log('Scene player:', !!this.player);
+      console.log('Blocks:', !!this.blocksGroup);
+    }
+  });
+}
 
 
 
@@ -2991,6 +3000,7 @@ function setupPlayerCollisions(scene) {
   
   console.log("✅ COLLISIONS READY");
 }
+
 
 
 
