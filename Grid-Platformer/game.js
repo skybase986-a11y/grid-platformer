@@ -470,6 +470,8 @@ pauseButton = this.add.image(40, height - 40, 'pause')
 .setInteractive({ useHandCursor: true }).setVisible(false);
 pauseButton.on('pointerup', () => togglePause.call(this));
 
+    setupPlayerCollisions(this);
+
 
 // Example window
 windowsGroup.create(600, 500, 'window').setOrigin(0, 0).setDisplaySize(gridSize, gridSize).refreshBody();
@@ -1146,18 +1148,16 @@ player.body.setVelocity(0, 0);
 player.body.enable = false;
 this.physics.world.debugGraphic.visible = false;
 } else {
-player.body.enable = true;
-player.setPosition(spawnPoint.x, spawnPoint.y);
-player.body.setVelocity(0, 0);
-cam.startFollow(player, true, 0.08, 0.08);
-this.physics.world.debugGraphic.visible = true;
-setupPlayerCollisions(this);
-setupPlayerCollisions(this);
-this.blocksGroup.refresh();        // Scene group
-this.spikesGroup.refresh();
-this.windowsGroup.refresh();
-this.noBoostBlocksGroup.refresh();
+    player.body.enable = true;
+    player.setPosition(spawnPoint.x, spawnPoint.y);
+    player.body.setVelocity(0, 0);
+    cam.startFollow(player, true, 0.08, 0.08);
+    this.physics.world.debugGraphic.visible = true;
+    
+    // ONE call does EVERYTHING (including refresh)
+    setupPlayerCollisions(this);
 }
+
 
 
 if (isEditorMode && !firstTimeEditorInstructionsShown) {
@@ -3043,6 +3043,48 @@ function setupCollisionDebug() {
 }
 
 
+
+function setupPlayerCollisions(scene) {
+  console.log("🔧 Setting up collisions...");
+  
+  // Destroy old colliders
+  scene.physics.world.colliders.destroy();
+  
+  if (!scene.player) {
+    console.error("❌ No player!");
+    return;
+  }
+  
+  if (!scene.blocksGroup) {
+    console.error("❌ No blocksGroup!");
+    return;
+  }
+  
+  // FORCE refresh all group bodies
+  scene.blocksGroup.refresh();
+  scene.noBoostBlocksGroup.refresh();
+  scene.spikesGroup.refresh();
+  scene.windowsGroup.refresh();
+  
+  console.log("✅ Groups refreshed");
+  console.log("Blocks count:", scene.blocksGroup.getChildren().length);
+  
+  // FORCE collisions - these will work
+  scene.physics.add.collider(scene.player, scene.blocksGroup);
+  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+  
+  // FORCE spikes kill
+  scene.physics.add.overlap(scene.player, scene.spikesGroup, (player, spike) => {
+    killPlayer.call(scene, player);
+  });
+  
+  // Window overlap
+  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => {
+    scene.player.canOpenWindow = true;
+  });
+  
+  console.log("✅ ALL COLLISIONS ACTIVE");
+}
 
 
 
