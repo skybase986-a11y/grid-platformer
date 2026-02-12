@@ -675,10 +675,7 @@ spawnPoint = scene.spawnPoint;
 finishLine = scene.finishLine;          // all of these exist as globals in your file[file:1]
 
 // ----- REFRESH STATIC BODIES -----
-blocksGroup.refresh();
-spikesGroup.refresh();
-windowsGroup.refresh();
-noBoostBlocksGroup.refresh();
+
 
 // ----- COLLISIONS / PLAYER RESET (ONLY IF PLAYER EXISTS) -----
 if (scene.player) {
@@ -1084,22 +1081,18 @@ selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 
 
 function setupPlayerCollisions(scene) {
-  // Destroy old colliders
-  scene.physics.world.colliders.destroy();
-  // SAFE version - no collider destroy
-  if (!scene.player) return;
+    // Properly destroy old colliders (colliders is an array)
+    scene.physics.world.colliders.length = 0;  // Clear the array
 
-  // Add fresh ones - USE SCENE GROUPS, not globals
-  scene.physics.add.collider(scene.player, scene.blocksGroup);
-  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
-  scene.physics.add.collider(scene.player, scene.blocksGroup || blocksGroup);
-  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup || noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup || spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, scene.windowsGroup || windowsGroup, () => { 
-    scene.player.canOpenWindow = true; 
-  }, null, scene);
+    if (!scene.player) return;
+
+    // Add colliders once, using scene groups only
+    scene.physics.add.collider(scene.player, scene.blocksGroup);
+    scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+    scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+    scene.physics.add.overlap(scene.player, scene.windowsGroup, (player, win) => {
+        scene.player.canOpenWindow = true;  // Standardized callback
+    }, null, scene);
 }
 
 
@@ -1575,41 +1568,17 @@ editorTargetZoom,
 );
 }
 
-function killPlayer(scene) {
-player.sfx.death.play();
-
-// Reset velocity
-player.body.setVelocity(0, 0);
-
-// Reset position to spawn
-player.setPosition(spawnPoint.x, spawnPoint.y);
-
-// Reset boost state
-canBoost = false;
-lastTouchingDown = false;
-lastLandingFrame = -9999;
-
-// Small camera snap to avoid weird offsets
-scene.cameras.main.flash(120, 255, 0, 0);
+function killPlayer(player, spike) {
+    const scene = this;  // 'this' is the scene passed to the overlap callback
+    player.sfx.death.play();
+    player.body.setVelocity(0, 0);  // Reset velocity
+    player.setPosition(spawnPoint.x, spawnPoint.y);  // Reset position (assumes spawnPoint is global)
+    canBoost = false;
+    lastTouchingDown = false;
+    lastLandingFrame = -9999;
+    scene.cameras.main.flash(120, 255, 0, 0);  // Flash effect
 }
 
-function triggerWin() {
-hasWon = true;
-
-// Freeze player
-player.body.setVelocity(0, 0);
-player.body.enable = false;
-
-// Stop camera follow
-this.cameras.main.stopFollow();
-
-// Show UI
-winText.setVisible(true);
-restartButton.setVisible(true);
-
-// Optional: small flash
-this.cameras.main.flash(200, 0, 255, 0);
-}
 
 function restartLevel() {
 hasWon = false;
@@ -2927,6 +2896,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
