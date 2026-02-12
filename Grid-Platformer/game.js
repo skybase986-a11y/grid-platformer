@@ -734,70 +734,6 @@ window.loadLevel = function (compressedData, scene) {
     }
 };
 
-    
-// ✅ BACKGROUND SELECTION
-function openLevelOptions(scene) {
-if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
-if (levelOptionsText) levelOptionsText.setVisible(true);
-if (selectMusicButton) selectMusicButton.setVisible(true);
-if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
-if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
-}
-
-function closeLevelOptions(scene) {
-if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-if (levelOptionsText) levelOptionsText.setVisible(false);
-if (selectMusicButton) selectMusicButton.setVisible(false);
-if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
-if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
-}
-
-function selectMusic(scene, key) {
-selectedMusicKey = key;
-if (gameState === 'playing') {  // Only play if in game
-playSelectedMusic(scene);
-}
-closeSelectMusicMenu(scene);
-showInstruction(scene, MUSICMAP[key], 1500);
-}
-
-function openSelectMusicMenu(scene) {
-if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
-if (musicTitleText) musicTitleText.setVisible(true);
-Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
-}
-
-function closeSelectMusicMenu(scene) {
-if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
-if (musicTitleText) musicTitleText.setVisible(false);
-Object.values(musicButtons).forEach(btn => btn.setVisible(false));
-if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
-}
-
-// ✅ BACKGROUND SELECTION  
-function selectBackground(scene, key) {
-selectedBackgroundKey = key;
-if (currentBackground) {
-currentBackground.setTexture(BACKGROUND_MAP[key]);
-}
-showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
-}
-
-// ✅ MUSIC PLAYER
-function playSelectedMusic(scene) {
-if (currentMusic) {
-currentMusic.stop();
-currentMusic.destroy();
-}
-const musicName = MUSIC_MAP[selectedMusicKey];
-currentMusic = scene.sound.add(musicName);
-if (currentMusic) {
-currentMusic.play({ loop: true, volume: 0.2 });
-}
-}
-};
-
 
 
 
@@ -2901,6 +2837,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
