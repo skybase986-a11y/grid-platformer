@@ -168,10 +168,10 @@ myGameScene = game.scene.keys.default;
 
 function createLevelEditor(scene) {
 // initialize groups
-scene.blocksGroup = scene.physics.add.group();
-scene.spikesGroup = scene.physics.add.group();
-scene.windowsGroup = scene.physics.add.group();
-scene.noBoostBlocksGroup = scene.physics.add.group();
+    scene.blocksGroup = scene.physics.add.staticGroup();     // ✅ GREEN static
+    scene.spikesGroup = scene.physics.add.staticGroup();
+    scene.windowsGroup = scene.physics.add.staticGroup();
+    scene.noBoostBlocksGroup = scene.physics.add.staticGroup();
 
 // spawn point & finish line placeholders
 scene.spawnPoint = null;
@@ -1084,20 +1084,19 @@ selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 
 
 function setupPlayerCollisions(scene) {
-    // Remove old colliders
     scene.physics.world.colliders.destroy();
-
     if (!scene.player) return;
 
-    // Only use the scene-owned groups
     scene.physics.add.collider(scene.player, scene.blocksGroup);
     scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-
-    scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+    
+    // Fix overlap callbacks
+    scene.physics.add.overlap(scene.player, scene.spikesGroup, 
+        (player, spike) => { killPlayer.call(scene, player); }
+    );
+    
     scene.physics.add.overlap(scene.player, scene.windowsGroup,
-        () => { scene.player.canOpenWindow = true; },
-        null,
-        scene
+        () => { scene.player.canOpenWindow = true; }
     );
 }
 
@@ -1135,10 +1134,11 @@ player.body.setVelocity(0, 0);
 cam.startFollow(player, true, 0.08, 0.08);
 this.physics.world.debugGraphic.visible = true;
 setupPlayerCollisions(this);
-blocksGroup.refresh();
-noBoostBlocksGroup.refresh();
-spikesGroup.refresh();
-windowsGroup.refresh();
+setupPlayerCollisions(this);
+this.blocksGroup.refresh();        // Scene group
+this.spikesGroup.refresh();
+this.windowsGroup.refresh();
+this.noBoostBlocksGroup.refresh();
 }
 
 
@@ -2930,6 +2930,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
