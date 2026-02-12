@@ -568,168 +568,173 @@ createBlockColorMenu(this);
 
 // Replace your existing window.loadLevel with this:
 window.loadLevel = function (compressedData, scene) {
-// Remember scene globally for menus etc.
-window.myGameScene = scene;
-console.log("Loading level...");
+    // Remember scene globally for menus etc.
+    window.myGameScene = scene;
+    console.log("Loading level...");
 
-let levelData = null;
+    let levelData = null;
 
-try {
-// Decompress + parse
-if (typeof LZString === "undefined") {
-throw new Error("LZString missing - check script tag");
-}
+    try {
+        // Decompress + parse (fixed LZString check)
+        if (typeof LZString === "undefined") {
+            throw new Error("LZString missing - check script tag");
+        }
 
-const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
-levelData = JSON.parse(jsonString);
-console.log("Loaded data:", levelData);
+        const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+        if (!jsonString) {
+            throw new Error("Decompression failed - invalid level data");
+        }
+        levelData = JSON.parse(jsonString);
+        console.log("Loaded data:", levelData);
 
-// ----- DESTROY + RECREATE GROUPS -----
-const groupNames = ["blocksGroup", "spikesGroup", "windowsGroup", "noBoostBlocksGroup"];
+        // ----- DESTROY + RECREATE GROUPS -----
+        const groupNames = ["blocksGroup", "spikesGroup", "windowsGroup", "noBoostBlocksGroup"];
+        groupNames.forEach((name) => {
+            if (scene[name]) {
+                scene[name].clear(true, true);
+                scene[name].destroy(true);
+            }
+            scene[name] = scene.physics.add.staticGroup();
+        });
 
-groupNames.forEach((name) => {
-if (scene[name]) {
-scene[name].clear(true, true);
-scene[name].destroy(true);
-}
-scene[name] = scene.physics.add.staticGroup();
-});
+        // ----- DESTROY OLD START / FINISH -----
+        if (scene.spawnPoint) {
+            scene.spawnPoint.destroy();
+            scene.spawnPoint = null;
+        }
+        if (scene.finishLine) {
+            scene.finishLine.destroy();
+            scene.finishLine = null;
+        }
 
-// ----- DESTROY OLD START / FINISH -----
-if (scene.spawnPoint) {
-scene.spawnPoint.destroy();
-scene.spawnPoint = null;
-}
-if (scene.finishLine) {
-scene.finishLine.destroy();
-scene.finishLine = null;
-}
+        const gridSize = 64; // matches your editor grid size
 
-const gridSize = 64; // matches your editor grid size[file:1]
+        // ----- LOAD BLOCKS (b) -----
+        if (Array.isArray(levelData.b)) {
+            levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
+                const block = scene.blocksGroup.create(x, y, "pixel")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h)
+                    .setTint(tint);
+                block.refreshBody();
+            });
+        }
 
-// ----- LOAD BLOCKS (b) -----
-if (Array.isArray(levelData.b)) {
-levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
-const block = scene.blocksGroup.create(x, y, "pixel")
-.setOrigin(0, 0)
-.setDisplaySize(w, h)
-.setTint(tint);
-block.refreshBody();
-});
-}
+        // ----- LOAD SPIKES (s) -----
+        if (Array.isArray(levelData.s)) {
+            levelData.s.forEach(([x, y, w, h]) => {
+                createSpike(scene.spikesGroup, x, y, w || 64);
+            });
+        }
 
-if (Array.isArray(levelData.s)) {
-levelData.s.forEach(([x, y, w, h]) => {
-createSpike(scene.spikesGroup, x, y, w || 64);
-});
-}
+        // ----- LOAD WINDOWS (w) -----
+        if (Array.isArray(levelData.w)) {
+            levelData.w.forEach(([x, y, w, h]) => {
+                const win = scene.windowsGroup.create(x, y, "window")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h);
+                win.refreshBody();
+            });
+        }
 
+        // ----- LOAD NO-BOOST BLOCKS (nb) -----
+        if (Array.isArray(levelData.nb)) {
+            levelData.nb.forEach(([x, y, w, h]) => {
+                const nb = scene.noBoostBlocksGroup.create(x, y, "pixel")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h)
+                    .setTint(0x0000ff);
+                nb.refreshBody();
+            });
+        }
 
-// ----- LOAD WINDOWS (w) -----
-if (Array.isArray(levelData.w)) {
-levelData.w.forEach(([x, y, w, h]) => {
-const win = scene.windowsGroup.create(x, y, "window")
-.setOrigin(0, 0)
-.setDisplaySize(w, h);
-win.refreshBody();
-});
-}
+        // ----- LOAD START (st) -----
+        if (levelData.st) {
+            const [x, y, w, h] = levelData.st;
+            scene.spawnPoint = scene.add.sprite(x, y, "start")
+                .setOrigin(0, 0)
+                .setDisplaySize(w, h)
+                .setDepth(10);
+            console.log("Start loaded at:", x, y);
+        }
 
-// ----- LOAD NO‑BOOST BLOCKS (nb) -----
-if (Array.isArray(levelData.nb)) {
-levelData.nb.forEach(([x, y, w, h]) => {
-const nb = scene.noBoostBlocksGroup.create(x, y, "pixel")
-.setOrigin(0, 0)
-.setDisplaySize(w, h)
-.setTint(0x0000ff);
-nb.refreshBody();
-});
-}
+        // ----- LOAD FINISH (f) -----
+        if (levelData.f) {
+            const [x, y, w, h] = levelData.f;
+            scene.finishLine = scene.add.sprite(x, y, "finish")
+                .setOrigin(0, 0)
+                .setDisplaySize(w, h)
+                .setDepth(10);
+            console.log("Finish loaded at:", x, y);
+        }
 
-// ----- LOAD START (st) -----
-if (levelData.st) {
-const [x, y, w, h] = levelData.st;
-scene.spawnPoint = scene.add.sprite(x, y, "start")
-.setOrigin(0, 0)
-.setDisplaySize(w, h)
-.setDepth(10);
-console.log("Start", x, y);
-}
+        // ----- UPDATE GLOBALS SO REST OF CODE USES NEW GROUPS -----
+        blocksGroup = scene.blocksGroup;
+        spikesGroup = scene.spikesGroup;
+        windowsGroup = scene.windowsGroup;
+        noBoostBlocksGroup = scene.noBoostBlocksGroup;
+        spawnPoint = scene.spawnPoint;
+        finishLine = scene.finishLine;
 
-// ----- LOAD FINISH (f) -----
-if (levelData.f) {
-const [x, y, w, h] = levelData.f;
-scene.finishLine = scene.add.sprite(x, y, "finish")
-.setOrigin(0, 0)
-.setDisplaySize(w, h)
-.setDepth(10);
-console.log("Finish", x, y);
-}
+        // ----- REFRESH STATIC BODIES (CRITICAL FOR COLLISIONS) -----
+        blocksGroup.refresh();
+        spikesGroup.refresh();
+        noBoostBlocksGroup.refresh();
+        windowsGroup.refresh();
 
-// ----- UPDATE GLOBALS SO REST OF CODE USES NEW GROUPS -----
-blocksGroup = scene.blocksGroup;
-spikesGroup = scene.spikesGroup;
-windowsGroup = scene.windowsGroup;
-noBoostBlocksGroup = scene.noBoostBlocksGroup;
-spawnPoint = scene.spawnPoint;
-finishLine = scene.finishLine;          // all of these exist as globals in your file[file:1]
+        // ----- COLLISIONS / PLAYER RESET (ONLY IF PLAYER EXISTS) -----
+        if (scene.player) {
+            // Reset player roughly at spawn; fall back to 0,0 if no spawn
+            const spawnX = spawnPoint ? spawnPoint.x + 10 : 0;
+            const spawnY = spawnPoint ? spawnPoint.y - 50 : 0;
 
-// ----- REFRESH STATIC BODIES -----
+            scene.player.body.setVelocity(0, 0);
+            scene.player.setPosition(spawnX, spawnY);
 
+            // Remove old colliders by pausing collision temporarily
+            scene.physics.world.collideBounds = false;
 
-// ----- COLLISIONS / PLAYER RESET (ONLY IF PLAYER EXISTS) -----
-if (scene.player) {
-// Reset player roughly at spawn; fall back to 0,0 if no spawn
-const spawnX = spawnPoint ? spawnPoint.x + 10 : 0;
-const spawnY = spawnPoint ? spawnPoint.y - 50 : 0;
+            scene.time.delayedCall(50, () => {
+                setupPlayerCollisions(scene);
+                scene.physics.world.collideBounds = true;
+            });
 
-scene.player.body.setVelocity(0, 0);
-scene.player.setPosition(spawnX, spawnY);
+            scene.physics.world.collideBounds = true;
+        }
 
-// Remove old colliders by pausing collision temporarily
-scene.physics.world.collideBounds = false;
+        console.log("SUCCESS: Loaded", (levelData.b?.length || 0), "blocks,", (levelData.s?.length || 0), "spikes");
+        showInstruction(scene, `${(levelData.b?.length || 0)} BLOCKS COLLISION READY`, 3000);
 
-scene.time.delayedCall(50, () => {
-setupPlayerCollisions(scene);
-scene.physics.world.collideBounds = true;
-});
+        // ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA -----
+        if (levelData.m) {
+            selectedMusicKey = levelData.m;
+        }
+        if (levelData.bg) {
+            selectedBackgroundKey = levelData.bg;
 
+            // Create background if it doesn't exist
+            if (!currentBackground) {
+                currentBackground = scene.add.image(
+                    WORLD_WIDTH / 2,
+                    WORLD_HEIGHT / 2,
+                    BACKGROUND_MAP[levelData.bg]
+                )
+                .setOrigin(0.5)
+                .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
+                .setDepth(-4000)
+                .setScrollFactor(0);
+            } else {
+                currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);
+            }
+        }
 
-scene.physics.world.collideBounds = true;
-}
+    } catch (error) {
+        console.error("LOAD ERROR:", error);
+        showInstruction(scene, "❌ LOAD FAILED!", 2000);
+    }
+};
 
-console.log("SUCCESS:", (levelData.b?.length || 0), "blocks loaded");
-showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);
-
-// ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA, BUT DO NOT AUTO‑PLAY -----
-// Store level's music/background preferences
-if (levelData.m) {
-selectedMusicKey = levelData.m;        // ✅ Reads "m" from JSON
-}
-if (levelData.bg) {
-selectedBackgroundKey = levelData.bg;
-
-// Create background if it doesn't exist
-if (!currentBackground) {
-currentBackground = scene.add.image(
-WORLD_WIDTH / 2, 
-WORLD_HEIGHT / 2, 
-BACKGROUND_MAP[levelData.bg]
-)
-.setOrigin(0.5)
-.setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
-.setDepth(-4000)
-.setScrollFactor(0);
-} else {
-currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);
-}
-}
-
-} catch (error) {
-console.error("LOAD ERROR:", error);
-showInstruction(scene, "❌ LOAD FAILED!", 2000);
-}
-
+    
 // ✅ BACKGROUND SELECTION
 function openLevelOptions(scene) {
 if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
@@ -2896,6 +2901,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
