@@ -618,19 +618,10 @@ block.refreshBody();
 });
 }
 
-        // ----- LOAD SPIKES (s) -----
-        if (Array.isArray(levelData.s)) {
-            levelData.s.forEach(([x, y, w, h]) => {
-                const spike = scene.spikesGroup.create(x, y, "spike")
-                    .setOrigin(0, 0)
-                    .setDisplaySize(w, h);
-                spike.refreshBody();
-            });
-        }
 if (Array.isArray(levelData.s)) {
-  levelData.s.forEach(([x, y, w, h]) => {
-    createSpike(scene.spikesGroup, x, y, w || 64);
-  });
+levelData.s.forEach(([x, y, w, h]) => {
+createSpike(scene.spikesGroup, x, y, w || 64);
+});
 }
 
 
@@ -701,22 +692,9 @@ scene.player.setPosition(spawnX, spawnY);
 // Remove old colliders by pausing collision temporarily
 scene.physics.world.collideBounds = false;
 
-            scene.time.delayedCall(50, () => {
-                // Re‑add colliders/overlaps
-                scene.physics.add.collider(scene.player, blocksGroup);
-                scene.physics.add.collider(scene.player, noBoostBlocksGroup);
-                scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
-                scene.physics.add.overlap(
-                    scene.player,
-                    windowsGroup,
-                    () => { scene.player.canOpenWindow = true; },
-                    null,
-                    scene
-                );
-            });
-  scene.time.delayedCall(50, () => {
-  setupPlayerCollisions(scene);
-  scene.physics.world.collideBounds = true;
+scene.time.delayedCall(50, () => {
+setupPlayerCollisions(scene);
+scene.physics.world.collideBounds = true;
 });
 
 
@@ -1108,13 +1086,23 @@ selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 function setupPlayerCollisions(scene) {
   // Destroy old colliders
   scene.physics.world.colliders.destroy();
-  
-  // Add fresh ones
-  scene.physics.add.collider(scene.player, blocksGroup);
-  scene.physics.add.collider(scene.player, noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
+  // SAFE version - no collider destroy
+  if (!scene.player) return;
+
+  // Add fresh ones - USE SCENE GROUPS, not globals
+  scene.physics.add.collider(scene.player, scene.blocksGroup);
+  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
+  scene.physics.add.collider(scene.player, scene.blocksGroup || blocksGroup);
+  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup || noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, scene.spikesGroup || spikesGroup, killPlayer, null, scene);
+  scene.physics.add.overlap(scene.player, scene.windowsGroup || windowsGroup, () => { 
+    scene.player.canOpenWindow = true; 
+  }, null, scene);
 }
+
+
 
 
 
@@ -1147,20 +1135,13 @@ player.setPosition(spawnPoint.x, spawnPoint.y);
 player.body.setVelocity(0, 0);
 cam.startFollow(player, true, 0.08, 0.08);
 this.physics.world.debugGraphic.visible = true;
-      this.physics.add.collider(player, blocksGroup);
-this.physics.add.collider(player, noBoostBlocksGroup);
-this.physics.add.collider(player, spikesGroup);
-this.physics.add.overlap(player, spikesGroup, killPlayer, null, this);
-this.physics.add.overlap(player, windowsGroup, () => { player.canOpenWindow = true; }, null, this);
 setupPlayerCollisions(this);
-
-
 blocksGroup.refresh();
 noBoostBlocksGroup.refresh();
 spikesGroup.refresh();
 windowsGroup.refresh();
-
 }
+
 
 if (isEditorMode && !firstTimeEditorInstructionsShown) {
 showInstruction(this, "Press ENTER to playtest, and PAUSE for level settings", 4000);
@@ -1169,26 +1150,25 @@ firstTimeEditorInstructionsShown = true;
 }
 
 function createSpike(group, x, y, size) {
-  const spike = group.create(x, y, 'spike')
-    .setOrigin(0, 0)
-    .setDisplaySize(size, size);
-  spike.refreshBody();
-  
-  const hitboxWidth  = size * 0.2;
-  const hitboxHeight = size * 0.55;
-  const offsetX      = size - hitboxWidth / 2;
-  const offsetY      = size - hitboxHeight;
-  
-  spike.body.setSize(hitboxWidth, hitboxHeight);
-  spike.body.setOffset(offsetX, offsetY);
-  
-  return spike;
+const spike = group.create(x, y, 'spike')
+.setOrigin(0, 0)
+.setDisplaySize(size, size);
+spike.refreshBody();
+
+const hitboxWidth  = size * 0.2;
+const hitboxHeight = size * 0.55;
+const offsetX      = size - hitboxWidth / 2;
+const offsetY      = size - hitboxHeight;
+
+spike.body.setSize(hitboxWidth, hitboxHeight);
+spike.body.setOffset(offsetX, offsetY);
+
+return spike;
 }
 
 
 
 function placeObject(x, y) {
-// Clamp x/y to world
 x = Phaser.Math.Clamp(x, 0, WORLD_WIDTH - gridSize);
 y = Phaser.Math.Clamp(y, 0, WORLD_HEIGHT - gridSize);
 
@@ -1198,38 +1178,18 @@ if (!existing) {
 blocksGroup.create(x, y, 'pixel')
 .setOrigin(0, 0)
 .setDisplaySize(gridSize, gridSize)
-.setTint(blockColorHex) // Ã¢Å“â€¦ use selected color
+.setTint(blockColorHex)
 .refreshBody();
-
 }
 } else if (currentTool === 'finish') {
 finishLine.setPosition(x, y);
 } else if (currentTool === 'spawn') {
 spawnPoint.setPosition(x, y);
-  } else if (currentTool === 'spike') {
-    const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
-    if (!existing) {
-      const spike = spikesGroup.create(x, y, 'spike')
-        .setOrigin(0, 0)
-        .setDisplaySize(gridSize, gridSize);
-
-      spike.refreshBody();
-
-      const hitboxWidth = gridSize * 0.2;
-      const hitboxHeight = gridSize * 0.55;
-
-      const offsetX = (gridSize - hitboxWidth) / 2;
-      const offsetY = gridSize - hitboxHeight;
-else if (currentTool === 'spike') {
-  const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
-  if (!existing) {
-    createSpike(spikesGroup, x, y, gridSize);
-  }
+} else if (currentTool === 'spike') {
+const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
+if (!existing) {
+createSpike(spikesGroup, x, y, gridSize);
 }
-
-      spike.body.setSize(hitboxWidth, hitboxHeight);
-      spike.body.setOffset(offsetX, offsetY);
-    }
 } else if (currentTool === 'window') {
 const existing = windowsGroup.getChildren().find(w => w.x === x && w.y === y);
 if (!existing) {
@@ -1244,11 +1204,12 @@ if (!existing) {
 const block = noBoostBlocksGroup.create(x, y, 'pixel')
 .setOrigin(0, 0)
 .setDisplaySize(gridSize, gridSize)
-.setTint(0x0000ff) // blue
+.setTint(0x0000ff)
 .refreshBody();
 }
 }
 }
+
 
 function update() {
 // UI positioning FIRST (always runs)\
@@ -1585,7 +1546,7 @@ titleText?.setVisible(false);
 player.setPosition(spawnPoint.x, spawnPoint.y);
 player.body.setVelocity(0, 0);
 
-    setupPlayerCollisions(this);
+setupPlayerCollisions(this);
 
 }
 
@@ -1673,7 +1634,7 @@ this.cameras.main.startFollow(player, true, 0.08, 0.08);
 // Optional: reset finish line position if needed
 // createFinishLine(this);
 
-    
+
 }
 
 function updateEditorZoomLimits(cam) {
@@ -1697,7 +1658,7 @@ editorMaxZoom = 0.6;
 // Clamp target zoom
 editorTargetZoom = Phaser.Math.Clamp(editorTargetZoom, editorMinZoom, editorMaxZoom);
 
-    
+
 }
 
 // --- Additional utility functions ---
@@ -3007,4 +2968,6 @@ currentPauseMenu = null;
 
 
 
-~
+
+
+
