@@ -54,9 +54,9 @@ let blockColorHex = 0xffffff; // default white
 let simpleOptionsContainer = null;
 let simpleOptionsOpen = false;
 let simpleOptionsButtons = {
-    music: {},
-    bg: {},
-    back: null,
+music: {},
+bg: {},
+back: null,
 };
 
 
@@ -123,15 +123,15 @@ let musicTitleText;
 let musicButtons = {};
 
 const MUSIC_MAP = {
-    X: 'Adventure',
-    Y: 'Scary',
-    Z: 'Happy'
+X: 'Adventure',
+Y: 'Scary',
+Z: 'Happy'
 };
 
 const BACKGROUND_MAP = {
-    A: 'Dark',
-    B: 'Forest',
-    C: 'Red'
+A: 'Dark',
+B: 'Forest',
+C: 'Red'
 };
 
 
@@ -143,19 +143,19 @@ const WORLD_WIDTH = 8000;
 const WORLD_HEIGHT = 4000;
 
 const config = {
-  type: Phaser.AUTO,
-  width: window.innerWidth,
-  height: window.innerHeight,
-  backgroundColor: "#1d1d1d",
-  physics: {
-    default: "arcade",
-    arcade: { gravity: { y: 500 }, debug: true }
-  },
-  scale: {
-    mode: Phaser.Scale.RESIZE,  // <-- make it resize automatically
-    autoCenter: Phaser.Scale.CENTER_BOTH
-  },
-  scene: { preload, create, update }
+type: Phaser.AUTO,
+width: window.innerWidth,
+height: window.innerHeight,
+backgroundColor: "#1d1d1d",
+physics: {
+default: "arcade",
+arcade: { gravity: { y: 500 }, debug: true }
+},
+scale: {
+mode: Phaser.Scale.RESIZE,  // <-- make it resize automatically
+autoCenter: Phaser.Scale.CENTER_BOTH
+},
+scene: { preload, create, update }
 };
 
 const game = new Phaser.Game(config);
@@ -163,78 +163,78 @@ const game = new Phaser.Game(config);
 let myGameScene;
 
 game.events.on('ready', () => {
-    myGameScene = game.scene.keys.default;
+myGameScene = game.scene.keys.default;
 });
 
 function createLevelEditor(scene) {
-    // initialize groups
-    scene.blocksGroup = scene.physics.add.group();
-    scene.spikesGroup = scene.physics.add.group();
-    scene.windowsGroup = scene.physics.add.group();
-    scene.noBoostBlocksGroup = scene.physics.add.group();
+// initialize groups
+scene.blocksGroup = scene.physics.add.group();
+scene.spikesGroup = scene.physics.add.group();
+scene.windowsGroup = scene.physics.add.group();
+scene.noBoostBlocksGroup = scene.physics.add.group();
 
-    // spawn point & finish line placeholders
-    scene.spawnPoint = null;
-    scene.finishLine = null;
+// spawn point & finish line placeholders
+scene.spawnPoint = null;
+scene.finishLine = null;
 
 
-    console.log("Editor/game objects initialized.");
+console.log("Editor/game objects initialized.");
 }
 
 function startEditorMode(scene) {
-    window.myGameScene = scene;  // assign the current scene globally
+window.myGameScene = scene;  // assign the current scene globally
 
-    // initialize your editor/game objects
-    createLevelEditor(scene); // <-- your existing setup code for blocks, spikes, etc.
+// initialize your editor/game objects
+createLevelEditor(scene); // <-- your existing setup code for blocks, spikes, etc.
 
-    // if a pending JSON level exists, load it automatically
-    if (window.pendingLevelData) {
-        scene.loadLevel(window.pendingLevelData);
-        window.pendingLevelData = null;
-    }
+// if a pending JSON level exists, load it automatically
+if (window.pendingLevelData) {
+scene.loadLevel(window.pendingLevelData);
+window.pendingLevelData = null;
+}
 }
 
 
 function preload() {
 
-    const width = this.scale.width;
-  const height = this.scale.height;
+const width = this.scale.width;
+const height = this.scale.height;
 
-  const progressBox = this.add.rectangle(
-    width / 2, height / 2, 400, 50, 0x222222
-  );
-  const progressBar = this.add.rectangle(
-    width / 2 - 190, height / 2, 0, 30, 0xffffff
-  );
-  const loadingText = this.add.text(
-    width / 2, height / 2 - 60,
-    'Loading...',
-    { fontSize: '32px', fill: '#ffffff' }
-  ).setOrigin(0.5);
+const progressBox = this.add.rectangle(
+width / 2, height / 2, 400, 50, 0x222222
+);
+const progressBar = this.add.rectangle(
+width / 2 - 190, height / 2, 0, 30, 0xffffff
+);
+const loadingText = this.add.text(
+width / 2, height / 2 - 60,
+'Loading...',
+{ fontSize: '32px', fill: '#ffffff' }
+).setOrigin(0.5);
 
-  // Update bar as files load
-  this.load.on('progress', (value) => {
-    progressBar.width = 380 * value;
-  });
+// Update bar as files load
+this.load.on('progress', (value) => {
+progressBar.width = 380 * value;
+});
 
-  // Cleanup when complete
-  this.load.on('complete', () => {
-    progressBox.destroy();
-    progressBar.destroy();
-    loadingText.destroy();
-  });
+// Cleanup when complete
+this.load.on('complete', () => {
+progressBox.destroy();
+progressBar.destroy();
+loadingText.destroy();
+});
 
-    
-  this.load.audio('death1', 'assets/death1.mp3');
-  this.load.image('spike', 'assets/images/spike.png');
-  this.load.image('finish', 'assets/images/FinishLine.png');
-  this.load.image('start', 'assets/images/StartPoint.png');
-  this.load.image('window', 'assets/images/window.png');
-  this.load.image('pause', 'assets/images/Pause.png');
-  this.load.image('welcome1', 'assets/images/welcome1.png');
-  this.load.image('welcome2', 'assets/images/welcome2.png');
-  this.load.image('Help', 'assets/images/Help.png'); 
-  this.load.audio('Adventure', 'assets/adventure.mp3')
+
+this.load.audio('death1', 'assets/death1.mp3');
+this.load.image('spike', 'assets/images/spike.png');
+this.load.image('finish', 'assets/images/FinishLine.png');
+this.load.image('start', 'assets/images/StartPoint.png');
+this.load.image('window', 'assets/images/window.png');
+this.load.image('pause', 'assets/images/Pause.png');
+this.load.image('welcome1', 'assets/images/welcome1.png');
+this.load.image('welcome2', 'assets/images/welcome2.png');
+this.load.image('Help', 'assets/images/Help.png'); 
+this.load.audio('Adventure', 'assets/adventure.mp3')
 this.load.audio('Scary', 'assets/scary.mp3');
 this.load.audio('Happy', 'assets/Happy.mp3');
 this.load.image('Dark', 'assets/Dark.png');
@@ -245,57 +245,57 @@ this.load.image('Red', 'assets/red.png');
 
 // Replace current pixel generation with proper 1x1 texture
 if (!this.textures.exists('pixel')) {
-    const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-    graphics.fillStyle(0xffffff, 1); // white
-    graphics.fillRect(0, 0, 1, 1);
-    graphics.generateTexture('pixel', 1, 1);
-    graphics.destroy();
+const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+graphics.fillStyle(0xffffff, 1); // white
+graphics.fillRect(0, 0, 1, 1);
+graphics.generateTexture('pixel', 1, 1);
+graphics.destroy();
 }
 
 
 
-  // Only generate pixel texture if it doesnÃ¢â‚¬â„¢t exist
-  if (!this.textures.exists('pixel')) {
-    this.textures.generate('pixel', { data: ['.'], pixelWidth: 1 });
-  }
+// Only generate pixel texture if it doesnÃ¢â‚¬â„¢t exist
+if (!this.textures.exists('pixel')) {
+this.textures.generate('pixel', { data: ['.'], pixelWidth: 1 });
+}
 }
 
 
 function showInstruction(scene, message, duration = 3000) {
-  if (instructionText) instructionText.destroy(); // remove old
+if (instructionText) instructionText.destroy(); // remove old
 
-  instructionText = scene.add.text(
-    config.width / 2,
-    config.height / 2 - 200,
-    message,
-    {
-      fontSize: "128px",
-      fill: "#ffffff",
-      align: "center",
-      backgroundColor: "rgba(0,0,0,0.5)",
-      padding: { x: 20, y: 10 },
-    }
-  )
-    .setOrigin(0.5)
-    .setScrollFactor(0)
-    .setAlpha(1);
+instructionText = scene.add.text(
+config.width / 2,
+config.height / 2 - 200,
+message,
+{
+fontSize: "128px",
+fill: "#ffffff",
+align: "center",
+backgroundColor: "rgba(0,0,0,0.5)",
+padding: { x: 20, y: 10 },
+}
+)
+.setOrigin(0.5)
+.setScrollFactor(0)
+.setAlpha(1);
 
-  scene.tweens.add({
-    targets: instructionText,
-    alpha: 0,
-    duration: 1000,
-    delay: duration,
-    onComplete: () => instructionText.destroy()
-  });
+scene.tweens.add({
+targets: instructionText,
+alpha: 0,
+duration: 1000,
+delay: duration,
+onComplete: () => instructionText.destroy()
+});
 }
 
 
 const MENU_BUTTON_STYLE = {
-  fontSize: '64px',          // same size as PAUSED text
-  fontFamily: 'Arial',
-  fill: '#4aa3ff',           // blue by default
-  backgroundColor: '#000000',
-  padding: { x: 40, y: 20 }
+fontSize: '64px',          // same size as PAUSED text
+fontFamily: 'Arial',
+fill: '#4aa3ff',           // blue by default
+backgroundColor: '#000000',
+padding: { x: 40, y: 20 }
 };
 
 
@@ -307,72 +307,72 @@ const MENU_BUTTON_STYLE = {
 
 // Add this inside your scene (outside create/update)
 loadLeve = function(levelData) {
-    // --- CLEAR EXISTING LEVEL ELEMENTS ---
-    blocksGroup.clear(true, true);
-    spikesGroup.clear(true, true);
-    windowsGroup.clear(true, true);
-    noBoostBlocksGroup.clear(true, true);
+// --- CLEAR EXISTING LEVEL ELEMENTS ---
+blocksGroup.clear(true, true);
+spikesGroup.clear(true, true);
+windowsGroup.clear(true, true);
+noBoostBlocksGroup.clear(true, true);
 
-    if (spawnPoint) spawnPoint.destroy();
-    if (finishLine) finishLine.destroy();
+if (spawnPoint) spawnPoint.destroy();
+if (finishLine) finishLine.destroy();
 
-    // --- SET BACKGROUND ---
-    if (levelData.background) {
-        this.cameras.main.setBackgroundColor(levelData.background);
-    }
+// --- SET BACKGROUND ---
+if (levelData.background) {
+this.cameras.main.setBackgroundColor(levelData.background);
+}
 
 
-    // --- SPAWN BLOCKS ---
-    if (levelData.blocks) {
-        levelData.blocks.forEach(block => {
-            blocksGroup.create(block.x, block.y, block.color)
-                .setOrigin(0, 0)
-                .setDisplaySize(gridSize, gridSize)
-                .refreshBody();
-        });
-    }
+// --- SPAWN BLOCKS ---
+if (levelData.blocks) {
+levelData.blocks.forEach(block => {
+blocksGroup.create(block.x, block.y, block.color)
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize)
+.refreshBody();
+});
+}
 
-    // --- SPAWN SPIKES ---
-    if (levelData.spikes) {
-        levelData.spikes.forEach(spike => {
-            spikesGroup.create(spike.x, spike.y)
-                .setOrigin(0, 0)
-                .setDisplaySize(gridSize, gridSize)
-                .refreshBody();
-        });
-    }
+// --- SPAWN SPIKES ---
+if (levelData.spikes) {
+levelData.spikes.forEach(spike => {
+spikesGroup.create(spike.x, spike.y)
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize)
+.refreshBody();
+});
+}
 
-    // --- SPAWN START AND FINISH ---
-    if (levelData.start) {
-        spawnPoint = this.add.sprite(levelData.start.x, levelData.start.y, 'start')
-            .setOrigin(0, 0)
-            .setDisplaySize(gridSize, gridSize);
-    }
+// --- SPAWN START AND FINISH ---
+if (levelData.start) {
+spawnPoint = this.add.sprite(levelData.start.x, levelData.start.y, 'start')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize);
+}
 
-    if (levelData.finish) {
-        finishLine = this.add.sprite(levelData.finish.x, levelData.finish.y, 'finish')
-            .setOrigin(0, 0)
-            .setDisplaySize(gridSize, gridSize);
-    }
+if (levelData.finish) {
+finishLine = this.add.sprite(levelData.finish.x, levelData.finish.y, 'finish')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize);
+}
 
-    // --- SPAWN WINDOWS ---
-    if (levelData.windows) {
-        levelData.windows.forEach(w => {
-            windowsGroup.create(w.x, w.y, 'window')
-                .setOrigin(0, 0)
-                .setDisplaySize(gridSize, gridSize)
-                .refreshBody();
-        });
-    }
+// --- SPAWN WINDOWS ---
+if (levelData.windows) {
+levelData.windows.forEach(w => {
+windowsGroup.create(w.x, w.y, 'window')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize)
+.refreshBody();
+});
+}
 
-    // --- SPAWN COLONS OR SPECIAL ITEMS ---
-    if (levelData.colon) {
-        levelData.colon.forEach(c => {
-            this.add.sprite(c.x, c.y, 'colon')
-                .setOrigin(0, 0)
-                .setDisplaySize(gridSize, gridSize);
-        });
-    }
+// --- SPAWN COLONS OR SPECIAL ITEMS ---
+if (levelData.colon) {
+levelData.colon.forEach(c => {
+this.add.sprite(c.x, c.y, 'colon')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize);
+});
+}
 }
 
 
@@ -380,491 +380,503 @@ loadLeve = function(levelData) {
 function create() {
 
 this.input.on('contextmenu', (pointer, gameObjects) => {
-    pointer.event.preventDefault();  // Always block browser context menu
+pointer.event.preventDefault();  // Always block browser context menu
 });
 
-    // Additional safeguard: Block context menu directly on the canvas
+// Additional safeguard: Block context menu directly on the canvas
 this.game.canvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
+e.preventDefault();
 });
 
 
-    
-  window.myGameScene = this;
+
+window.myGameScene = this;
 spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-  // === KEYBOARD INPUT ===
-  this.input.keyboard.on('keydown-ENTER', () => {
-    if (gameMode) return;
-    gameMode = 'editor';
-    startEditorMode(this);
-  });
+// === KEYBOARD INPUT ===
+this.input.keyboard.on('keydown-ENTER', () => {
+if (gameMode) return;
+gameMode = 'editor';
+startEditorMode(this);
+});
 
-  this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-  enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-  escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 saveKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 loadKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
 
 
 
-  
-  // === DIMENSIONS & CAMERAS (FIXED) ===
-  width = this.scale.width;
-  height = this.scale.height;
-  UI_WIDTH = Math.floor(width * 0.1);
-  GAME_WIDTH = width - UI_WIDTH;
 
-  // UI Camera (left 10%)
-  uiCamera = this.cameras.add(0, 0, UI_WIDTH, height);
-  uiCamera.setScroll(0, 0);
-  uiCamera.setZoom(1);
+// === DIMENSIONS & CAMERAS (FIXED) ===
+width = this.scale.width;
+height = this.scale.height;
+UI_WIDTH = Math.floor(width * 0.1);
+GAME_WIDTH = width - UI_WIDTH;
 
-  // Main Game Camera (right 90%)
-  this.cameras.main.setViewport(UI_WIDTH, 0, GAME_WIDTH, height);
+// UI Camera (left 10%)
+uiCamera = this.cameras.add(0, 0, UI_WIDTH, height);
+uiCamera.setScroll(0, 0);
+uiCamera.setZoom(1);
 
-  // === PHYSICS GROUPS ===
-  blocksGroup = this.physics.add.staticGroup();
-  spikesGroup = this.physics.add.staticGroup();
-  windowsGroup = this.physics.add.staticGroup();
-  noBoostBlocksGroup = this.physics.add.staticGroup();
+// Main Game Camera (right 90%)
+this.cameras.main.setViewport(UI_WIDTH, 0, GAME_WIDTH, height);
 
-  // === PLAYER ===
+// === PHYSICS GROUPS ===
+blocksGroup = this.physics.add.staticGroup();
+spikesGroup = this.physics.add.staticGroup();
+windowsGroup = this.physics.add.staticGroup();
+noBoostBlocksGroup = this.physics.add.staticGroup();
+
+// === PLAYER ===
 player = this.physics.add.sprite(100, 100, 'pixel')
-  .setOrigin(0, 0)
-  .setDisplaySize(64, 64)
-  .setTint(0xffff00);
+.setOrigin(0, 0)
+.setDisplaySize(64, 64)
+.setTint(0xffff00);
 
 player.sfx = { death: this.sound.add('death1') };
 
 // âœ… ADD THIS LINE - FIXES ERROR
 player.boostOutline = this.add.rectangle(player.x, player.y, player.displayWidth + 8, player.displayHeight + 8)
-  .setOrigin(0, 0).setStrokeStyle(3, 0xffff00).setVisible(false);
-  cursors = this.input.keyboard.createCursorKeys();
+.setOrigin(0, 0).setStrokeStyle(3, 0xffff00).setVisible(false);
+cursors = this.input.keyboard.createCursorKeys();
 
 
-    // Add this in create() after player is created
+// Add this in create() after player is created
 player.body.setDragX(100);  // Low drag in air for smooth control (adjust 50-200 as needed)
 player.body.setDragY(0);    // No vertical drag (gravity handles Y)
 
-    
-  // === SPAWN POINTS ===
-  spawnPoint = this.add.sprite(100, 500, 'start').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
-  finishLine = this.add.sprite(1400, 500, 'finish').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
 
-  // === UI ELEMENTS ===
-  speedText = this.add.text(0, 0, "0", { fontSize: "64px", fill: "#ffffff" }).setOrigin(0.5, 1);
-  windowPromptText = this.add.text(0, 0, "Press Space to interact", {
-    fontSize: "32px", fill: "#ffffff", backgroundColor: "rgba(5, 7, 7, 1)", padding: { x: 10, y: 5 }
-  }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
+// === SPAWN POINTS ===
+spawnPoint = this.add.sprite(100, 500, 'start').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
+finishLine = this.add.sprite(1400, 500, 'finish').setOrigin(0, 0).setDisplaySize(gridSize, gridSize);
 
-  // Pause button (UI camera only)
-  pauseButton = this.add.image(40, height - 40, 'pause')
-    .setOrigin(0.5).setDisplaySize(48, 48).setScrollFactor(0).setDepth(10000)
-    .setInteractive({ useHandCursor: true }).setVisible(false);
-  pauseButton.on('pointerup', () => togglePause.call(this));
+// === UI ELEMENTS ===
+speedText = this.add.text(0, 0, "0", { fontSize: "64px", fill: "#ffffff" }).setOrigin(0.5, 1);
+windowPromptText = this.add.text(0, 0, "Press Space to interact", {
+fontSize: "32px", fill: "#ffffff", backgroundColor: "rgba(5, 7, 7, 1)", padding: { x: 10, y: 5 }
+}).setOrigin(0.5).setScrollFactor(0).setVisible(false);
+
+// Pause button (UI camera only)
+pauseButton = this.add.image(40, height - 40, 'pause')
+.setOrigin(0.5).setDisplaySize(48, 48).setScrollFactor(0).setDepth(10000)
+.setInteractive({ useHandCursor: true }).setVisible(false);
+pauseButton.on('pointerup', () => togglePause.call(this));
 
 
-  // Example window
-  windowsGroup.create(600, 500, 'window').setOrigin(0, 0).setDisplaySize(gridSize, gridSize).refreshBody();
+// Example window
+windowsGroup.create(600, 500, 'window').setOrigin(0, 0).setDisplaySize(gridSize, gridSize).refreshBody();
 
-  // === EDITOR UI ===
-  gridGraphics = this.add.graphics();
-  gridGraphics.lineStyle(1, 0x666666, 0.5);
-  drawGrid(this, gridGraphics);
-  gridGraphics.setVisible(false);
-  createEditorButtons(this);
+// === EDITOR UI ===
+gridGraphics = this.add.graphics();
+gridGraphics.lineStyle(1, 0x666666, 0.5);
+drawGrid(this, gridGraphics);
+gridGraphics.setVisible(false);
+createEditorButtons(this);
 
-  // === WORLD CAMERA ===
-  const cam = this.cameras.main;
-  cam.setZoom(0.5);
-  this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-  cam.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-  updateEditorZoomLimits(cam);
+// === WORLD CAMERA ===
+const cam = this.cameras.main;
+cam.setZoom(0.5);
+this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+cam.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+updateEditorZoomLimits(cam);
 
-  // Title screen camera
-  if (gameState === 'title') {
-    cam.stopFollow();
-    const zoomX = cam.width / WORLD_WIDTH;
-    const zoomY = cam.height / WORLD_HEIGHT;
-    cam.setZoom(Math.min(zoomX, zoomY));
-    cam.centerOn(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
-  }
+// Title screen camera
+if (gameState === 'title') {
+cam.stopFollow();
+const zoomX = cam.width / WORLD_WIDTH;
+const zoomY = cam.height / WORLD_HEIGHT;
+cam.setZoom(Math.min(zoomX, zoomY));
+cam.centerOn(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
+}
 
-  // === BACKGROUND ===
-  menuBg = this.add.image(config.width / 2, config.height / 2, 'welcome1')
-    .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT).setScrollFactor(0).setDepth(-5000);
+// === BACKGROUND ===
+menuBg = this.add.image(config.width / 2, config.height / 2, 'welcome1')
+.setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT).setScrollFactor(0).setDepth(-5000);
 
-  // Background animation
-  this.time.addEvent({
-    delay: 250, loop: true, callback: () => {
-      if (gameState !== 'title') return;
-      menuBg.setTexture(menuBg.texture.key === 'welcome1' ? 'welcome2' : 'welcome1');
-    }
-  });
+// Background animation
+this.time.addEvent({
+delay: 250, loop: true, callback: () => {
+if (gameState !== 'title') return;
+menuBg.setTexture(menuBg.texture.key === 'welcome1' ? 'welcome2' : 'welcome1');
+}
+});
 
-  // === MENU BUTTONS ===
-  resumeButton = makeMenuButton(this, config.width / 2, config.height / 2, 'RESUME', () => togglePause.call(this));
-  returnToMenuButton = makeMenuButton(this, config.width / 2, config.height / 2 + 100, 'RETURN TO MAINMENU (WILL KICK YOU OUT OF GAME)', () => window.location.reload());
+// === MENU BUTTONS ===
+resumeButton = makeMenuButton(this, config.width / 2, config.height / 2, 'RESUME', () => togglePause.call(this));
+returnToMenuButton = makeMenuButton(this, config.width / 2, config.height / 2 + 100, 'RETURN TO MAINMENU (WILL KICK YOU OUT OF GAME)', () => window.location.reload());
 levelOptionsButton = makeMenuButton(
-    this,
-    config.width / 2,
-    config.height / 2 + 200,
-    "LEVEL OPTIONS (PRESS PAUSE TO FIX OVERLAP IF YOU OPEN THIS MENU)",
-    () => {
-        openSimpleLevelOptionsMenu(this);
-    }
+this,
+config.width / 2,
+config.height / 2 + 200,
+"LEVEL OPTIONS (PRESS PAUSE TO FIX OVERLAP IF YOU OPEN THIS MENU)",
+() => {
+openSimpleLevelOptionsMenu(this);
+}
 );
-  helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'PRESS THIS BUTTON', () => openHelpMenu.call(this));
+helpButton = makeMenuButton(this, config.width / 2, config.height / 2 + 300, 'PRESS THIS BUTTON', () => openHelpMenu.call(this));
 levelOptionsButton = makeMenuButton(
-    this,
-    config.width / 2,
-    config.height / 2 + 200,
-    "LEVEL OPTIONS",
-    () => {
-        openSimpleLevelOptionsMenu(this);
-    }
+this,
+config.width / 2,
+config.height / 2 + 200,
+"LEVEL OPTIONS",
+() => {
+openSimpleLevelOptionsMenu(this);
+}
 );
 
 
-  // Pause overlay
+// Pause overlay
+  pauseOverlay = this.add.rectangle(config.width / 2, config.height / 2, config.width * 2, config.height * 2, 0x000000, 0.55)
   pauseOverlay = this.add.rectangle(config.width / 3, config.height / 3, config.width * 3, config.height * 3, 0x000000, 0.55)
-    .setScrollFactor(0).setDepth(2000).setVisible(false);
-  pauseText = this.add.text(config.width / 2, config.height * 0.25, 'welcome to the pausemenu! if menus overlap, press the pause button again to fix it!', {
-    fontSize: '110px', fill: '#ffffff', fontFamily: 'Arial'
-  }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
-    
+.setScrollFactor(0).setDepth(2000).setVisible(false);
+pauseText = this.add.text(config.width / 2, config.height * 0.25, 'welcome to the pausemenu! if menus overlap, press the pause button again to fix it!', {
+fontSize: '110px', fill: '#ffffff', fontFamily: 'Arial'
+}).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
 
-  // Win UI
-  winText = this.add.text(config.width / 2, config.height / 2 - 60, "YOU WIN!", { fontSize: "96px", fill: "#05fde9ff" })
-    .setOrigin(0.5).setScrollFactor(0).setVisible(false);
-  restartButton = this.add.text(config.width / 2, config.height / 2 + 40, "RESTART", { fontSize: "48px", fill: "#ffffff" })
-    .setOrigin(0.5).setScrollFactor(0).setInteractive().setVisible(false).on("pointerup", () => restartLevel.call(this));
+
+// Win UI
+winText = this.add.text(config.width / 2, config.height / 2 - 60, "YOU WIN!", { fontSize: "96px", fill: "#05fde9ff" })
+.setOrigin(0.5).setScrollFactor(0).setVisible(false);
+restartButton = this.add.text(config.width / 2, config.height / 2 + 40, "RESTART", { fontSize: "48px", fill: "#ffffff" })
+.setOrigin(0.5).setScrollFactor(0).setInteractive().setVisible(false).on("pointerup", () => restartLevel.call(this));
 
 
 susdiddyTitleText = this.add.text(config.width / 2, config.height * 0.25, 'PRESS PAUSE TO FIX OVERLAP', {
-    fontSize: '128px', fill: '#000000', fontFamily: 'Arial'
-  }).setOrigin(0.5).setScrollFactor(0).setDepth(2004).setVisible(false);
+fontSize: '128px', fill: '#000000', fontFamily: 'Arial'
+}).setOrigin(0.5).setScrollFactor(0).setDepth(2004).setVisible(false);
 
 
 
-    
-  // Music buttons (hidden initially)
-  musicTitleText = this.add.text(config.width / 2, config.height * 0.25, 'SELECT MUSIC', {
-    fontSize: '96px', fill: '#ffffff', fontFamily: 'Arial'
-  }).setOrigin(0.5).setScrollFactor(0).setDepth(2002).setVisible(false);
 
-  const musicButtonY = config.height / 2;
-  const spacing = 360;
-  musicButtons.X = makeMenuButton(this, config.width / 2 - spacing, musicButtonY, 'Adventure', () => selectMusic.call(this, 'X'));
-  musicButtons.Y = makeMenuButton(this, config.width / 2, musicButtonY, 'Scary', () => selectMusic.call(this, 'Y'));
-  musicButtons.Z = makeMenuButton(this, config.width / 2 + spacing, musicButtonY, 'Happy', () => selectMusic.call(this, 'Z'));
-  Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+// Music buttons (hidden initially)
+musicTitleText = this.add.text(config.width / 2, config.height * 0.25, 'SELECT MUSIC', {
+fontSize: '96px', fill: '#ffffff', fontFamily: 'Arial'
+}).setOrigin(0.5).setScrollFactor(0).setDepth(2002).setVisible(false);
 
-  selectMusicBackButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'BACK', () => closeSelectMusicMenu.call(this)).setVisible(false);
+const musicButtonY = config.height / 2;
+const spacing = 360;
+musicButtons.X = makeMenuButton(this, config.width / 2 - spacing, musicButtonY, 'Adventure', () => selectMusic.call(this, 'X'));
+musicButtons.Y = makeMenuButton(this, config.width / 2, musicButtonY, 'Scary', () => selectMusic.call(this, 'Y'));
+musicButtons.Z = makeMenuButton(this, config.width / 2 + spacing, musicButtonY, 'Happy', () => selectMusic.call(this, 'Z'));
+Object.values(musicButtons).forEach(btn => btn.setVisible(false));
 
-  // Block color menu
-  createBlockColorMenu(this);
+selectMusicBackButton = makeMenuButton(this, config.width / 2, config.height / 2 + 200, 'BACK', () => closeSelectMusicMenu.call(this)).setVisible(false);
+
+// Block color menu
+createBlockColorMenu(this);
 
 // Replace your existing window.loadLevel with this:
 window.loadLevel = function (compressedData, scene) {
-    // Remember scene globally for menus etc.
-    window.myGameScene = scene;
-    console.log("Loading level...");
+// Remember scene globally for menus etc.
+window.myGameScene = scene;
+console.log("Loading level...");
 
-    let levelData = null;
+let levelData = null;
 
-    try {
-        // Decompress + parse
-        if (typeof LZString === "undefined") {
-            throw new Error("LZString missing - check script tag");
-        }
-
-        const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
-        levelData = JSON.parse(jsonString);
-        console.log("Loaded data:", levelData);
-
-        // ----- DESTROY + RECREATE GROUPS -----
-        const groupNames = ["blocksGroup", "spikesGroup", "windowsGroup", "noBoostBlocksGroup"];
-
-        groupNames.forEach((name) => {
-            if (scene[name]) {
-                scene[name].clear(true, true);
-                scene[name].destroy(true);
-            }
-            scene[name] = scene.physics.add.staticGroup();
-        });
-
-        // ----- DESTROY OLD START / FINISH -----
-        if (scene.spawnPoint) {
-            scene.spawnPoint.destroy();
-            scene.spawnPoint = null;
-        }
-        if (scene.finishLine) {
-            scene.finishLine.destroy();
-            scene.finishLine = null;
-        }
-
-        const gridSize = 64; // matches your editor grid size[file:1]
-
-        // ----- LOAD BLOCKS (b) -----
-        if (Array.isArray(levelData.b)) {
-            levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
-                const block = scene.blocksGroup.create(x, y, "pixel")
-                    .setOrigin(0, 0)
-                    .setDisplaySize(w, h)
-                    .setTint(tint);
-                block.refreshBody();
-            });
-        }
-
-if (Array.isArray(levelData.s)) {
-  levelData.s.forEach(([x, y, w, h]) => {
-    createSpike(scene.spikesGroup, x, y, w || 64);
-  });
+try {
+// Decompress + parse
+if (typeof LZString === "undefined") {
+throw new Error("LZString missing - check script tag");
 }
 
+const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+levelData = JSON.parse(jsonString);
+console.log("Loaded data:", levelData);
 
-        // ----- LOAD WINDOWS (w) -----
-        if (Array.isArray(levelData.w)) {
-            levelData.w.forEach(([x, y, w, h]) => {
-                const win = scene.windowsGroup.create(x, y, "window")
-                    .setOrigin(0, 0)
-                    .setDisplaySize(w, h);
-                win.refreshBody();
-            });
-        }
+// ----- DESTROY + RECREATE GROUPS -----
+const groupNames = ["blocksGroup", "spikesGroup", "windowsGroup", "noBoostBlocksGroup"];
 
-        // ----- LOAD NO‑BOOST BLOCKS (nb) -----
-        if (Array.isArray(levelData.nb)) {
-            levelData.nb.forEach(([x, y, w, h]) => {
-                const nb = scene.noBoostBlocksGroup.create(x, y, "pixel")
-                    .setOrigin(0, 0)
-                    .setDisplaySize(w, h)
-                    .setTint(0x0000ff);
-                nb.refreshBody();
-            });
-        }
-
-        // ----- LOAD START (st) -----
-        if (levelData.st) {
-            const [x, y, w, h] = levelData.st;
-            scene.spawnPoint = scene.add.sprite(x, y, "start")
-                .setOrigin(0, 0)
-                .setDisplaySize(w, h)
-                .setDepth(10);
-            console.log("Start", x, y);
-        }
-
-        // ----- LOAD FINISH (f) -----
-        if (levelData.f) {
-            const [x, y, w, h] = levelData.f;
-            scene.finishLine = scene.add.sprite(x, y, "finish")
-                .setOrigin(0, 0)
-                .setDisplaySize(w, h)
-                .setDepth(10);
-            console.log("Finish", x, y);
-        }
-
-        // ----- UPDATE GLOBALS SO REST OF CODE USES NEW GROUPS -----
-        blocksGroup = scene.blocksGroup;
-        spikesGroup = scene.spikesGroup;
-        windowsGroup = scene.windowsGroup;
-        noBoostBlocksGroup = scene.noBoostBlocksGroup;
-        spawnPoint = scene.spawnPoint;
-        finishLine = scene.finishLine;          // all of these exist as globals in your file[file:1]
-
-        // ----- REFRESH STATIC BODIES -----
-        blocksGroup.refresh();
-        spikesGroup.refresh();
-        windowsGroup.refresh();
-        noBoostBlocksGroup.refresh();
-
-        // ----- COLLISIONS / PLAYER RESET (ONLY IF PLAYER EXISTS) -----
-        if (scene.player) {
-            // Reset player roughly at spawn; fall back to 0,0 if no spawn
-            const spawnX = spawnPoint ? spawnPoint.x + 10 : 0;
-            const spawnY = spawnPoint ? spawnPoint.y - 50 : 0;
-
-            scene.player.body.setVelocity(0, 0);
-            scene.player.setPosition(spawnX, spawnY);
-
-            // Remove old colliders by pausing collision temporarily
-            scene.physics.world.collideBounds = false;
-
-  scene.time.delayedCall(50, () => {
-  setupPlayerCollisions(scene);
-  scene.physics.world.collideBounds = true;
+groupNames.forEach((name) => {
+if (scene[name]) {
+scene[name].clear(true, true);
+scene[name].destroy(true);
+}
+scene[name] = scene.physics.add.staticGroup();
 });
 
+// ----- DESTROY OLD START / FINISH -----
+if (scene.spawnPoint) {
+scene.spawnPoint.destroy();
+scene.spawnPoint = null;
+}
+if (scene.finishLine) {
+scene.finishLine.destroy();
+scene.finishLine = null;
+}
 
-            scene.physics.world.collideBounds = true;
-        }
+const gridSize = 64; // matches your editor grid size[file:1]
 
-        console.log("SUCCESS:", (levelData.b?.length || 0), "blocks loaded");
-        showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);
+// ----- LOAD BLOCKS (b) -----
+if (Array.isArray(levelData.b)) {
+levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
+const block = scene.blocksGroup.create(x, y, "pixel")
+.setOrigin(0, 0)
+.setDisplaySize(w, h)
+.setTint(tint);
+block.refreshBody();
+});
+}
 
-        // ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA, BUT DO NOT AUTO‑PLAY -----
- // Store level's music/background preferences
+// ----- LOAD SPIKES (s) -----
+if (Array.isArray(levelData.s)) {
+levelData.s.forEach(([x, y, w, h]) => {
+const spike = scene.spikesGroup.create(x, y, "spike")
+.setOrigin(0, 0)
+.setDisplaySize(w, h);
+spike.refreshBody();
+});
+}
+
+// ----- LOAD WINDOWS (w) -----
+if (Array.isArray(levelData.w)) {
+levelData.w.forEach(([x, y, w, h]) => {
+const win = scene.windowsGroup.create(x, y, "window")
+.setOrigin(0, 0)
+.setDisplaySize(w, h);
+win.refreshBody();
+});
+}
+
+// ----- LOAD NO‑BOOST BLOCKS (nb) -----
+if (Array.isArray(levelData.nb)) {
+levelData.nb.forEach(([x, y, w, h]) => {
+const nb = scene.noBoostBlocksGroup.create(x, y, "pixel")
+.setOrigin(0, 0)
+.setDisplaySize(w, h)
+.setTint(0x0000ff);
+nb.refreshBody();
+});
+}
+
+// ----- LOAD START (st) -----
+if (levelData.st) {
+const [x, y, w, h] = levelData.st;
+scene.spawnPoint = scene.add.sprite(x, y, "start")
+.setOrigin(0, 0)
+.setDisplaySize(w, h)
+.setDepth(10);
+console.log("Start", x, y);
+}
+
+// ----- LOAD FINISH (f) -----
+if (levelData.f) {
+const [x, y, w, h] = levelData.f;
+scene.finishLine = scene.add.sprite(x, y, "finish")
+.setOrigin(0, 0)
+.setDisplaySize(w, h)
+.setDepth(10);
+console.log("Finish", x, y);
+}
+
+// ----- UPDATE GLOBALS SO REST OF CODE USES NEW GROUPS -----
+blocksGroup = scene.blocksGroup;
+spikesGroup = scene.spikesGroup;
+windowsGroup = scene.windowsGroup;
+noBoostBlocksGroup = scene.noBoostBlocksGroup;
+spawnPoint = scene.spawnPoint;
+finishLine = scene.finishLine;          // all of these exist as globals in your file[file:1]
+
+// ----- REFRESH STATIC BODIES -----
+blocksGroup.refresh();
+spikesGroup.refresh();
+windowsGroup.refresh();
+noBoostBlocksGroup.refresh();
+
+// ----- COLLISIONS / PLAYER RESET (ONLY IF PLAYER EXISTS) -----
+if (scene.player) {
+// Reset player roughly at spawn; fall back to 0,0 if no spawn
+const spawnX = spawnPoint ? spawnPoint.x + 10 : 0;
+const spawnY = spawnPoint ? spawnPoint.y - 50 : 0;
+
+scene.player.body.setVelocity(0, 0);
+scene.player.setPosition(spawnX, spawnY);
+
+// Remove old colliders by pausing collision temporarily
+scene.physics.world.collideBounds = false;
+
+scene.time.delayedCall(50, () => {
+// Re‑add colliders/overlaps
+scene.physics.add.collider(scene.player, blocksGroup);
+scene.physics.add.collider(scene.player, noBoostBlocksGroup);
+scene.physics.add.overlap(scene.player, spikesGroup, killPlayer, null, scene);
+scene.physics.add.overlap(
+scene.player,
+windowsGroup,
+() => { scene.player.canOpenWindow = true; },
+null,
+scene
+);
+});
+
+scene.physics.world.collideBounds = true;
+}
+
+console.log("SUCCESS:", (levelData.b?.length || 0), "blocks loaded");
+showInstruction(scene, `${levelData.b?.length || 0} BLOCKS COLLISION READY`, 3000);
+
+// ----- OPTIONAL: APPLY MUSIC/BACKGROUND METADATA, BUT DO NOT AUTO‑PLAY -----
+// Store level's music/background preferences
 if (levelData.m) {
-    selectedMusicKey = levelData.m;        // ✅ Reads "m" from JSON
+selectedMusicKey = levelData.m;        // ✅ Reads "m" from JSON
 }
 if (levelData.bg) {
-    selectedBackgroundKey = levelData.bg;
-    
-    // Create background if it doesn't exist
-    if (!currentBackground) {
-        currentBackground = scene.add.image(
-            WORLD_WIDTH / 2, 
-            WORLD_HEIGHT / 2, 
-            BACKGROUND_MAP[levelData.bg]
-        )
-        .setOrigin(0.5)
-        .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
-        .setDepth(-4000)
-        .setScrollFactor(0);
-    } else {
-        currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);
-    }
+selectedBackgroundKey = levelData.bg;
+
+// Create background if it doesn't exist
+if (!currentBackground) {
+currentBackground = scene.add.image(
+WORLD_WIDTH / 2, 
+WORLD_HEIGHT / 2, 
+BACKGROUND_MAP[levelData.bg]
+)
+.setOrigin(0.5)
+.setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
+.setDepth(-4000)
+.setScrollFactor(0);
+} else {
+currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);
+}
 }
 
-    } catch (error) {
-        console.error("LOAD ERROR:", error);
-        showInstruction(scene, "❌ LOAD FAILED!", 2000);
-    }
+} catch (error) {
+console.error("LOAD ERROR:", error);
+showInstruction(scene, "❌ LOAD FAILED!", 2000);
+}
 
-    // ✅ BACKGROUND SELECTION
-    function openLevelOptions(scene) {
-      if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
-      if (levelOptionsText) levelOptionsText.setVisible(true);
-      if (selectMusicButton) selectMusicButton.setVisible(true);
-      if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
-      if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
-    }
+// ✅ BACKGROUND SELECTION
+function openLevelOptions(scene) {
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
+if (levelOptionsText) levelOptionsText.setVisible(true);
+if (selectMusicButton) selectMusicButton.setVisible(true);
+if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
+}
 
-    function closeLevelOptions(scene) {
-      if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-      if (levelOptionsText) levelOptionsText.setVisible(false);
-      if (selectMusicButton) selectMusicButton.setVisible(false);
-      if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
-      if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
-    }
+function closeLevelOptions(scene) {
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+if (levelOptionsText) levelOptionsText.setVisible(false);
+if (selectMusicButton) selectMusicButton.setVisible(false);
+if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
+}
 
-    function selectMusic(scene, key) {
-        selectedMusicKey = key;
-        if (gameState === 'playing') {  // Only play if in game
-            playSelectedMusic(scene);
-        }
-        closeSelectMusicMenu(scene);
-        showInstruction(scene, MUSICMAP[key], 1500);
-    }
+function selectMusic(scene, key) {
+selectedMusicKey = key;
+if (gameState === 'playing') {  // Only play if in game
+playSelectedMusic(scene);
+}
+closeSelectMusicMenu(scene);
+showInstruction(scene, MUSICMAP[key], 1500);
+}
 
-    function openSelectMusicMenu(scene) {
-      if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
-      if (musicTitleText) musicTitleText.setVisible(true);
-      Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-      if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
-    }
+function openSelectMusicMenu(scene) {
+if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
+if (musicTitleText) musicTitleText.setVisible(true);
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
+}
 
-    function closeSelectMusicMenu(scene) {
-      if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
-      if (musicTitleText) musicTitleText.setVisible(false);
-      Object.values(musicButtons).forEach(btn => btn.setVisible(false));
-      if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
-    }
+function closeSelectMusicMenu(scene) {
+if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+if (musicTitleText) musicTitleText.setVisible(false);
+Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+}
 
-    // ✅ BACKGROUND SELECTION  
-    function selectBackground(scene, key) {
-      selectedBackgroundKey = key;
-      if (currentBackground) {
-        currentBackground.setTexture(BACKGROUND_MAP[key]);
-      }
-      showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
-    }
+// ✅ BACKGROUND SELECTION  
+function selectBackground(scene, key) {
+selectedBackgroundKey = key;
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP[key]);
+}
+showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
+}
 
-    // ✅ MUSIC PLAYER
-    function playSelectedMusic(scene) {
-      if (currentMusic) {
-        currentMusic.stop();
-        currentMusic.destroy();
-      }
-      const musicName = MUSIC_MAP[selectedMusicKey];
-      currentMusic = scene.sound.add(musicName);
-      if (currentMusic) {
-        currentMusic.play({ loop: true, volume: 0.2 });
-      }
-    }
+// ✅ MUSIC PLAYER
+function playSelectedMusic(scene) {
+if (currentMusic) {
+currentMusic.stop();
+currentMusic.destroy();
+}
+const musicName = MUSIC_MAP[selectedMusicKey];
+currentMusic = scene.sound.add(musicName);
+if (currentMusic) {
+currentMusic.play({ loop: true, volume: 0.2 });
+}
+}
 };
 
 
 
 
-    // ✅ BACKGROUND SELECTION
+// ✅ BACKGROUND SELECTION
 function openLevelOptions(scene) {
-  if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
-  if (levelOptionsText) levelOptionsText.setVisible(true);
-  if (selectMusicButton) selectMusicButton.setVisible(true);
-  if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
-  if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(true);
+if (levelOptionsText) levelOptionsText.setVisible(true);
+if (selectMusicButton) selectMusicButton.setVisible(true);
+if (selectBackgroundButton) selectBackgroundButton.setVisible(true);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(true);
 }
 
 function closeLevelOptions(scene) {
-  if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-  if (levelOptionsText) levelOptionsText.setVisible(false);
-  if (selectMusicButton) selectMusicButton.setVisible(false);
-  if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
-  if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+if (levelOptionsText) levelOptionsText.setVisible(false);
+if (selectMusicButton) selectMusicButton.setVisible(false);
+if (selectBackgroundButton) selectBackgroundButton.setVisible(false);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
 }
 
 function selectMusic(scene, key) {
-    selectedMusicKey = key;
-    if (gameState === 'playing') {  // Only play if in game
-        playSelectedMusic(scene);
-    }
-    closeSelectMusicMenu(scene);
-    showInstruction(scene, MUSICMAP[key], 1500);
+selectedMusicKey = key;
+if (gameState === 'playing') {  // Only play if in game
+playSelectedMusic(scene);
+}
+closeSelectMusicMenu(scene);
+showInstruction(scene, MUSICMAP[key], 1500);
 }
 
 
 function openSelectMusicMenu(scene) {
-  if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
-  if (musicTitleText) musicTitleText.setVisible(true);
-  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-  if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
+if (selectMusicOverlay) selectMusicOverlay.setVisible(true);
+if (musicTitleText) musicTitleText.setVisible(true);
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
 }
 
 function closeSelectMusicMenu(scene) {
-  if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
-  if (musicTitleText) musicTitleText.setVisible(false);
-  Object.values(musicButtons).forEach(btn => btn.setVisible(false));
-  if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+if (musicTitleText) musicTitleText.setVisible(false);
+Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
 }
 
 // ✅ BACKGROUND SELECTION  
 function selectBackground(scene, key) {
-  selectedBackgroundKey = key;
-  if (currentBackground) {
-    currentBackground.setTexture(BACKGROUND_MAP[key]);
-  }
-  showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
+selectedBackgroundKey = key;
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP[key]);
+}
+showInstruction(scene, `🎨 ${BACKGROUND_MAP[key]}`, 1500);
 }
 
 // ✅ MUSIC PLAYER
 function playSelectedMusic(scene) {
-  if (currentMusic) {
-    currentMusic.stop();
-    currentMusic.destroy();
-  }
-  const musicName = MUSIC_MAP[selectedMusicKey];
-  currentMusic = scene.sound.add(musicName);
-  if (currentMusic) {
-    currentMusic.play({ loop: true, volume: 0.2 });
-  }
+if (currentMusic) {
+currentMusic.stop();
+currentMusic.destroy();
+}
+const musicName = MUSIC_MAP[selectedMusicKey];
+currentMusic = scene.sound.add(musicName);
+if (currentMusic) {
+currentMusic.play({ loop: true, volume: 0.2 });
+}
 }
 
 
 
-  // === CAMERA IGNORE LISTS ===
+// === CAMERA IGNORE LISTS ===
 
 // âœ… FIXED - UI camera shows buttons, main camera shows game
 uiCamera.setViewport(0, 0, 150, height);  // âœ… BUTTONS VISIBLE
@@ -875,391 +887,376 @@ pauseButton.setScrollFactor(0).setDepth(10000);  // UI properties
 
 // âœ… FIXED - MAKE UI CAMERA SHOW BUTTONS
 editorButtons.forEach(btn => {
-  btn.setScrollFactor(0);           // UI fixed position
-  btn.setDepth(10000);              // On top
-  btn.setVisible(false);            // Hidden until editor mode
-  if (btn.border) {
-    btn.border.setScrollFactor(0);  // Border too
-    btn.border.setDepth(10000);
-    btn.border.setVisible(false);
-  }
+btn.setScrollFactor(0);           // UI fixed position
+btn.setDepth(10000);              // On top
+btn.setVisible(false);            // Hidden until editor mode
+if (btn.border) {
+btn.border.setScrollFactor(0);  // Border too
+btn.border.setDepth(10000);
+btn.border.setVisible(false);
+}
 });
 
 
-  // === MOUSE WHEEL ZOOM ===
-  this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
-    if (!isEditorMode) return;
-    const cam = this.cameras.main;
-    const before = cam.getWorldPoint(pointer.x, pointer.y);
-    const zoomFactor = 0.001;
-    editorTargetZoom = Phaser.Math.Clamp(
-      editorTargetZoom - editorTargetZoom * zoomFactor * deltaY, editorMinZoom, editorMaxZoom
-    );
-    const oldZoom = cam.zoom;
-    cam.zoom = editorTargetZoom;
-    cam.preRender();
-    const after = cam.getWorldPoint(pointer.x, pointer.y);
-    cam.zoom = oldZoom;
-    cam.scrollX -= after.x - before.x;
-    cam.scrollY -= after.y - before.y;
-    cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, WORLD_WIDTH - cam.width / cam.zoom);
-    cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, WORLD_HEIGHT - cam.height / cam.zoom);
-  });
+// === MOUSE WHEEL ZOOM ===
+this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+if (!isEditorMode) return;
+const cam = this.cameras.main;
+const before = cam.getWorldPoint(pointer.x, pointer.y);
+const zoomFactor = 0.001;
+editorTargetZoom = Phaser.Math.Clamp(
+editorTargetZoom - editorTargetZoom * zoomFactor * deltaY, editorMinZoom, editorMaxZoom
+);
+const oldZoom = cam.zoom;
+cam.zoom = editorTargetZoom;
+cam.preRender();
+const after = cam.getWorldPoint(pointer.x, pointer.y);
+cam.zoom = oldZoom;
+cam.scrollX -= after.x - before.x;
+cam.scrollY -= after.y - before.y;
+cam.scrollX = Phaser.Math.Clamp(cam.scrollX, 0, WORLD_WIDTH - cam.width / cam.zoom);
+cam.scrollY = Phaser.Math.Clamp(cam.scrollY, 0, WORLD_HEIGHT - cam.height / cam.zoom);
+});
 
-  // === TITLE SCREEN SETUP ===
-  player.setVisible(false);
-  speedText.setVisible(false);
-  pauseButton.setVisible(false);
-  blocksGroup.setVisible(false);
-  spikesGroup.setVisible(false);
-  noBoostBlocksGroup.setVisible(false);
-  windowsGroup.setVisible(false);
-  finishLine.setVisible(false);
-  spawnPoint.setVisible(false);
-  gridGraphics.setVisible(false);
+// === TITLE SCREEN SETUP ===
+player.setVisible(false);
+speedText.setVisible(false);
+pauseButton.setVisible(false);
+blocksGroup.setVisible(false);
+spikesGroup.setVisible(false);
+noBoostBlocksGroup.setVisible(false);
+windowsGroup.setVisible(false);
+finishLine.setVisible(false);
+spawnPoint.setVisible(false);
+gridGraphics.setVisible(false);
 
-  // ESC handling
-  escKey.on('down', () => {
-    if (levelOptionsOverlay?.visible) closeLevelOptions.call(this);
-    else if (isPaused) togglePause.call(this);
-  });
+// ESC handling
+escKey.on('down', () => {
+if (levelOptionsOverlay?.visible) closeLevelOptions.call(this);
+else if (isPaused) togglePause.call(this);
+});
 
 enterKey.on('down', () => {
-  if (gameState === 'title') startGame.call(this);  // ✅ Use .call(this)
+if (gameState === 'title') startGame.call(this);  // ✅ Use .call(this)
 });
 
 
-  // Export level data
+// Export level data
 this.exportLevel = function() {
-  try {
-    if (typeof LZString === 'undefined') {
-      throw new Error("LZString not loaded! Check your HTML script tag.");
-    }
-    
-    const levelData = {
-      m: selectedMusicKey || 'X',
-      bg: selectedBackgroundKey || 'A',
-      b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
-      s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
-      w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
-      nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),  // noBoostBlocks: [x, y, w, h]
-      st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
-      f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
-    };
-    
-    // Convert to JSON string, then compress
-    const jsonString = JSON.stringify(levelData);
-    const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
-    
-    return compressed;
-  } catch (error) {
-    console.error("EXPORT ERROR:", error);
-    return null;  // Indicate failure
-  }
+try {
+if (typeof LZString === 'undefined') {
+throw new Error("LZString not loaded! Check your HTML script tag.");
+}
+
+const levelData = {
+m: selectedMusicKey || 'X',
+bg: selectedBackgroundKey || 'A',
+b: blocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight, b.tint]),  // blocks: [x, y, w, h, tint]
+s: spikesGroup.getChildren().map(s => [s.x, s.y, s.displayWidth, s.displayHeight]),  // spikes: [x, y, w, h]
+w: windowsGroup.getChildren().map(w => [w.x, w.y, w.displayWidth, w.displayHeight]),  // windows: [x, y, w, h]
+nb: noBoostBlocksGroup.getChildren().map(b => [b.x, b.y, b.displayWidth, b.displayHeight]),  // noBoostBlocks: [x, y, w, h]
+st: spawnPoint ? [spawnPoint.x, spawnPoint.y, spawnPoint.displayWidth, spawnPoint.displayHeight] : null,  // start: [x, y, w, h]
+f: finishLine ? [finishLine.x, finishLine.y, finishLine.displayWidth, finishLine.displayHeight] : null  // finish: [x, y, w, h]
 };
 
-    }
+// Convert to JSON string, then compress
+const jsonString = JSON.stringify(levelData);
+const compressed = LZString.compressToEncodedURIComponent(jsonString);  // URL-safe compressed string
+
+return compressed;
+} catch (error) {
+console.error("EXPORT ERROR:", error);
+return null;  // Indicate failure
+}
+};
+
+}
 
 
 function drawGrid(scene, graphics) {
-  for (let x = 0; x < WORLD_WIDTH; x += gridSize) {
-    graphics.lineBetween(x, 0, x, WORLD_HEIGHT);
-  }
-  for (let y = 0; y < WORLD_HEIGHT; y += gridSize) {
-    graphics.lineBetween(0, y, WORLD_WIDTH, y);
-  }
+for (let x = 0; x < WORLD_WIDTH; x += gridSize) {
+graphics.lineBetween(x, 0, x, WORLD_HEIGHT);
+}
+for (let y = 0; y < WORLD_HEIGHT; y += gridSize) {
+graphics.lineBetween(0, y, WORLD_WIDTH, y);
+}
 }
 
 function createEditorButtons(scene) {
 
-  const padding = 20;
-  const size = 64;
-  const spacing = 16;
+const padding = 20;
+const size = 64;
+const spacing = 16;
 
-  // ðŸ”¥ FIX: Position for UI CAMERA (left side)
-  const startX = 20;  // â† UI CAMERA X
-  const startY = 100; // â† START HIGH UP
+// ðŸ”¥ FIX: Position for UI CAMERA (left side)
+const startX = 20;  // â† UI CAMERA X
+const startY = 100; // â† START HIGH UP
 
-  editorButtons = [];
+editorButtons = [];
 
-  // Helper to create Image buttons with a border
-  function makeButton(y, textureKey, toolName) {
-    // border rectangle
-    const border = scene.add.rectangle(
-      startX + size / 2,
-      y + size / 2,
-      size + 6,
-      size + 6
-    )
-      .setStrokeStyle(3, 0x000000)
-      .setScrollFactor(0);
+// Helper to create Image buttons with a border
+function makeButton(y, textureKey, toolName) {
+// border rectangle
+const border = scene.add.rectangle(
+startX + size / 2,
+y + size / 2,
+size + 6,
+size + 6
+)
+.setStrokeStyle(3, 0x000000)
+.setScrollFactor(0);
 
-    // button image
-    const btn = scene.add.image(startX, y, textureKey)
-      .setOrigin(0, 0)
-      .setDisplaySize(size, size)
-      .setInteractive()
-      .setScrollFactor(0);
+// button image
+const btn = scene.add.image(startX, y, textureKey)
+.setOrigin(0, 0)
+.setDisplaySize(size, size)
+.setInteractive()
+.setScrollFactor(0);
 
-    // attach border to button
-    btn.border = border;
+// attach border to button
+btn.border = border;
 
-    btn.on('pointerdown', () => {
-      currentTool = toolName;
-      highlightButton(btn);
-    });
+btn.on('pointerdown', () => {
+currentTool = toolName;
+highlightButton(btn);
+});
 
-    editorButtons.push(btn);
-  }
+editorButtons.push(btn);
+}
 
-  // Block button (colored rectangle)
-  const blockBorder = scene.add.rectangle(
-    startX + size / 2,
-    startY + size / 2,
-    size + 6,
-    size + 6
-  )
-    .setStrokeStyle(3, 0x000000)
-    .setScrollFactor(0);
+// Block button (colored rectangle)
+const blockBorder = scene.add.rectangle(
+startX + size / 2,
+startY + size / 2,
+size + 6,
+size + 6
+)
+.setStrokeStyle(3, 0x000000)
+.setScrollFactor(0);
 
-  const blockBtn = scene.add.rectangle(
-    startX,
-    startY,
-    size,
-    size,
-    0x888888
-  )
-    .setOrigin(0, 0)
-    .setInteractive()
-    .setScrollFactor(0);
+const blockBtn = scene.add.rectangle(
+startX,
+startY,
+size,
+size,
+0x888888
+)
+.setOrigin(0, 0)
+.setInteractive()
+.setScrollFactor(0);
 
-  blockBtn.border = blockBorder;
-  blockBtn.on('pointerdown', () => {
-    currentTool = 'block';
-    highlightButton(blockBtn);
-  });
+blockBtn.border = blockBorder;
+blockBtn.on('pointerdown', () => {
+currentTool = 'block';
+highlightButton(blockBtn);
+});
 
-  editorButtons.push(blockBtn);
+editorButtons.push(blockBtn);
 
-  // Other buttons
-  makeButton(startY + (size + spacing), 'spike', 'spike');
-  makeButton(startY + 2 * (size + spacing), 'finish', 'finish');
-  makeButton(startY + 3 * (size + spacing), 'start', 'spawn');
-  makeButton(startY + 4 * (size + spacing), 'window', 'window');
-  makeButton(startY + 5 * (size + spacing), 'pixel', 'noboost');
+// Other buttons
+makeButton(startY + (size + spacing), 'spike', 'spike');
+makeButton(startY + 2 * (size + spacing), 'finish', 'finish');
+makeButton(startY + 3 * (size + spacing), 'start', 'spawn');
+makeButton(startY + 4 * (size + spacing), 'window', 'window');
+makeButton(startY + 5 * (size + spacing), 'pixel', 'noboost');
 
-  const noboostBtn = editorButtons[editorButtons.length - 1];
-  noboostBtn.setTint(0x0000ff);
+const noboostBtn = editorButtons[editorButtons.length - 1];
+noboostBtn.setTint(0x0000ff);
 
-  // Hide everything initially
+// Hide everything initially
 // ðŸ”¥ MAKE EDITOR BUTTONS VISIBLE ON UI CAMERA
 editorButtons.forEach(btn => {
-  uiCamera.ignore(false);  // SHOW on UI cam
-  btn.setPosition(btn.x, btn.y);  // Force position
-  btn.setVisible(true);     // FORCE VISIBLE
+uiCamera.ignore(false);  // SHOW on UI cam
+btn.setPosition(btn.x, btn.y);  // Force position
+btn.setVisible(true);     // FORCE VISIBLE
 
 });
 
-  // Highlight first button
-  highlightButton(editorButtons[0]);
+// Highlight first button
+highlightButton(editorButtons[0]);
 
-  // Ensure editor buttons render ONLY on UI camera
-  editorButtons.forEach(btn => {
-    scene.cameras.main.ignore(btn);
-    if (btn.border) scene.cameras.main.ignore(btn.border);
-  });
+// Ensure editor buttons render ONLY on UI camera
+editorButtons.forEach(btn => {
+scene.cameras.main.ignore(btn);
+if (btn.border) scene.cameras.main.ignore(btn.border);
+});
 }
 
 function highlightButton(selected) {
-  editorButtons.forEach(btn => {
-    if (btn.border) {
-      btn.border.setStrokeStyle(3, 0x000000); // reset borders
-    }
-  });
-
-  if (selected.border) {
-    selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
-  }
+editorButtons.forEach(btn => {
+if (btn.border) {
+btn.border.setStrokeStyle(3, 0x000000); // reset borders
 }
+});
 
-
-function setupPlayerCollisions(scene) {
-  // SAFE version - no collider destroy
-  if (!scene.player) return;
-  
-  scene.physics.add.collider(scene.player, scene.blocksGroup || blocksGroup);
-  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup || noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup || spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, scene.windowsGroup || windowsGroup, () => { 
-    scene.player.canOpenWindow = true; 
-  }, null, scene);
+if (selected.border) {
+selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 }
-
-
-
-
+}
 
 function toggleEditorMode() {
-  isEditorMode = !isEditorMode;
+isEditorMode = !isEditorMode;
 
-  editorButtons.forEach(btn => {
-    const show = isEditorMode;
-    btn.setVisible(show);
-    btn.setInteractive(show);
-    if (btn.border) btn.border.setVisible(show);
-  });
+editorButtons.forEach(btn => {
+const show = isEditorMode;
+btn.setVisible(show);
+btn.setInteractive(show);
+if (btn.border) btn.border.setVisible(show);
+});
 
-  player.setVisible(!isEditorMode);
-  speedText.setVisible(!isEditorMode);
-  gridGraphics.setVisible(isEditorMode);
-  pauseButton.setVisible(true);
+player.setVisible(!isEditorMode);
+speedText.setVisible(!isEditorMode);
+gridGraphics.setVisible(isEditorMode);
+pauseButton.setVisible(true);
 
-  const cam = this.cameras.main;
-  if (isEditorMode) {
-    cam.stopFollow();
-    cam.centerOn(1000, 300);
-    editorTargetZoom = 0.2;
-    player.body.setVelocity(0, 0);
-    player.body.enable = false;
-    this.physics.world.debugGraphic.visible = false;
+const cam = this.cameras.main;
+if (isEditorMode) {
+cam.stopFollow();
+cam.centerOn(1000, 300);
+editorTargetZoom = 0.2;
+player.body.setVelocity(0, 0);
+player.body.enable = false;
+this.physics.world.debugGraphic.visible = false;
 } else {
-  player.body.enable = true;
-  player.setPosition(spawnPoint.x, spawnPoint.y);
-  player.body.setVelocity(0, 0);
-  cam.startFollow(player, true, 0.08, 0.08);
-  this.physics.world.debugGraphic.visible = true;
-  setupPlayerCollisions(this);
-  blocksGroup.refresh();
-  noBoostBlocksGroup.refresh();
-  spikesGroup.refresh();
-  windowsGroup.refresh();
+player.body.enable = true;
+player.setPosition(spawnPoint.x, spawnPoint.y);
+player.body.setVelocity(0, 0);
+cam.startFollow(player, true, 0.08, 0.08);
+this.physics.world.debugGraphic.visible = true;
+this.physics.add.collider(player, blocksGroup);
+this.physics.add.collider(player, noBoostBlocksGroup);
+this.physics.add.collider(player, spikesGroup);
+this.physics.add.overlap(player, spikesGroup, killPlayer, null, this);
+this.physics.add.overlap(player, windowsGroup, () => { player.canOpenWindow = true; }, null, this);
+blocksGroup.refresh();
+noBoostBlocksGroup.refresh();
+spikesGroup.refresh();
+windowsGroup.refresh();
+
 }
 
-
-  if (isEditorMode && !firstTimeEditorInstructionsShown) {
-    showInstruction(this, "Press ENTER to playtest, and PAUSE for level settings", 4000);
-    firstTimeEditorInstructionsShown = true;
-  }
+if (isEditorMode && !firstTimeEditorInstructionsShown) {
+showInstruction(this, "Press ENTER to playtest, and PAUSE for level settings", 4000);
+firstTimeEditorInstructionsShown = true;
+}
 }
 
-function createSpike(group, x, y, size) {
-  const spike = group.create(x, y, 'spike')
-    .setOrigin(0, 0)
-    .setDisplaySize(size, size);
-  spike.refreshBody();
-  
-  const hitboxWidth  = size * 0.2;
-  const hitboxHeight = size * 0.55;
-  const offsetX      = size - hitboxWidth / 2;
-  const offsetY      = size - hitboxHeight;
-  
-  spike.body.setSize(hitboxWidth, hitboxHeight);
-  spike.body.setOffset(offsetX, offsetY);
-  
-  return spike;
-}
 
 
 
 function placeObject(x, y) {
-  x = Phaser.Math.Clamp(x, 0, WORLD_WIDTH - gridSize);
-  y = Phaser.Math.Clamp(y, 0, WORLD_HEIGHT - gridSize);
+// Clamp x/y to world
+x = Phaser.Math.Clamp(x, 0, WORLD_WIDTH - gridSize);
+y = Phaser.Math.Clamp(y, 0, WORLD_HEIGHT - gridSize);
 
-  if (currentTool === 'block') {
-    const existing = blocksGroup.getChildren().find(b => b.x === x && b.y === y);
-    if (!existing) {
-      blocksGroup.create(x, y, 'pixel')
-        .setOrigin(0, 0)
-        .setDisplaySize(gridSize, gridSize)
-        .setTint(blockColorHex)
-        .refreshBody();
-    }
-  } else if (currentTool === 'finish') {
-    finishLine.setPosition(x, y);
-  } else if (currentTool === 'spawn') {
-    spawnPoint.setPosition(x, y);
-  } else if (currentTool === 'spike') {
-    const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
-    if (!existing) {
-      createSpike(spikesGroup, x, y, gridSize);
-    }
-  } else if (currentTool === 'window') {
-    const existing = windowsGroup.getChildren().find(w => w.x === x && w.y === y);
-    if (!existing) {
-      const win = windowsGroup.create(x, y, 'window')
-        .setOrigin(0, 0)
-        .setDisplaySize(gridSize, gridSize)
-        .refreshBody();
-    }
-  } else if (currentTool === 'noboost') {
-    const existing = noBoostBlocksGroup.getChildren().find(b => b.x === x && b.y === y);
-    if (!existing) {
-      const block = noBoostBlocksGroup.create(x, y, 'pixel')
-        .setOrigin(0, 0)
-        .setDisplaySize(gridSize, gridSize)
-        .setTint(0x0000ff)
-        .refreshBody();
-    }
-  }
+if (currentTool === 'block') {
+const existing = blocksGroup.getChildren().find(b => b.x === x && b.y === y);
+if (!existing) {
+blocksGroup.create(x, y, 'pixel')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize)
+.setTint(blockColorHex) // Ã¢Å“â€¦ use selected color
+.refreshBody();
+
 }
+} else if (currentTool === 'finish') {
+finishLine.setPosition(x, y);
+} else if (currentTool === 'spawn') {
+spawnPoint.setPosition(x, y);
+} else if (currentTool === 'spike') {
+const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
+if (!existing) {
+const spike = spikesGroup.create(x, y, 'spike')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize);
 
+spike.refreshBody();
+
+const hitboxWidth = gridSize * 0.2;
+const hitboxHeight = gridSize * 0.55;
+
+const offsetX = (gridSize - hitboxWidth) / 2;
+const offsetY = gridSize - hitboxHeight;
+
+spike.body.setSize(hitboxWidth, hitboxHeight);
+spike.body.setOffset(offsetX, offsetY);
+}
+} else if (currentTool === 'window') {
+const existing = windowsGroup.getChildren().find(w => w.x === x && w.y === y);
+if (!existing) {
+const win = windowsGroup.create(x, y, 'window')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize)
+.refreshBody();
+}
+} else if (currentTool === 'noboost') {
+const existing = noBoostBlocksGroup.getChildren().find(b => b.x === x && b.y === y);
+if (!existing) {
+const block = noBoostBlocksGroup.create(x, y, 'pixel')
+.setOrigin(0, 0)
+.setDisplaySize(gridSize, gridSize)
+.setTint(0x0000ff) // blue
+.refreshBody();
+}
+}
+}
 
 function update() {
-  // UI positioning FIRST (always runs)\
-  if (!pauseOverlay || !resumeButton || !pauseButton) return;
-  
+// UI positioning FIRST (always runs)\
+if (!pauseOverlay || !resumeButton || !pauseButton) return;
+
 
 if (gameStarted) {
-  if (Phaser.Input.Keyboard.JustDown(saveKey)) {
-    saveLevelToClipboard(this);
-  }
-  if (Phaser.Input.Keyboard.JustDown(loadKey)) {
-    loadLevelFromClipboard(this);
-  }
+if (Phaser.Input.Keyboard.JustDown(saveKey)) {
+saveLevelToClipboard(this);
+}
+if (Phaser.Input.Keyboard.JustDown(loadKey)) {
+loadLevelFromClipboard(this);
+}
 }
 
-  forceBackButtonsHidden();
+forceBackButtonsHidden();
 
-  if (pauseButton?.visible) {}
-  if (pauseOverlay?.visible) {
-    pauseOverlay.setPosition(config.width / 2, config.height / 2);
-  }
-  if (resumeButton?.visible) {
-    resumeButton.setPosition(config.width / 2, config.height / 2 + 100);
-  }
+if (pauseButton?.visible) {}
+if (pauseOverlay?.visible) {
+pauseOverlay.setPosition(config.width / 2, config.height / 2);
+}
+if (resumeButton?.visible) {
+resumeButton.setPosition(config.width / 2, config.height / 2 + 100);
+}
 
-  if (isPaused) return;
+if (isPaused) return;
 
-  pauseOverlay.setVisible(false);
+pauseOverlay.setVisible(false);
 
-  frameCounter++;
+frameCounter++;
 
-  if (boostFlashFrames > 0) {
-    this.cameras.main.flash(50, 50, 50, 0);
-    boostFlashFrames--;
-  }
+if (boostFlashFrames > 0) {
+this.cameras.main.flash(50, 50, 50, 0);
+boostFlashFrames--;
+}
 
 if (currentBackground && player) {
-  if (currentBackground && player) {
-    const bgWidth = currentBackground.displayWidth;
-    const bgHeight = currentBackground.displayHeight;
+if (currentBackground && player) {
+const bgWidth = currentBackground.displayWidth;
+const bgHeight = currentBackground.displayHeight;
 
-    // Calculate desired BG center based on player
-    let bgX = player.x;
-    let bgY = player.y;
+// Calculate desired BG center based on player
+let bgX = player.x;
+let bgY = player.y;
 
-    // Move at half the player's position
-    bgX = WORLD_WIDTH / 2 + (player.x - WORLD_WIDTH / 2) * 0.5;
-    bgY = WORLD_HEIGHT / 2 + (player.y - WORLD_HEIGHT / 2) * 0.5;
+// Move at half the player's position
+bgX = WORLD_WIDTH / 2 + (player.x - WORLD_WIDTH / 2) * 0.5;
+bgY = WORLD_HEIGHT / 2 + (player.y - WORLD_HEIGHT / 2) * 0.5;
 
-    // Clamp so edges donÃ¢â‚¬â„¢t leave world bounds
-    const halfW = bgWidth / 2;
-    const halfH = bgHeight / 2;
+// Clamp so edges donÃ¢â‚¬â„¢t leave world bounds
+const halfW = bgWidth / 2;
+const halfH = bgHeight / 2;
 
-    bgX = Phaser.Math.Clamp(bgX, halfW, WORLD_WIDTH - halfW);
-    bgY = Phaser.Math.Clamp(bgY, halfH, WORLD_HEIGHT - halfH);
+bgX = Phaser.Math.Clamp(bgX, halfW, WORLD_WIDTH - halfW);
+bgY = Phaser.Math.Clamp(bgY, halfH, WORLD_HEIGHT - halfH);
 
-    currentBackground.setPosition(bgX, bgY);
+currentBackground.setPosition(bgX, bgY);
 }
 
 }
@@ -1267,140 +1264,140 @@ if (currentBackground && player) {
 
 
 
-  if (gameState !== 'title' && Phaser.Input.Keyboard.JustDown(enterKey)) {
-    toggleEditorMode.call(this);
-    return;
-  }
+if (gameState !== 'title' && Phaser.Input.Keyboard.JustDown(enterKey)) {
+toggleEditorMode.call(this);
+return;
+}
 
-  // *** EDITOR TOGGLE END ***
+// *** EDITOR TOGGLE END ***
 
-  // Reset interaction each frame
-  if (player && !isEditorMode) player.canOpenWindow = false;
+// Reset interaction each frame
+if (player && !isEditorMode) player.canOpenWindow = false;
 
-  // Window proximity check (only in game mode)
-  let nearestWindow = null;
-  let minDist = 100;
+// Window proximity check (only in game mode)
+let nearestWindow = null;
+let minDist = 100;
 
-  windowsGroup.getChildren().forEach(win => {
-    const dx = player.x + player.displayWidth / 2 - (win.x + gridSize / 2);
-    const dy = player.y + player.displayHeight / 2 - (win.y + gridSize / 2);
-    const dist = Math.sqrt(dx * dx + dy * dy);
+windowsGroup.getChildren().forEach(win => {
+const dx = player.x + player.displayWidth / 2 - (win.x + gridSize / 2);
+const dy = player.y + player.displayHeight / 2 - (win.y + gridSize / 2);
+const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (dist < minDist) {
-      nearestWindow = win;
-      minDist = dist;
-    }
-  });
+if (dist < minDist) {
+nearestWindow = win;
+minDist = dist;
+}
+});
 
-  if (nearestWindow && !isEditorMode && player) {
-    player.canOpenWindow = true;
-    windowPromptText.setVisible(true);
-    const cam = this.cameras.main;
-    const screenX = (nearestWindow.x + gridSize / 2 - cam.scrollX) * cam.zoom;
-    const screenY = (nearestWindow.y - 40 - cam.scrollY) * cam.zoom;
-    windowPromptText.setPosition(screenX, screenY);
-  } else {
-    windowPromptText.setVisible(false);
-  }
+if (nearestWindow && !isEditorMode && player) {
+player.canOpenWindow = true;
+windowPromptText.setVisible(true);
+const cam = this.cameras.main;
+const screenX = (nearestWindow.x + gridSize / 2 - cam.scrollX) * cam.zoom;
+const screenY = (nearestWindow.y - 40 - cam.scrollY) * cam.zoom;
+windowPromptText.setPosition(screenX, screenY);
+} else {
+windowPromptText.setVisible(false);
+}
 
-  if (player && player.canOpenWindow && Phaser.Input.Keyboard.JustDown(spaceKey)) {
-    toggleWindow.call(this);
-  }
+if (player && player.canOpenWindow && Phaser.Input.Keyboard.JustDown(spaceKey)) {
+toggleWindow.call(this);
+}
 
-  if (gameState === 'title') return;
+if (gameState === 'title') return;
 
-  // Editor or gameplay logic
-  if (isEditorMode) {
-    handleEditorInput.call(this);
-    updateEditorCamera(this);
-  } else {
-    handleMovementAndBoost.call(this);
-    updateSpeedCamera(this);
+// Editor or gameplay logic
+if (isEditorMode) {
+handleEditorInput.call(this);
+updateEditorCamera(this);
+} else {
+handleMovementAndBoost.call(this);
+updateSpeedCamera(this);
 
-    const speedDisplay = Math.round(Math.abs(player.body.velocity.x));
-    speedText.setText(speedDisplay.toString());
-    speedText.setPosition(
-      player.x + player.displayWidth / 2,
-      player.y - 20
-    );
-  }
+const speedDisplay = Math.round(Math.abs(player.body.velocity.x));
+speedText.setText(speedDisplay.toString());
+speedText.setPosition(
+player.x + player.displayWidth / 2,
+player.y - 20
+);
+}
 
-  // Bounds check (gameplay only)
-  if (!isEditorMode && player) {
-    const bounds = this.physics.world.bounds;
-    const px = player.x;
-    const py = player.y;
-    const w = player.displayWidth;
-    const h = player.displayHeight;
-    const outOfBounds = px < bounds.x || py < bounds.y || px + w > bounds.right || py + h > bounds.bottom;
-    if (outOfBounds) {
-      killPlayer(this);
-      return;
-    }
-  }
+// Bounds check (gameplay only)
+if (!isEditorMode && player) {
+const bounds = this.physics.world.bounds;
+const px = player.x;
+const py = player.y;
+const w = player.displayWidth;
+const h = player.displayHeight;
+const outOfBounds = px < bounds.x || py < bounds.y || px + w > bounds.right || py + h > bounds.bottom;
+if (outOfBounds) {
+killPlayer(this);
+return;
+}
+}
 
-  // Win check (gameplay only)
-  if (!isEditorMode && !hasWon && player && finishLine) {
-    if (Phaser.Geom.Intersects.RectangleToRectangle(
-      player.getBounds(),
-      finishLine.getBounds()
-    )) {
-      triggerWin.call(this);
-      return;
-    }
-  }
+// Win check (gameplay only)
+if (!isEditorMode && !hasWon && player && finishLine) {
+if (Phaser.Geom.Intersects.RectangleToRectangle(
+player.getBounds(),
+finishLine.getBounds()
+)) {
+triggerWin.call(this);
+return;
+}
+}
 
-  if (player) {
-    player.boostOutline.setPosition(player.x - 4, player.y - 4);
-  }
+if (player) {
+player.boostOutline.setPosition(player.x - 4, player.y - 4);
+}
 
 
 }
 
 
 function handleMovementAndBoost() {
-  const touchingDown = player.body.touching.down;
-  const touchingUp = player.body.touching.up;
+const touchingDown = player.body.touching.down;
+const touchingUp = player.body.touching.up;
 
-  const MAX_NORMAL_GROUND_SPEED = 360;
-  const GROUND_ACCEL = 999;
-  const AIR_ACCEL = 0;
-  const BOOST_MULTIPLIER = 1.6;
-  const JUMP_VELOCITY_Y = -300;
-  const BOOST_WINDOW_FRAMES = 10;
+const MAX_NORMAL_GROUND_SPEED = 360;
+const GROUND_ACCEL = 999;
+const AIR_ACCEL = 0;
+const BOOST_MULTIPLIER = 1.6;
+const JUMP_VELOCITY_Y = -300;
+const BOOST_WINDOW_FRAMES = 10;
 
-  // --- FLOOR BOOST LOGIC ---
-  const justLanded = touchingDown && !lastTouchingDown;
+// --- FLOOR BOOST LOGIC ---
+const justLanded = touchingDown && !lastTouchingDown;
 
-  let standingOnNoBoost = false;
-  noBoostBlocksGroup.getChildren().forEach(block => {
-    if (player.body.bottom === block.body.top &&
-      player.body.x + player.body.width > block.body.x &&
-      player.body.x < block.body.right) {
-      standingOnNoBoost = true;
-    }
-  });
+let standingOnNoBoost = false;
+noBoostBlocksGroup.getChildren().forEach(block => {
+if (player.body.bottom === block.body.top &&
+player.body.x + player.body.width > block.body.x &&
+player.body.x < block.body.right) {
+standingOnNoBoost = true;
+}
+});
 
-  if (justLanded) {
-    lastLandingFrame = frameCounter;
-    canBoost = !standingOnNoBoost; // disable boost if standing on no-boost block
-  }
+if (justLanded) {
+lastLandingFrame = frameCounter;
+canBoost = !standingOnNoBoost; // disable boost if standing on no-boost block
+}
 
-  const framesSinceLanding = frameCounter - lastLandingFrame;
-  const floorInBoostWindow = framesSinceLanding <= BOOST_WINDOW_FRAMES;
+const framesSinceLanding = frameCounter - lastLandingFrame;
+const floorInBoostWindow = framesSinceLanding <= BOOST_WINDOW_FRAMES;
 
-  // --- CEILING BOOST LOGIC ---
-  const justHitCeiling = touchingUp && !lastTouchingUp;
-  if (justHitCeiling) {
-    lastCeilingFrame = frameCounter;
-    canBoost = true;
-  }
-  const framesSinceCeiling = frameCounter - lastCeilingFrame;
-  const ceilingInBoostWindow = framesSinceCeiling <= BOOST_WINDOW_FRAMES;
+// --- CEILING BOOST LOGIC ---
+const justHitCeiling = touchingUp && !lastTouchingUp;
+if (justHitCeiling) {
+lastCeilingFrame = frameCounter;
+canBoost = true;
+}
+const framesSinceCeiling = frameCounter - lastCeilingFrame;
+const ceilingInBoostWindow = framesSinceCeiling <= BOOST_WINDOW_FRAMES;
 
-  player.boostOutline.setVisible(
-    (touchingDown && floorInBoostWindow) || (touchingUp && ceilingInBoostWindow)
-  );
+player.boostOutline.setVisible(
+(touchingDown && floorInBoostWindow) || (touchingUp && ceilingInBoostWindow)
+);
 
 // --- HORIZONTAL MOVEMENT ---
 let moveInput = 0;
@@ -1411,34 +1408,34 @@ const horizSpeed = Math.abs(player.body.velocity.x);
 
 // Air control logic with speed thresholds
 if (horizSpeed <= 340) {
-    // Full air control: drag, acceleration, clamp to 340
-    player.body.setDragX(150);  // Light drag for deceleration
-    const BASE_ACCEL = 800;  // Base acceleration (tweak 600-1000)
-    const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
-    let accel = moveInput * BASE_ACCEL * AIR_ACCEL_MULTIPLIER;
-    player.setAccelerationX(accel);
-    
-    // Clamp to prevent exceeding 340
-    player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -340, 340);
-    
-    // Debug logging (remove after testing)
-    console.log("Full Air Control - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1));
+// Full air control: drag, acceleration, clamp to 340
+player.body.setDragX(150);  // Light drag for deceleration
+const BASE_ACCEL = 800;  // Base acceleration (tweak 600-1000)
+const AIR_ACCEL_MULTIPLIER = 1.2;  // Air feels a bit more responsive
+let accel = moveInput * BASE_ACCEL * AIR_ACCEL_MULTIPLIER;
+player.setAccelerationX(accel);
+
+// Clamp to prevent exceeding 340
+player.body.velocity.x = Phaser.Math.Clamp(player.body.velocity.x, -340, 340);
+
+// Debug logging (remove after testing)
+console.log("Full Air Control - Input:", moveInput, "Accel:", accel, "Velocity:", player.body.velocity.x.toFixed(1));
 } else if (horizSpeed <= 360) {
-    // Partial control: drag for deceleration, no acceleration
-    player.body.setDragX(150);  // Allow slowing down
-    player.setAccelerationX(0);  // No speeding up
-    
-    // No clamping here - let it decelerate naturally
-    
-    // Debug logging (remove after testing)
-    console.log("Decel Only - Velocity:", player.body.velocity.x.toFixed(1));
+// Partial control: drag for deceleration, no acceleration
+player.body.setDragX(150);  // Allow slowing down
+player.setAccelerationX(0);  // No speeding up
+
+// No clamping here - let it decelerate naturally
+
+// Debug logging (remove after testing)
+console.log("Decel Only - Velocity:", player.body.velocity.x.toFixed(1));
 } else {
-    // Speed > 360: stick mode - no drag, no acceleration
-    player.body.setDragX(0);
-    player.setAccelerationX(0);
-    
-    // Debug logging (remove after testing)
-    console.log("Stuck Speed - Velocity:", player.body.velocity.x.toFixed(1));
+// Speed > 360: stick mode - no drag, no acceleration
+player.body.setDragX(0);
+player.setAccelerationX(0);
+
+// Debug logging (remove after testing)
+console.log("Stuck Speed - Velocity:", player.body.velocity.x.toFixed(1));
 }
 
 
@@ -1446,421 +1443,414 @@ if (horizSpeed <= 340) {
 
 
 
-  // --- JUMP / BOOST ---
-  if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
-    // --- FLOOR JUMP / BOOST ---
-    if (touchingDown || floorInBoostWindow) {
-      player.setVelocityY(JUMP_VELOCITY_Y);
+// --- JUMP / BOOST ---
+if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
+// --- FLOOR JUMP / BOOST ---
+if (touchingDown || floorInBoostWindow) {
+player.setVelocityY(JUMP_VELOCITY_Y);
 
-      if (canBoost && floorInBoostWindow) {
-        player.body.velocity.x *= BOOST_MULTIPLIER;
-        canBoost = false;
-        boostFlashFrames = BOOST_FLASH_DURATION;
-      }
-    }
+if (canBoost && floorInBoostWindow) {
+player.body.velocity.x *= BOOST_MULTIPLIER;
+canBoost = false;
+boostFlashFrames = BOOST_FLASH_DURATION;
+}
+}
 
-    // --- CEILING JUMP / BOOST ---
-    if (touchingUp || ceilingInBoostWindow) {
-      // Optional: small downward push
-      player.setVelocityY(-JUMP_VELOCITY_Y);
+// --- CEILING JUMP / BOOST ---
+if (touchingUp || ceilingInBoostWindow) {
+// Optional: small downward push
+player.setVelocityY(-JUMP_VELOCITY_Y);
 
-      if (canBoost && ceilingInBoostWindow) {
-        player.body.velocity.x *= BOOST_MULTIPLIER;
-        canBoost = false;
-        boostFlashFrames = BOOST_FLASH_DURATION;
-      }
-    }
-  }
+if (canBoost && ceilingInBoostWindow) {
+player.body.velocity.x *= BOOST_MULTIPLIER;
+canBoost = false;
+boostFlashFrames = BOOST_FLASH_DURATION;
+}
+}
+}
 
-  // --- UPDATE FLAGS ---
-  lastTouchingDown = touchingDown;
-  lastTouchingUp = touchingUp;
+// --- UPDATE FLAGS ---
+lastTouchingDown = touchingDown;
+lastTouchingUp = touchingUp;
 
-  // --- EDITOR MOUSE INPUT (optional) ---
-  if (isEditorMode) {
-    const pointer = this.input.activePointer;
-    if (pointer.isDown && !wasPointerDown) {
-      const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      const gridPos = getGridPosition(worldPoint.x, worldPoint.y);
-      if (pointer.leftButtonDown()) placeObject(gridPos.x, gridPos.y);
-      else if (pointer.rightButtonDown()) deleteObject(gridPos.x, gridPos.y);
-    }
-  }
+// --- EDITOR MOUSE INPUT (optional) ---
+if (isEditorMode) {
+const pointer = this.input.activePointer;
+if (pointer.isDown && !wasPointerDown) {
+const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+const gridPos = getGridPosition(worldPoint.x, worldPoint.y);
+if (pointer.leftButtonDown()) placeObject(gridPos.x, gridPos.y);
+else if (pointer.rightButtonDown()) deleteObject(gridPos.x, gridPos.y);
+}
+}
 
-  wasPointerDown = this.input.activePointer.isDown;
+wasPointerDown = this.input.activePointer.isDown;
 }
 
 
 function createGameplayBackground(scene) {
-    currentBackground = scene.add.image(
-        WORLD_WIDTH / 2,
-        WORLD_HEIGHT / 2,
-        BACKGROUND_MAP[selectedBackgroundKey]
-    )
-    .setOrigin(0.5)
+currentBackground = scene.add.image(
+WORLD_WIDTH / 2,
+WORLD_HEIGHT / 2,
+BACKGROUND_MAP[selectedBackgroundKey]
+)
+.setOrigin(0.5)
 .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
 
-    .setDepth(-4000);
+.setDepth(-4000);
 }
 
 
 function startGame() {
-  gameState = 'playing';
-  gameStarted = true;
-  
-  // ✅ DESTROY TITLE SCREEN BACKGROUND
-  if (menuBg) {
-    menuBg.destroy();
-    menuBg = null;
-  }
-  
-  // ✅ CREATE GAMEPLAY BACKGROUND
-  createGameplayBackground(this);
-  
-  // ✅ START DEFAULT MUSIC
-  playSelectedMusic(this);
-  
-  // ✅ SHOW GAME ELEMENTS
-  this.cameras.main.setZoom(baseCamZoom);
-  this.cameras.main.startFollow(player, true, 0.08, 0.08);
-  
-  player.setVisible(true);
-  pauseButton.setVisible(true);
-  speedText.setVisible(true);
-  blocksGroup.setVisible(true);
-  spikesGroup.setVisible(true);
-  noBoostBlocksGroup.setVisible(true);
-  windowsGroup.setVisible(true);
-  finishLine.setVisible(true);
-  spawnPoint.setVisible(true);
-  titleText?.setVisible(false);
-  
-  // ✅ RESET PLAYER POSITION
-  player.setPosition(spawnPoint.x, spawnPoint.y);
-  player.body.setVelocity(0, 0);
+gameState = 'playing';
+gameStarted = true;
 
-    setupPlayerCollisions(this);
+// ✅ DESTROY TITLE SCREEN BACKGROUND
+if (menuBg) {
+menuBg.destroy();
+menuBg = null;
+}
 
+// ✅ CREATE GAMEPLAY BACKGROUND
+createGameplayBackground(this);
+
+// ✅ START DEFAULT MUSIC
+playSelectedMusic(this);
+
+// ✅ SHOW GAME ELEMENTS
+this.cameras.main.setZoom(baseCamZoom);
+this.cameras.main.startFollow(player, true, 0.08, 0.08);
+
+player.setVisible(true);
+pauseButton.setVisible(true);
+speedText.setVisible(true);
+blocksGroup.setVisible(true);
+spikesGroup.setVisible(true);
+noBoostBlocksGroup.setVisible(true);
+windowsGroup.setVisible(true);
+finishLine.setVisible(true);
+spawnPoint.setVisible(true);
+titleText?.setVisible(false);
+
+// ✅ RESET PLAYER POSITION
+player.setPosition(spawnPoint.x, spawnPoint.y);
+player.body.setVelocity(0, 0);
 }
 
 
 
 function updateSpeedCamera(scene) {
-  const cam = scene.cameras.main;
+const cam = scene.cameras.main;
 
-  // SPEED-BASED ZOOM ONLY (camera position handled by follow)
-  const speed = Math.abs(player.body.velocity.x);
-  const speedFactor = Phaser.Math.Clamp(speed / 1500, 0, 1);
-  const targetZoom = baseCamZoom - speedFactor * speedZoomOut;
+// SPEED-BASED ZOOM ONLY (camera position handled by follow)
+const speed = Math.abs(player.body.velocity.x);
+const speedFactor = Phaser.Math.Clamp(speed / 1500, 0, 1);
+const targetZoom = baseCamZoom - speedFactor * speedZoomOut;
 
-  cam.setZoom(
-    Phaser.Math.Linear(cam.zoom, targetZoom, camZoomLerp)
-  );
+cam.setZoom(
+Phaser.Math.Linear(cam.zoom, targetZoom, camZoomLerp)
+);
 }
 
 function updateEditorCamera(scene) {
-  const cam = scene.cameras.main;
+const cam = scene.cameras.main;
 
-  cam.zoom = Phaser.Math.Linear(
-    cam.zoom,
-    editorTargetZoom,
-    0.12
-  );
+cam.zoom = Phaser.Math.Linear(
+cam.zoom,
+editorTargetZoom,
+0.12
+);
 }
 
 function killPlayer(scene) {
-  player.sfx.death.play();
+player.sfx.death.play();
 
-  // Reset velocity
-  player.body.setVelocity(0, 0);
+// Reset velocity
+player.body.setVelocity(0, 0);
 
-  // Reset position to spawn
-  player.setPosition(spawnPoint.x, spawnPoint.y);
+// Reset position to spawn
+player.setPosition(spawnPoint.x, spawnPoint.y);
 
-  // Reset boost state
-  canBoost = false;
-  lastTouchingDown = false;
-  lastLandingFrame = -9999;
+// Reset boost state
+canBoost = false;
+lastTouchingDown = false;
+lastLandingFrame = -9999;
 
-  // Small camera snap to avoid weird offsets
-  scene.cameras.main.flash(120, 255, 0, 0);
+// Small camera snap to avoid weird offsets
+scene.cameras.main.flash(120, 255, 0, 0);
 }
 
 function triggerWin() {
-  hasWon = true;
+hasWon = true;
 
-  // Freeze player
-  player.body.setVelocity(0, 0);
-  player.body.enable = false;
+// Freeze player
+player.body.setVelocity(0, 0);
+player.body.enable = false;
 
-  // Stop camera follow
-  this.cameras.main.stopFollow();
+// Stop camera follow
+this.cameras.main.stopFollow();
 
-  // Show UI
-  winText.setVisible(true);
-  restartButton.setVisible(true);
+// Show UI
+winText.setVisible(true);
+restartButton.setVisible(true);
 
-  // Optional: small flash
-  this.cameras.main.flash(200, 0, 255, 0);
+// Optional: small flash
+this.cameras.main.flash(200, 0, 255, 0);
 }
 
 function restartLevel() {
-  hasWon = false;
+hasWon = false;
 
-  // Hide UI
-  winText.setVisible(false);
-  restartButton.setVisible(false);
+// Hide UI
+winText.setVisible(false);
+restartButton.setVisible(false);
 
-  // Reset player
-  player.body.enable = true;
-  player.setPosition(spawnPoint.x, spawnPoint.y);
-  player.body.setVelocity(0, 0);
+// Reset player
+player.body.enable = true;
+player.setPosition(spawnPoint.x, spawnPoint.y);
+player.body.setVelocity(0, 0);
 
-  // Reset boost state
-  canBoost = false;
-  lastTouchingDown = false;
-  lastLandingFrame = -9999;
+// Reset boost state
+canBoost = false;
+lastTouchingDown = false;
+lastLandingFrame = -9999;
 
-  // Resume camera follow
-  this.cameras.main.startFollow(player, true, 0.08, 0.08);
+// Resume camera follow
+this.cameras.main.startFollow(player, true, 0.08, 0.08);
 
-  // Optional: reset finish line position if needed
-  // createFinishLine(this);
-
-    
+// Optional: reset finish line position if needed
+// createFinishLine(this);
 }
 
 function updateEditorZoomLimits(cam) {
-  // World dimensions
-  const worldWidth = WORLD_WIDTH;
-  const worldHeight = WORLD_HEIGHT;
+// World dimensions
+const worldWidth = WORLD_WIDTH;
+const worldHeight = WORLD_HEIGHT;
 
-  // Screen dimensions
-  const screenWidth = config.width;
-  const screenHeight = config.height;
+// Screen dimensions
+const screenWidth = config.width;
+const screenHeight = config.height;
 
-  // Minimum zoom so camera never sees outside world
-  editorMinZoom = Math.min(
-    screenWidth / worldWidth,
-    screenHeight / worldHeight
-  );
+// Minimum zoom so camera never sees outside world
+editorMinZoom = Math.min(
+screenWidth / worldWidth,
+screenHeight / worldHeight
+);
 
-  // Optional maximum zoom
-  editorMaxZoom = 0.6;
+// Optional maximum zoom
+editorMaxZoom = 0.6;
 
-  // Clamp target zoom
-  editorTargetZoom = Phaser.Math.Clamp(editorTargetZoom, editorMinZoom, editorMaxZoom);
-
-    
+// Clamp target zoom
+editorTargetZoom = Phaser.Math.Clamp(editorTargetZoom, editorMinZoom, editorMaxZoom);
 }
 
 // --- Additional utility functions ---
 function drawGrid(scene, graphics) {
-  for (let x = 0; x < WORLD_WIDTH; x += gridSize) {
-    graphics.lineBetween(x, 0, x, WORLD_HEIGHT);
-  }
-  for (let y = 0; y < WORLD_HEIGHT; y += gridSize) {
-    graphics.lineBetween(0, y, WORLD_WIDTH, y);
-  }
+for (let x = 0; x < WORLD_WIDTH; x += gridSize) {
+graphics.lineBetween(x, 0, x, WORLD_HEIGHT);
+}
+for (let y = 0; y < WORLD_HEIGHT; y += gridSize) {
+graphics.lineBetween(0, y, WORLD_WIDTH, y);
+}
 }
 
 function handleEditorInput() {
-  if (!isEditorMode) return;
+if (!isEditorMode) return;
 
-  const pointer = this.input.activePointer;
-  if (!pointer.isDown) return;
+const pointer = this.input.activePointer;
+if (!pointer.isDown) return;
 
-  function getGridPosition(worldX, worldY) {
-  return {
-    x: Math.floor(worldX / gridSize) * gridSize,
-    y: Math.floor(worldY / gridSize) * gridSize
-  };
+function getGridPosition(worldX, worldY) {
+return {
+x: Math.floor(worldX / gridSize) * gridSize,
+y: Math.floor(worldY / gridSize) * gridSize
+};
 }
 
 
-  const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-  const gridPos = getGridPosition(worldPoint.x, worldPoint.y);
+const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+const gridPos = getGridPosition(worldPoint.x, worldPoint.y);
 
-  if (pointer.leftButtonDown()) {
-    placeObject.call(this, gridPos.x, gridPos.y);
-  } else if (pointer.rightButtonDown()) {
-    deleteObject.call(this, gridPos.x, gridPos.y);
-  }
+if (pointer.leftButtonDown()) {
+placeObject.call(this, gridPos.x, gridPos.y);
+} else if (pointer.rightButtonDown()) {
+deleteObject.call(this, gridPos.x, gridPos.y);
+}
 }
 
 function deleteObject(x, y) {
-  blocksGroup.getChildren().forEach(block => {
-    if (block.x === x && block.y === y) block.destroy();
-  });
+blocksGroup.getChildren().forEach(block => {
+if (block.x === x && block.y === y) block.destroy();
+});
 
-  spikesGroup.getChildren().forEach(spike => {
-    if (spike.x === x && spike.y === y) spike.destroy();
-  });
+spikesGroup.getChildren().forEach(spike => {
+if (spike.x === x && spike.y === y) spike.destroy();
+});
 
-  windowsGroup.getChildren().forEach(win => {
-    if (win.x === x && win.y === y) win.destroy();
-  });
+windowsGroup.getChildren().forEach(win => {
+if (win.x === x && win.y === y) win.destroy();
+});
 
-  noBoostBlocksGroup.getChildren().forEach(block => {
-    if (block.x === x && block.y === y) block.destroy();
-  });
+noBoostBlocksGroup.getChildren().forEach(block => {
+if (block.x === x && block.y === y) block.destroy();
+});
 }
 
 function toggleWindow() {
-  const cam = this.cameras.main;
+const cam = this.cameras.main;
 
-  if (!isWindowOpen) {
-    // Open the window: zoom out to see entire level
-    cam.stopFollow();
-    cam.setZoom(Math.min(
-      config.width / WORLD_WIDTH,
-      config.height / WORLD_HEIGHT
-    ));
-    cam.centerOn(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
+if (!isWindowOpen) {
+// Open the window: zoom out to see entire level
+cam.stopFollow();
+cam.setZoom(Math.min(
+config.width / WORLD_WIDTH,
+config.height / WORLD_HEIGHT
+));
+cam.centerOn(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
 
-    // Lock player movement
-    player.body.moves = false;
+// Lock player movement
+player.body.moves = false;
 
-    isWindowOpen = true;
-  } else {
-    // Close the window: zoom back and follow player
-    cam.startFollow(player, true, 0.08, 0.08);
-    cam.setZoom(baseCamZoom);
+isWindowOpen = true;
+} else {
+// Close the window: zoom back and follow player
+cam.startFollow(player, true, 0.08, 0.08);
+cam.setZoom(baseCamZoom);
 
-    // Unlock movement
-    player.body.moves = true;
+// Unlock movement
+player.body.moves = true;
 
-    isWindowOpen = false;
-  }
+isWindowOpen = false;
+}
 }
 
 
 function makeMenuButton(scene, x, y, label, onClick) {
-  const btn = scene.add.text(
-    x,
-    y,
-    label,
-    MENU_BUTTON_STYLE
-  )
-  .setOrigin(0.5)
-  .setScrollFactor(0)
-  .setDepth(2001)
-  .setInteractive({ useHandCursor: true });
+const btn = scene.add.text(
+x,
+y,
+label,
+MENU_BUTTON_STYLE
+)
+.setOrigin(0.5)
+.setScrollFactor(0)
+.setDepth(2001)
+.setInteractive({ useHandCursor: true });
 
-  // hover effects
-  btn.on('pointerover', () => {
-    btn.setStyle({ fill: '#ffffff' }); // white on hover
-  });
+// hover effects
+btn.on('pointerover', () => {
+btn.setStyle({ fill: '#ffffff' }); // white on hover
+});
 
-  btn.on('pointerout', () => {
-    btn.setStyle({ fill: '#4aa3ff' }); // blue default
-  });
+btn.on('pointerout', () => {
+btn.setStyle({ fill: '#4aa3ff' }); // blue default
+});
 
-  btn.on('pointerup', onClick);
+btn.on('pointerup', onClick);
 
-  btn.setVisible(false);
-  return btn;
+btn.setVisible(false);
+return btn;
 }
 
 
 function createBlockColorMenu(scene) {
-    if (blockColorButtons.length > 0) return;
+if (blockColorButtons.length > 0) return;
 
-    const colors = [
-        { name: 'WHITE', hex: 0xffffff },
-        { name: 'RED',   hex: 0xff5555 },
-        { name: 'GREEN', hex: 0x55ff55 },
-        { name: 'BLUE',  hex: 0x5555ff }
-    ];
+const colors = [
+{ name: 'WHITE', hex: 0xffffff },
+{ name: 'RED',   hex: 0xff5555 },
+{ name: 'GREEN', hex: 0x55ff55 },
+{ name: 'BLUE',  hex: 0x5555ff }
+];
 
-    const startY = config.height / 2 - 150;
+const startY = config.height / 2 - 150;
 
-    colors.forEach((c, i) => {
-        const btn = makeMenuButton(
-            scene,
-            config.width / 2,
-            startY + i * 120,
-            c.name,
-            () => {
-                blockColorHex = c.hex;
-                closeBlockColorsMenu.call(scene);
-            }
-        );
-        btn.setVisible(false);
-        blockColorButtons.push(btn);
-    });
+colors.forEach((c, i) => {
+const btn = makeMenuButton(
+scene,
+config.width / 2,
+startY + i * 120,
+c.name,
+() => {
+blockColorHex = c.hex;
+closeBlockColorsMenu.call(scene);
+}
+);
+btn.setVisible(false);
+blockColorButtons.push(btn);
+});
 
-    backFromBlockColorsButton = makeMenuButton(
-        scene,
-        config.width / 2,
-        startY + colors.length * 120 + 100,
-        'BACK',
-        () => closeBlockColorsMenu.call(scene)
-    );
-    backFromBlockColorsButton.setVisible(false);
+backFromBlockColorsButton = makeMenuButton(
+scene,
+config.width / 2,
+startY + colors.length * 120 + 100,
+'BACK',
+() => closeBlockColorsMenu.call(scene)
+);
+backFromBlockColorsButton.setVisible(false);
 }
 
 
 function togglePause() {
-    isPaused = !isPaused;
+isPaused = !isPaused;
 
 
-    setVisibleObjects([
-    selectBackgroundOverlay,
-    backgroundTitleText,
-    backgroundBackButton,
-    backgroundButtons.A,
-    backgroundButtons.B,
-    backgroundButtons.C
+setVisibleObjects([
+selectBackgroundOverlay,
+backgroundTitleText,
+backgroundBackButton,
+backgroundButtons.A,
+backgroundButtons.B,
+backgroundButtons.C
 ], false);
 
 
-    if (isPaused) {
-        this.physics.world.pause();
+if (isPaused) {
+this.physics.world.pause();
 
-        if (!currentPauseMenu) {
-            // Show main pause menu
-            currentPauseMenu = 'main';
+if (!currentPauseMenu) {
+// Show main pause menu
+currentPauseMenu = 'main';
 
-            pauseOverlay.setVisible(true);
-            pauseText.setVisible(true);
-         const pauseButtons = [resumeButton, returnToMenuButton, helpButton];
+pauseOverlay.setVisible(true);
+pauseText.setVisible(true);
+const pauseButtons = [resumeButton, returnToMenuButton, helpButton];
 if (isEditorMode) pauseButtons.push(levelOptionsButton);
 
 setVisibleObjects(pauseButtons, true);
 
 
-            // Hide all submenus
-            setVisibleObjects([levelOptionsOverlay, levelOptionsText, backFromLevelOptionsButton, selectMusicButton, 
-                selectMusicOverlay, selectMusicBackButton,
-                helpOverlay, helpImage, helpBackButton], false);
-        }
+// Hide all submenus
+setVisibleObjects([levelOptionsOverlay, levelOptionsText, backFromLevelOptionsButton, selectMusicButton, 
+selectMusicOverlay, selectMusicBackButton,
+helpOverlay, helpImage, helpBackButton], false);
+}
 
-        // Stop following player while paused
-        this.cameras.main.stopFollow();
+// Stop following player while paused
+this.cameras.main.stopFollow();
 
-    } else {
-        // Unpause
-        this.physics.world.resume();
+} else {
+// Unpause
+this.physics.world.resume();
 
-        // Hide everything
-        pauseOverlay.setVisible(false);
-        pauseText.setVisible(false);
+// Hide everything
+pauseOverlay.setVisible(false);
+pauseText.setVisible(false);
 
-      setVisibleObjects([
-    resumeButton, returnToMenuButton, levelOptionsButton, helpButton,
-    levelOptionsOverlay, levelOptionsText, backFromLevelOptionsButton, selectMusicButton,
-    selectMusicOverlay, selectMusicBackButton,
-    helpOverlay, helpImage, helpBackButton
+setVisibleObjects([
+resumeButton, returnToMenuButton, levelOptionsButton, helpButton,
+levelOptionsOverlay, levelOptionsText, backFromLevelOptionsButton, selectMusicButton,
+selectMusicOverlay, selectMusicBackButton,
+helpOverlay, helpImage, helpBackButton
 ], false);
 
 setVisibleObjects([
-    selectBackgroundOverlay,
-    backgroundTitleText,
-    backgroundBackButton,
-    backgroundButtons.A,
-    backgroundButtons.B,
-    backgroundButtons.C
+selectBackgroundOverlay,
+backgroundTitleText,
+backgroundBackButton,
+backgroundButtons.A,
+backgroundButtons.B,
+backgroundButtons.C
 ], false);
 
 
@@ -1868,46 +1858,46 @@ Object.values(musicButtons).forEach(btn => btn.setVisible(false));
 musicTitleText.setVisible(false);
 
 
-        currentPauseMenu = null;
+currentPauseMenu = null;
 
-        // Resume following player if in gameplay
-        if (!isEditorMode && !hasWon) {
-            this.cameras.main.startFollow(player, true, 0.08, 0.08);
-        }
-    }
+// Resume following player if in gameplay
+if (!isEditorMode && !hasWon) {
+this.cameras.main.startFollow(player, true, 0.08, 0.08);
+}
+}
 }
 
 
 
 function destroyAllMenus() {
-    // Hide pause menu
-    if (pauseOverlay) pauseOverlay.setVisible(false);
-    if (pauseText) pauseText.setVisible(false);
-    if (resumeButton) resumeButton.setVisible(false);
-    if (returnToMenuButton) returnToMenuButton.setVisible(false);
-    if (helpButton) helpButton.setVisible(false);
-    if (levelOptionsButton) levelOptionsButton.setVisible(false);
+// Hide pause menu
+if (pauseOverlay) pauseOverlay.setVisible(false);
+if (pauseText) pauseText.setVisible(false);
+if (resumeButton) resumeButton.setVisible(false);
+if (returnToMenuButton) returnToMenuButton.setVisible(false);
+if (helpButton) helpButton.setVisible(false);
+if (levelOptionsButton) levelOptionsButton.setVisible(false);
 
-    // Hide old level options / music / background menus (if they exist)
-    if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-    if (levelOptionsText) levelOptionsText.setVisible(false);
-    if (musicTitleText) musicTitleText.setVisible(false);
-    if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
-    Object.values(musicButtons || {}).forEach(btn => btn?.setVisible(false));
-    if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
-    
-    if (backgroundButtons && backgroundButtons.A) {
-        backgroundButtons.A.setVisible(false);
-        backgroundButtons.B?.setVisible(false);
-        backgroundButtons.C?.setVisible(false);
-    }
+// Hide old level options / music / background menus (if they exist)
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+if (levelOptionsText) levelOptionsText.setVisible(false);
+if (musicTitleText) musicTitleText.setVisible(false);
+if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+Object.values(musicButtons || {}).forEach(btn => btn?.setVisible(false));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
 
-    if (helpOverlay) helpOverlay.setVisible(false);
-    if (helpImage) helpImage.setVisible(false);
-    if (helpBackButton) helpBackButton.setVisible(false);
+if (backgroundButtons && backgroundButtons.A) {
+backgroundButtons.A.setVisible(false);
+backgroundButtons.B?.setVisible(false);
+backgroundButtons.C?.setVisible(false);
+}
 
-    // Reset pause menu state
-    currentPauseMenu = null;
+if (helpOverlay) helpOverlay.setVisible(false);
+if (helpImage) helpImage.setVisible(false);
+if (helpBackButton) helpBackButton.setVisible(false);
+
+// Reset pause menu state
+currentPauseMenu = null;
 }
 
 
@@ -1918,198 +1908,198 @@ function openSimpleLevelOptionsMenu(scene) {
 
 
 
-    
-    // If already open, do nothing
-    if (simpleOptionsOpen) return;
 
-    destroyAllMenus();   // hide everything old
+// If already open, do nothing
+if (simpleOptionsOpen) return;
 
-    simpleOptionsOpen = true;
+destroyAllMenus();   // hide everything old
 
-    // Container so we can move / destroy whole menu at once
-    simpleOptionsContainer = scene.add.container(0, 0);
+simpleOptionsOpen = true;
 
-    const centerX = config.width / 2;
-    const centerY = config.height / 2;
+// Container so we can move / destroy whole menu at once
+simpleOptionsContainer = scene.add.container(0, 0);
 
-    // Dark background panel
-    const panel = scene.add.rectangle(
-        centerX,
-        centerY,
-        config.width * 1.8,
-        config.height * 1.8,
-        0xFFA5B0,
-        0.8
-    ).setScrollFactor(0).setDepth(2000);
+const centerX = config.width / 2;
+const centerY = config.height / 2;
 
-    simpleOptionsContainer.add(panel);
+// Dark background panel
+const panel = scene.add.rectangle(
+centerX,
+centerY,
+config.width * 1.8,
+config.height * 1.8,
+0xFFA5B0,
+0.8
+).setScrollFactor(0).setDepth(2000);
 
-    // --- MUSIC SECTION (TOP HALF) ---
-    const musicTitle = scene.add.text(
-        centerX,
-        centerY - 200,
-        "SELECT MUSIC",
-        {
-            fontSize: "64px",
-            fill: "#ffffff",
-            fontFamily: "Arial"
-        }
-    ).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+simpleOptionsContainer.add(panel);
 
-    simpleOptionsContainer.add(musicTitle);
+// --- MUSIC SECTION (TOP HALF) ---
+const musicTitle = scene.add.text(
+centerX,
+centerY - 200,
+"SELECT MUSIC",
+{
+fontSize: "64px",
+fill: "#ffffff",
+fontFamily: "Arial"
+}
+).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
 
-    // Music buttons: Adventure (X), Scary (Y), Happy (Z)
-    const musicButtonY = centerY - 100;
-    const spacingX = 260;
+simpleOptionsContainer.add(musicTitle);
+
+// Music buttons: Adventure (X), Scary (Y), Happy (Z)
+const musicButtonY = centerY - 100;
+const spacingX = 260;
 
 const makeSimpleButton = (x, y, label, onClick) => {
-    const btn = scene.add.text(x, y, label, MENU_BUTTON_STYLE)
-        .setOrigin(0.5)
-        .setScrollFactor(0)
-        .setDepth(2001)
-        .setInteractive({ useHandCursor: true });
+const btn = scene.add.text(x, y, label, MENU_BUTTON_STYLE)
+.setOrigin(0.5)
+.setScrollFactor(0)
+.setDepth(2001)
+.setInteractive({ useHandCursor: true });
 
-    btn.on("pointerover", () => btn.setStyle({ fill: "#ffffff" }));
-    btn.on("pointerout", () => btn.setStyle({ fill: "#4aa3ff" }));
-    btn.on("pointerup", onClick);
+btn.on("pointerover", () => btn.setStyle({ fill: "#ffffff" }));
+btn.on("pointerout", () => btn.setStyle({ fill: "#4aa3ff" }));
+btn.on("pointerup", onClick);
 
-    simpleOptionsContainer.add(btn);
-    return btn;
+simpleOptionsContainer.add(btn);
+return btn;
 };
 
-    simpleOptionsButtons.music.X = makeSimpleButton(
-        centerX - spacingX,
-        musicButtonY,
-        "Adventure",
-        () => {
-            selectedMusicKey = "X";      // uses your existing mapping: X -> Adventure[file:1]
-            playSelectedMusic(scene);
-        }
-    );
+simpleOptionsButtons.music.X = makeSimpleButton(
+centerX - spacingX,
+musicButtonY,
+"Adventure",
+() => {
+selectedMusicKey = "X";      // uses your existing mapping: X -> Adventure[file:1]
+playSelectedMusic(scene);
+}
+);
 
-    simpleOptionsButtons.music.Y = makeSimpleButton(
-        centerX,
-        musicButtonY,
-        "Scary",
-        () => {
-            selectedMusicKey = "Y";
-            playSelectedMusic(scene);
-        }
-    );
+simpleOptionsButtons.music.Y = makeSimpleButton(
+centerX,
+musicButtonY,
+"Scary",
+() => {
+selectedMusicKey = "Y";
+playSelectedMusic(scene);
+}
+);
 
 
-    
 
-    simpleOptionsButtons.music.Z = makeSimpleButton(
-        centerX + spacingX,
-        musicButtonY,
-        "Happy",
-        () => {
-            selectedMusicKey = "Z";
-            playSelectedMusic(scene);
-        }
-    );
 
-    // --- BACKGROUND SECTION (BOTTOM HALF) ---
-    const bgTitle = scene.add.text(
-        centerX,
-        centerY + 40,
-        "SELECT BACKGROUND",
-        {
-            fontSize: "64px",
-            fill: "#ffffff",
-            fontFamily: "Arial"
-        }
-    ).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+simpleOptionsButtons.music.Z = makeSimpleButton(
+centerX + spacingX,
+musicButtonY,
+"Happy",
+() => {
+selectedMusicKey = "Z";
+playSelectedMusic(scene);
+}
+);
 
-    simpleOptionsContainer.add(bgTitle);
+// --- BACKGROUND SECTION (BOTTOM HALF) ---
+const bgTitle = scene.add.text(
+centerX,
+centerY + 40,
+"SELECT BACKGROUND",
+{
+fontSize: "64px",
+fill: "#ffffff",
+fontFamily: "Arial"
+}
+).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
 
-    const bgButtonY = centerY + 140;
+simpleOptionsContainer.add(bgTitle);
+
+const bgButtonY = centerY + 140;
 
 simpleOptionsButtons.bg.A = makeSimpleButton(
-    centerX - spacingX,
-    bgButtonY,
-    "Dark",
-    () => {
-        selectedBackgroundKey = "A";  // ✅ Just set the key
-        if (currentBackground) {
-            currentBackground.setTexture(BACKGROUND_MAP["A"]);  // ✅ Use the key directly
-        }
-        showInstruction(scene, BACKGROUND_MAP["A"], 1500);
-    }
+centerX - spacingX,
+bgButtonY,
+"Dark",
+() => {
+selectedBackgroundKey = "A";  // ✅ Just set the key
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP["A"]);  // ✅ Use the key directly
+}
+showInstruction(scene, BACKGROUND_MAP["A"], 1500);
+}
 );
 
 
 simpleOptionsButtons.bg.B = makeSimpleButton(
-    centerX,
-    bgButtonY,
-    "Forest",
-    () => {
-        selectedBackgroundKey = "B";
-        if (currentBackground) {
-            currentBackground.setTexture(BACKGROUND_MAP["B"]);  // ✅ Change here too
-        }
-        showInstruction(scene, BACKGROUND_MAP["B"], 1500);
-    }
+centerX,
+bgButtonY,
+"Forest",
+() => {
+selectedBackgroundKey = "B";
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP["B"]);  // ✅ Change here too
+}
+showInstruction(scene, BACKGROUND_MAP["B"], 1500);
+}
 );
 
 simpleOptionsButtons.bg.C = makeSimpleButton(
-    centerX + spacingX,
-    bgButtonY,
-    "Red",
-    () => {
-        selectedBackgroundKey = "C";
-        if (currentBackground) {
-            currentBackground.setTexture(BACKGROUND_MAP["C"]);  // ✅ And here
-        }
-        showInstruction(scene, BACKGROUND_MAP["C"], 1500);
-    }
+centerX + spacingX,
+bgButtonY,
+"Red",
+() => {
+selectedBackgroundKey = "C";
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP["C"]);  // ✅ And here
+}
+showInstruction(scene, BACKGROUND_MAP["C"], 1500);
+}
 );
 
 
 
 
-    // ----- APPLY MUSIC/BACKGROUND (NEW) -----
+// ----- APPLY MUSIC/BACKGROUND (NEW) -----
 
 
-    // --- BACK BUTTON ---
-    simpleOptionsButtons.back = makeSimpleButton(
-        centerX,
-        centerY + config.height * 0.8 / 2 - 70,
-        "BACK",
-        () => {
-            closeSimpleLevelOptionsMenu(scene);
-        }
-    );
+// --- BACK BUTTON ---
+simpleOptionsButtons.back = makeSimpleButton(
+centerX,
+centerY + config.height * 0.8 / 2 - 70,
+"BACK",
+() => {
+closeSimpleLevelOptionsMenu(scene);
+}
+);
 
-    // Keep menu visible in pause state
-    if (!isPaused) {
-        isPaused = true;
-        scene.physics.world.pause();
-    }
+// Keep menu visible in pause state
+if (!isPaused) {
+isPaused = true;
+scene.physics.world.pause();
+}
 }
 
 
 
 function closeSimpleLevelOptionsMenu(scene) {
-    if (!simpleOptionsOpen) return;
+if (!simpleOptionsOpen) return;
 
-    simpleOptionsOpen = false;
+simpleOptionsOpen = false;
 
-    if (simpleOptionsContainer) {
-        simpleOptionsContainer.destroy(true);
-        simpleOptionsContainer = null;
-    }
+if (simpleOptionsContainer) {
+simpleOptionsContainer.destroy(true);
+simpleOptionsContainer = null;
+}
 
-    // Resume game if it was paused only for this menu
-    if (isPaused && !hasWon) {
-        isPaused = false;
-        scene.physics.world.resume();
-        // Resume following player if in gameplay
-        if (!isEditorMode && scene.player) {
-            scene.cameras.main.startFollow(scene.player, true, 0.08, 0.08);
-        }
-    }
+// Resume game if it was paused only for this menu
+if (isPaused && !hasWon) {
+isPaused = false;
+scene.physics.world.resume();
+// Resume following player if in gameplay
+if (!isEditorMode && scene.player) {
+scene.cameras.main.startFollow(scene.player, true, 0.08, 0.08);
+}
+}
 }
 
 
@@ -2117,51 +2107,51 @@ function closeSimpleLevelOptionsMenu(scene) {
 
 
 function openSelectMusicMenu() {
-    // Hide Level Options buttons
+// Hide Level Options buttons
 
-    setVisibleObjects([helpButton], false);
-
-
-    setVisibleObjects([levelOptionsOverlay, levelOptionsText, backFromLevelOptionsButton, selectMusicButton], false);
-
-    selectMusicBackButton.setVisible(true);
-
-    // Dark green overlay & title
-    if (!selectMusicOverlay) {
-        selectMusicOverlay = this.add.rectangle(
-            config.width / 2,
-            config.height / 2,
-            config.width * 2,
-            config.height * 2,
-            0x006400, // dark green
-            0.7
-        ).setScrollFactor(0).setDepth(2000);
-    }
+setVisibleObjects([helpButton], false);
 
 
+setVisibleObjects([levelOptionsOverlay, levelOptionsText, backFromLevelOptionsButton, selectMusicButton], false);
 
-    isPaused = true;
+selectMusicBackButton.setVisible(true);
 
-  setVisibleObjects([
-    levelOptionsOverlay,
-    levelOptionsText,
-    backFromLevelOptionsButton,
-    selectMusicButton,
-    selectBackgroundButton   // Ã°Å¸â€˜Ë† THIS
+// Dark green overlay & title
+if (!selectMusicOverlay) {
+selectMusicOverlay = this.add.rectangle(
+config.width / 2,
+config.height / 2,
+config.width * 2,
+config.height * 2,
+0x006400, // dark green
+0.7
+).setScrollFactor(0).setDepth(2000);
+}
+
+
+
+isPaused = true;
+
+setVisibleObjects([
+levelOptionsOverlay,
+levelOptionsText,
+backFromLevelOptionsButton,
+selectMusicButton,
+selectBackgroundButton   // Ã°Å¸â€˜Ë† THIS
 ], false);
 
 
-    // Show music menu
-    setVisibleObjects([
-        selectMusicOverlay,
-        musicTitleText,
-        selectMusicBackButton
-    ], true);
+// Show music menu
+setVisibleObjects([
+selectMusicOverlay,
+musicTitleText,
+selectMusicBackButton
+], true);
 
-    Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
 
-    // Ensure correct highlight
-    selectMusic(selectedMusicKey);
+// Ensure correct highlight
+selectMusic(selectedMusicKey);
 }
 
 
@@ -2169,23 +2159,23 @@ function openSelectMusicMenu() {
 
 
 function closeSelectMusicMenu() {
-    // Hide music menu
+// Hide music menu
 setVisibleObjects([
-    selectMusicOverlay,
-    musicTitleText,
-    selectMusicBackButton
+selectMusicOverlay,
+musicTitleText,
+selectMusicBackButton
 ], false);
 
 Object.values(musicButtons).forEach(btn => btn.setVisible(false));
 
 selectMusicBackButton.setVisible(false);
 
-  setVisibleObjects([
-    levelOptionsOverlay,
-    levelOptionsText,
-    backFromLevelOptionsButton,
-    selectMusicButton,
-    selectBackgroundButton
+setVisibleObjects([
+levelOptionsOverlay,
+levelOptionsText,
+backFromLevelOptionsButton,
+selectMusicButton,
+selectBackgroundButton
 ], true);
 
 }
@@ -2195,275 +2185,275 @@ selectMusicBackButton.setVisible(false);
 
 
 function setVisibleObjects(objects, visible) {
-    objects.forEach(obj => {
-        if (obj) obj.setVisible(visible);
-    });
+objects.forEach(obj => {
+if (obj) obj.setVisible(visible);
+});
 }
 
 
 
 function openHelpMenu() {
-    // Hide main pause menu buttons
+// Hide main pause menu buttons
 
-    Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+Object.values(musicButtons).forEach(btn => btn.setVisible(false));
 musicTitleText.setVisible(false);
 selectMusicOverlay?.setVisible(false);
 selectMusicBackButton?.setVisible(false);
 
-    setVisibleObjects([pauseOverlay, pauseText, resumeButton, returnToMenuButton, levelOptionsButton, helpButton], false);
+setVisibleObjects([pauseOverlay, pauseText, resumeButton, returnToMenuButton, levelOptionsButton, helpButton], false);
 
-    // Create overlay if it doesn't exist
-    if (!helpOverlay) {
-        helpOverlay = this.add.rectangle(
-            config.width / 2,
-            config.height / 2,
-            config.width * 2,
-            config.height * 2,
-            0x000000, // black background behind image
-            0.7
-        ).setScrollFactor(0).setDepth(2000);
-    }
+// Create overlay if it doesn't exist
+if (!helpOverlay) {
+helpOverlay = this.add.rectangle(
+config.width / 2,
+config.height / 2,
+config.width * 2,
+config.height * 2,
+0x000000, // black background behind image
+0.7
+).setScrollFactor(0).setDepth(2000);
+}
 
-    // Create image if it doesn't exist
-    if (!helpImage) {
-        helpImage = this.add.image(
-            config.width / 2,
-            config.height / 2,
-            'Help'
-        )
-        .setOrigin(0.5)
-        .setScrollFactor(0)
-        .setDepth(2001);
+// Create image if it doesn't exist
+if (!helpImage) {
+helpImage = this.add.image(
+config.width / 2,
+config.height / 2,
+'Help'
+)
+.setOrigin(0.5)
+.setScrollFactor(0)
+.setDepth(2001);
 
-        // Optional: scale it to fit screen
-        const scaleX = config.width * 4 / helpImage.width;
-        const scaleY = config.height * 4 / helpImage.height;
-        helpImage.setScale(Math.min(scaleX, scaleY));
-    }
+// Optional: scale it to fit screen
+const scaleX = config.width * 4 / helpImage.width;
+const scaleY = config.height * 4 / helpImage.height;
+helpImage.setScale(Math.min(scaleX, scaleY));
+}
 
-    // Back button
-    if (!helpBackButton) {
-        helpBackButton = makeMenuButton(
-            this,
-            config.width / 2,
-            config.height / 2 + config.height * 0.4, // bottom of screen
-            'BACK',
-            () => closeHelpMenu.call(this)
-        );
-    }
+// Back button
+if (!helpBackButton) {
+helpBackButton = makeMenuButton(
+this,
+config.width / 2,
+config.height / 2 + config.height * 0.4, // bottom of screen
+'BACK',
+() => closeHelpMenu.call(this)
+);
+}
 
-    // Show everything
-    setVisibleObjects([helpOverlay, helpImage, helpBackButton], true);
+// Show everything
+setVisibleObjects([helpOverlay, helpImage, helpBackButton], true);
 }
 
 function closeHelpMenu() {
-    // Hide help menu elements
-    setVisibleObjects([helpOverlay, helpImage, helpBackButton], false);
+// Hide help menu elements
+setVisibleObjects([helpOverlay, helpImage, helpBackButton], false);
 
-    // Show main pause menu buttons again
-    setVisibleObjects([pauseOverlay, pauseText, resumeButton, returnToMenuButton, levelOptionsButton, helpButton], true);
+// Show main pause menu buttons again
+setVisibleObjects([pauseOverlay, pauseText, resumeButton, returnToMenuButton, levelOptionsButton, helpButton], true);
 }
 function selectMusic(key) {
-    selectedMusicKey = key;
+selectedMusicKey = key;
 
-    Object.entries(musicButtons).forEach(([k, btn]) => {
-        btn.setTint(0xffff00);
+Object.entries(musicButtons).forEach(([k, btn]) => {
+btn.setTint(0xffff00);
 
-    });
+});
 
-    // Only switch music if actively playing
-    if (!isEditorMode && !isPaused) {
-        playSelectedMusic(this);
-    }
+// Only switch music if actively playing
+if (!isEditorMode && !isPaused) {
+playSelectedMusic(this);
+}
 }
 
 
 function safeSetVisible(obj, visible) {
-    if (obj) obj.setVisible(visible);
+if (obj) obj.setVisible(visible);
 }
 
 
 
 
 function playSelectedMusic(scene) {
-    const musicKey = MUSIC_MAP[selectedMusicKey];
-    if (!musicKey) return;
+const musicKey = MUSIC_MAP[selectedMusicKey];
+if (!musicKey) return;
 
-    // Stop previous music
-    if (currentMusic) {
-        currentMusic.stop();
-        currentMusic.destroy();
-        currentMusic = null;
-    }
+// Stop previous music
+if (currentMusic) {
+currentMusic.stop();
+currentMusic.destroy();
+currentMusic = null;
+}
 
-    currentMusic = scene.sound.add(musicKey, {
-        loop: true,
-        volume: 0.6
-    });
+currentMusic = scene.sound.add(musicKey, {
+loop: true,
+volume: 0.6
+});
 
-    currentMusic.play();
+currentMusic.play();
 }
 
 function stopMusic() {
-    if (currentMusic) {
-        currentMusic.stop();
-        currentMusic.destroy();
-        currentMusic = null;
-    }
+if (currentMusic) {
+currentMusic.stop();
+currentMusic.destroy();
+currentMusic = null;
+}
 }
 
 function openSelectBackgroundMenu() {
-  setVisibleObjects([selectBackgroundOverlay, backgroundTitleText, backgroundBackButton], true);
+setVisibleObjects([selectBackgroundOverlay, backgroundTitleText, backgroundBackButton], true);
 
-  // Show only the background buttons
-  Object.values(backgroundButtons).forEach(btn => btn.setVisible(true));
+// Show only the background buttons
+Object.values(backgroundButtons).forEach(btn => btn.setVisible(true));
 
-  currentPauseMenu = 'background';
+currentPauseMenu = 'background';
 
-  // Hide level options
-  setVisibleObjects([
-      levelOptionsOverlay,
-      levelOptionsText,
-      backFromLevelOptionsButton,
-      selectMusicButton,
-      selectBackgroundButton
-  ], false);
+// Hide level options
+setVisibleObjects([
+levelOptionsOverlay,
+levelOptionsText,
+backFromLevelOptionsButton,
+selectMusicButton,
+selectBackgroundButton
+], false);
 
-  // Red overlay
-  if (!selectBackgroundOverlay) {
-      selectBackgroundOverlay = this.add.rectangle(
-          config.width / 2,
-          config.height / 2,
-          config.width * 2,
-          config.height * 2,
-          0x8b0000, // dark red
-          0.7
-      ).setScrollFactor(0).setDepth(2000);
-  }
+// Red overlay
+if (!selectBackgroundOverlay) {
+selectBackgroundOverlay = this.add.rectangle(
+config.width / 2,
+config.height / 2,
+config.width * 2,
+config.height * 2,
+0x8b0000, // dark red
+0.7
+).setScrollFactor(0).setDepth(2000);
+}
 
-  // Title
-  if (!backgroundTitleText) {
-      backgroundTitleText = this.add.text(
-          config.width / 2,
-          config.height * 0.25,
-          'SELECT BACKGROUND',
-          {
-              fontSize: '96px',
-              fill: '#ffffff',
-              fontFamily: 'Arial'
-          }
-      ).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
-  }
+// Title
+if (!backgroundTitleText) {
+backgroundTitleText = this.add.text(
+config.width / 2,
+config.height * 0.25,
+'SELECT BACKGROUND',
+{
+fontSize: '96px',
+fill: '#ffffff',
+fontFamily: 'Arial'
+}
+).setOrigin(0.5).setScrollFactor(0).setDepth(2001);
+}
 
-  // Back button
-  if (!backgroundBackButton) {
-      backgroundBackButton = makeMenuButton(
-          this,
-          config.width / 2,
-          config.height / 2 + 300,
-          'BACK',
-          () => closeSelectBackgroundMenu.call(this)
-      );
-  }
+// Back button
+if (!backgroundBackButton) {
+backgroundBackButton = makeMenuButton(
+this,
+config.width / 2,
+config.height / 2 + 300,
+'BACK',
+() => closeSelectBackgroundMenu.call(this)
+);
+}
 
-  // Background text buttons WITH PROPER VARIABLES
-  const spacing = 300;
-  const y = config.height / 2;
-  
-  if (!backgroundButtons.A) {
-    backgroundButtons.A = makeMenuButton(this, config.width / 2 - spacing, y, 'A', () => selectBackground('A'));
-    backgroundButtons.B = makeMenuButton(this, config.width / 2, y, 'B', () => selectBackground('B'));
-    backgroundButtons.C = makeMenuButton(this, config.width / 2 + spacing, y, 'C', () => selectBackground('C'));
-  }
-  
-  setVisibleObjects([backgroundButtons.A, backgroundButtons.B, backgroundButtons.C], true);
-  selectBackground(selectedBackgroundKey);
+// Background text buttons WITH PROPER VARIABLES
+const spacing = 300;
+const y = config.height / 2;
+
+if (!backgroundButtons.A) {
+backgroundButtons.A = makeMenuButton(this, config.width / 2 - spacing, y, 'A', () => selectBackground('A'));
+backgroundButtons.B = makeMenuButton(this, config.width / 2, y, 'B', () => selectBackground('B'));
+backgroundButtons.C = makeMenuButton(this, config.width / 2 + spacing, y, 'C', () => selectBackground('C'));
+}
+
+setVisibleObjects([backgroundButtons.A, backgroundButtons.B, backgroundButtons.C], true);
+selectBackground(selectedBackgroundKey);
 }
 
 
 function closeSelectBackgroundMenu() {
 
-     setVisibleObjects([selectBackgroundOverlay, backgroundTitleText, backgroundBackButton], false);
+setVisibleObjects([selectBackgroundOverlay, backgroundTitleText, backgroundBackButton], false);
 
-    // Hide background buttons
-    Object.values(backgroundButtons).forEach(btn => btn.setVisible(false));
+// Hide background buttons
+Object.values(backgroundButtons).forEach(btn => btn.setVisible(false));
 
-    currentPauseMenu = 'main';
+currentPauseMenu = 'main';
 
 
-    setVisibleObjects([
-        selectBackgroundOverlay,
-        backgroundTitleText,
-        backgroundBackButton,
-        backgroundButtons.A,
-        backgroundButtons.B,
-        backgroundButtons.C
-    ], false);
+setVisibleObjects([
+selectBackgroundOverlay,
+backgroundTitleText,
+backgroundBackButton,
+backgroundButtons.A,
+backgroundButtons.B,
+backgroundButtons.C
+], false);
 
-    // Return to Level Options
-    setVisibleObjects([
-        levelOptionsOverlay,
-        levelOptionsText,
-        backFromLevelOptionsButton,
-        selectMusicButton,
-        selectBackgroundButton
-    ], true);
+// Return to Level Options
+setVisibleObjects([
+levelOptionsOverlay,
+levelOptionsText,
+backFromLevelOptionsButton,
+selectMusicButton,
+selectBackgroundButton
+], true);
 }
 
 function selectBackground(key) {
-  if (currentPauseMenu !== 'background') return;  // Guard stray clicks
-  
-  selectedBackgroundKey = key;
-  
-  // Highlight selected button
-  Object.entries(backgroundButtons).forEach(([k, btn]) => {
-    btn.setTint(k === key ? 0xffff00 : 0xffffff);
-  });
-  
-  // IMMEDIATELY APPLY BACKGROUND CHANGE
-  if (currentBackground) {
-    currentBackground.setTexture(BACKGROUND_MAP[key]);
-    console.log('Background changed to:', BACKGROUND_MAP[key]);
-  }
+if (currentPauseMenu !== 'background') return;  // Guard stray clicks
+
+selectedBackgroundKey = key;
+
+// Highlight selected button
+Object.entries(backgroundButtons).forEach(([k, btn]) => {
+btn.setTint(k === key ? 0xffff00 : 0xffffff);
+});
+
+// IMMEDIATELY APPLY BACKGROUND CHANGE
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP[key]);
+console.log('Background changed to:', BACKGROUND_MAP[key]);
+}
 }
 
 
 function loadCustomLevel(levelData) {
-    canEditLevelSettings = false;
+canEditLevelSettings = false;
 
-    selectedMusicKey = levelData.music;
-    selectedBackgroundKey = levelData.background;
+selectedMusicKey = levelData.music;
+selectedBackgroundKey = levelData.background;
 
-    playSelectedMusic(this);
-    applySelectedBackground();
+playSelectedMusic(this);
+applySelectedBackground();
 }
 
 
 function setBackground(key) {
-    if (!BACKGROUND_MAP[key]) return;
+if (!BACKGROUND_MAP[key]) return;
 
-    selectedBackgroundKey = key;
+selectedBackgroundKey = key;
 
-    if (currentBackground) {
-        currentBackground.setTexture(BACKGROUND_MAP[key]);
-    }
+if (currentBackground) {
+currentBackground.setTexture(BACKGROUND_MAP[key]);
+}
 }
 
 
 function openBlockColorsMenu() {
-    setVisibleObjects([
-        levelOptionsOverlay,
-        levelOptionsText,
-        backFromLevelOptionsButton,
-        selectMusicButton,
-        selectBackgroundButton,
-        selectBlockColorButton
-    ], false);
+setVisibleObjects([
+levelOptionsOverlay,
+levelOptionsText,
+backFromLevelOptionsButton,
+selectMusicButton,
+selectBackgroundButton,
+selectBlockColorButton
+], false);
 
-    setVisibleObjects([
-        ...blockColorButtons,
-        backFromBlockColorsButton
-    ], true);
+setVisibleObjects([
+...blockColorButtons,
+backFromBlockColorsButton
+], true);
 }
 
 
@@ -2474,98 +2464,98 @@ function openBlockColorsMenu() {
 
 
 function toggleBlockColorsMenu() {
-    // If menu exists and is visible Ã¢â€ â€™ close it
-    if (blockColorsOverlay?.visible) {
-        closeBlockColorsMenu.call(this);
-    } else {
-        openBlockColorsMenu.call(this);
-    }
+// If menu exists and is visible Ã¢â€ â€™ close it
+if (blockColorsOverlay?.visible) {
+closeBlockColorsMenu.call(this);
+} else {
+openBlockColorsMenu.call(this);
+}
 }
 
 
 function highlightBlockColorButton(selectedBtn) {
-    if (!blockColorButtons.all) return;
+if (!blockColorButtons.all) return;
 
-    blockColorButtons.all.forEach(btn => {
-        btn.setStrokeStyle(0); // remove highlight
-    });
+blockColorButtons.all.forEach(btn => {
+btn.setStrokeStyle(0); // remove highlight
+});
 
-    selectedBtn.setStrokeStyle(4, 0xffff00); // yellow highlight
+selectedBtn.setStrokeStyle(4, 0xffff00); // yellow highlight
 }
 
 function openBlockColorsMenu() {
-    // Hide all level option buttons
-    if (levelOptionButtons) {
-        levelOptionButtons.forEach(btn => btn.setVisible(false));
-    }
+// Hide all level option buttons
+if (levelOptionButtons) {
+levelOptionButtons.forEach(btn => btn.setVisible(false));
+}
 
-    // Hide the "Block Colors" button itself
-    if (blockColorsButton) blockColorsButton.setVisible(false);
+// Hide the "Block Colors" button itself
+if (blockColorsButton) blockColorsButton.setVisible(false);
 
-    if (!blockColorsOverlay) {
-        // Semi-transparent background
-        blockColorsOverlay = this.add.rectangle(
-            config.width / 2,
-            config.height / 2,
-            config.width * 0.6,
-            config.height * 0.6,
-            0x000000,
-            0.8
-        ).setScrollFactor(0).setDepth(3000);
+if (!blockColorsOverlay) {
+// Semi-transparent background
+blockColorsOverlay = this.add.rectangle(
+config.width / 2,
+config.height / 2,
+config.width * 0.6,
+config.height * 0.6,
+0x000000,
+0.8
+).setScrollFactor(0).setDepth(3000);
 
-        // Title
-        blockColorsText = this.add.text(
-            config.width / 2,
-            config.height / 2 - 200,
-            "Select Block Color",
-            { fontSize: '64px', fill: '#ffffff', fontFamily: 'Arial' }
-        ).setOrigin(0.5).setScrollFactor(0).setDepth(3001);
+// Title
+blockColorsText = this.add.text(
+config.width / 2,
+config.height / 2 - 200,
+"Select Block Color",
+{ fontSize: '64px', fill: '#ffffff', fontFamily: 'Arial' }
+).setOrigin(0.5).setScrollFactor(0).setDepth(3001);
 
-        // Color buttons
-        const colors = [0xffffff, 0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
-        const spacing = 120;
-        const startX = config.width / 2 - ((colors.length - 1) * spacing) / 2;
-        blockColorButtons.all = [];
+// Color buttons
+const colors = [0xffffff, 0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+const spacing = 120;
+const startX = config.width / 2 - ((colors.length - 1) * spacing) / 2;
+blockColorButtons.all = [];
 
-        colors.forEach((color, index) => {
-            const btn = this.add.rectangle(
-                startX + index * spacing,
-                config.height / 2,
-                100, 100,
-                color
-            ).setOrigin(0.5)
-             .setInteractive()
-             .setScrollFactor(0)
-             .setDepth(3001);
+colors.forEach((color, index) => {
+const btn = this.add.rectangle(
+startX + index * spacing,
+config.height / 2,
+100, 100,
+color
+).setOrigin(0.5)
+.setInteractive()
+.setScrollFactor(0)
+.setDepth(3001);
 
-            btn.on('pointerup', () => {
-                blockColorHex = color;
-            });
+btn.on('pointerup', () => {
+blockColorHex = color;
+});
 
-            blockColorButtons.all.push(btn);
-        });
+blockColorButtons.all.push(btn);
+});
 
-        // Back button
-        blockColorsBackButton = this.add.text(
-            config.width / 2,
-            config.height / 2 + 200,
-            "Back",
-            { fontSize: '48px', fill: '#ffffff', fontFamily: 'Arial', backgroundColor: '#333333' }
-        ).setOrigin(0.5)
-         .setInteractive()
-         .setScrollFactor(0)
-         .setDepth(3001);
+// Back button
+blockColorsBackButton = this.add.text(
+config.width / 2,
+config.height / 2 + 200,
+"Back",
+{ fontSize: '48px', fill: '#ffffff', fontFamily: 'Arial', backgroundColor: '#333333' }
+).setOrigin(0.5)
+.setInteractive()
+.setScrollFactor(0)
+.setDepth(3001);
 
-        blockColorsBackButton.on('pointerup', () => {
-            closeBlockColorsMenu.call(this);
-        });
-    }
+blockColorsBackButton.on('pointerup', () => {
+closeBlockColorsMenu.call(this);
+});
+}
 
-    // Show everything
-    blockColorsOverlay.setVisible(true);
-    blockColorsText.setVisible(true);
-    blockColorButtons.all.forEach(b => b.setVisible(true));
-    if (blockColorsBackButton) blockColorsBackButton.setVisible(true);
+// Show everything
+blockColorsOverlay.setVisible(true);
+blockColorsText.setVisible(true);
+blockColorButtons.all.forEach(b => b.setVisible(true));
+if (blockColorsBackButton) blockColorsBackButton.setVisible(true);
 }
 
 
@@ -2576,25 +2566,25 @@ function openBlockColorsMenu() {
 function openBlockColorsMenu() {
 
 
-    // Hide LEVEL OPTIONS buttons
-    setVisibleObjects([
-        selectMusicButton,
-        selectBackgroundButton,
-        selectBlockColorButton,
-        backFromLevelOptionsButton,
-        levelOptionsText
-    ], false);
+// Hide LEVEL OPTIONS buttons
+setVisibleObjects([
+selectMusicButton,
+selectBackgroundButton,
+selectBlockColorButton,
+backFromLevelOptionsButton,
+levelOptionsText
+], false);
 
-    // Show BLOCK COLORS menu
-    blockColorButtons.forEach(btn => btn.setVisible(false));
-    backFromBlockColorsButton.setVisible(false);
+// Show BLOCK COLORS menu
+blockColorButtons.forEach(btn => btn.setVisible(false));
+backFromBlockColorsButton.setVisible(false);
 }
 
 function closeBlockColorsMenu() {
-    setVisibleObjects([
-        ...blockColorButtons,
-        backFromBlockColorsButton
-    ], false);
+setVisibleObjects([
+...blockColorButtons,
+backFromBlockColorsButton
+], false);
 
 
 }
@@ -2602,25 +2592,25 @@ function closeBlockColorsMenu() {
 
 
 function hideAllMenus() {
-    setVisibleObjects([
-        pauseMenuText,
-        resumeButton,
-        levelOptionsButton,
-        quitButton,
+setVisibleObjects([
+pauseMenuText,
+resumeButton,
+levelOptionsButton,
+quitButton,
 
-        levelOptionsText,
-        backFromLevelOptionsButton,
-        selectMusicButton,
-        selectBackgroundButton,
-        selectBlockColorButton,
+levelOptionsText,
+backFromLevelOptionsButton,
+selectMusicButton,
+selectBackgroundButton,
+selectBlockColorButton,
 
-        musicMenuText,
-        backgroundMenuText,
+musicMenuText,
+backgroundMenuText,
 
-        blockColorsText,
-        blockColorsBackButton,
-        ...blockColorButtons
-    ], false);
+blockColorsText,
+blockColorsBackButton,
+...blockColorButtons
+], false);
 }
 
 
@@ -2629,28 +2619,28 @@ function hideAllMenus() {
 
 
 function disableAllBackButtons() {
-    [
-        backFromLevelOptionsButton,
-        selectMusicBackButton,
-        helpBackButton,
-        backFromBlockColorsButton,
-        backgroundBackButton
-    ].forEach(btn => {
-        if (btn) {
-            btn.disableInteractive();
-            btn.setVisible(false);
-        }
-    });
+[
+backFromLevelOptionsButton,
+selectMusicBackButton,
+helpBackButton,
+backFromBlockColorsButton,
+backgroundBackButton
+].forEach(btn => {
+if (btn) {
+btn.disableInteractive();
+btn.setVisible(false);
+}
+});
 }
 
 
 
 
 function forceBackButtonsHidden() {
-    if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
-    if (helpBackButton) helpBackButton.setVisible(false);
-    if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
-    if (backFromBlockColorsButton) backFromBlockColorsButton.setVisible(false);
+if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+if (helpBackButton) helpBackButton.setVisible(false);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
+if (backFromBlockColorsButton) backFromBlockColorsButton.setVisible(false);
 }
 
 
@@ -2660,13 +2650,13 @@ function forceBackButtonsHidden() {
 // ðŸ”¥ SAVE LEVEL TO CLIPBOARD (S key)
 // ðŸ”¥ SAVE LEVEL TO CLIPBOARD (S key)
 function saveLevelToClipboard(scene) {
-  const compressedData = scene.exportLevel();  // Use the compressed exportLevel()
-  
-  navigator.clipboard.writeText(compressedData).then(() => {
-    showInstruction(scene, "LEVEL SAVED TO CLIPBOARD! (Press L to load)", 2000);
-  }).catch(err => {
-    console.error('Failed to save to clipboard:', err);
-  });
+const compressedData = scene.exportLevel();  // Use the compressed exportLevel()
+
+navigator.clipboard.writeText(compressedData).then(() => {
+showInstruction(scene, "LEVEL SAVED TO CLIPBOARD! (Press L to load)", 2000);
+}).catch(err => {
+console.error('Failed to save to clipboard:', err);
+});
 }
 
 
@@ -2675,117 +2665,117 @@ function saveLevelToClipboard(scene) {
 
 
 function openLevelOptions() {  // â† NO (scene) PARAMETER
-  const scene = window.myGameScene;  // â† GET SCENE FROM GLOBAL
-  
-  // Hide other menus
-  if (pauseOverlay) pauseOverlay.setVisible(true);
-  if (pauseText) pauseText.setVisible(false);
-  
-  // Hide main pause buttons  
-  if (resumeButton) resumeButton.setVisible(false);
-  if (returnToMenuButton) returnToMenuButton.setVisible(false);
-  if (helpButton) helpButton.setVisible(false);
-  
-  // Create level options UI if missing
-  if (!levelOptionsOverlay) {
-    levelOptionsOverlay = scene.add.rectangle(
-      config.width / 2, config.height / 2, 
-      config.width * 0.8, config.height * 0.6, 
-      0x333333, 0.9
-    ).setScrollFactor(0).setDepth(2003);
-    
-    levelOptionsText = scene.add.text(
-      config.width / 2, config.height / 2 - 100, 
-      'LEVEL OPTIONS', 
-      { fontSize: '96px', fill: '#ffffff' }
-    ).setOrigin(0.5).setScrollFactor(0).setDepth(2004);
-    
-    selectMusicButton = makeMenuButton(
-      scene, config.width / 2, config.height / 2, 
-      'MUSIC', () => openSelectMusicMenu()
-    );
-    
-    backFromLevelOptionsButton = makeMenuButton(
-      scene, config.width / 2, config.height / 2 + 120, 
-      'BACK', () => closeLevelOptions()
-    );
-  }
-  
-  // Show everything
-  levelOptionsOverlay.setVisible(true);
-  levelOptionsText.setVisible(true);
-  selectMusicButton.setVisible(true);
-  backFromLevelOptionsButton.setVisible(true);
-  
-  currentPauseMenu = 'levelOptions';
+const scene = window.myGameScene;  // â† GET SCENE FROM GLOBAL
+
+// Hide other menus
+if (pauseOverlay) pauseOverlay.setVisible(true);
+if (pauseText) pauseText.setVisible(false);
+
+// Hide main pause buttons  
+if (resumeButton) resumeButton.setVisible(false);
+if (returnToMenuButton) returnToMenuButton.setVisible(false);
+if (helpButton) helpButton.setVisible(false);
+
+// Create level options UI if missing
+if (!levelOptionsOverlay) {
+levelOptionsOverlay = scene.add.rectangle(
+config.width / 2, config.height / 2, 
+config.width * 0.8, config.height * 0.6, 
+0x333333, 0.9
+).setScrollFactor(0).setDepth(2003);
+
+levelOptionsText = scene.add.text(
+config.width / 2, config.height / 2 - 100, 
+'LEVEL OPTIONS', 
+{ fontSize: '96px', fill: '#ffffff' }
+).setOrigin(0.5).setScrollFactor(0).setDepth(2004);
+
+selectMusicButton = makeMenuButton(
+scene, config.width / 2, config.height / 2, 
+'MUSIC', () => openSelectMusicMenu()
+);
+
+backFromLevelOptionsButton = makeMenuButton(
+scene, config.width / 2, config.height / 2 + 120, 
+'BACK', () => closeLevelOptions()
+);
+}
+
+// Show everything
+levelOptionsOverlay.setVisible(true);
+levelOptionsText.setVisible(true);
+selectMusicButton.setVisible(true);
+backFromLevelOptionsButton.setVisible(true);
+
+currentPauseMenu = 'levelOptions';
 }
 
 function closeLevelOptions() {  // â† NO PARAMETER
-  const scene = window.myGameScene;
-  
-  if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-  if (levelOptionsText) levelOptionsText.setVisible(false);
-  if (selectMusicButton) selectMusicButton.setVisible(false);
-  if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
-  
-  // Restore main menu
-  if (resumeButton) resumeButton.setVisible(true);
-  if (returnToMenuButton) returnToMenuButton.setVisible(true);
-  if (levelOptionsButton) levelOptionsButton.setVisible(true);
-  if (helpButton) helpButton.setVisible(true);
-  
-  currentPauseMenu = 'main';
+const scene = window.myGameScene;
+
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+if (levelOptionsText) levelOptionsText.setVisible(false);
+if (selectMusicButton) selectMusicButton.setVisible(false);
+if (backFromLevelOptionsButton) backFromLevelOptionsButton.setVisible(false);
+
+// Restore main menu
+if (resumeButton) resumeButton.setVisible(true);
+if (returnToMenuButton) returnToMenuButton.setVisible(true);
+if (levelOptionsButton) levelOptionsButton.setVisible(true);
+if (helpButton) helpButton.setVisible(true);
+
+currentPauseMenu = 'main';
 }
 
 function openSelectMusicMenu() {  // â† NO PARAMETER
-  closeLevelOptions();
-  
-  if (musicTitleText) musicTitleText.setVisible(true);
-  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-  if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
-  
-  currentPauseMenu = 'selectMusic';
+closeLevelOptions();
+
+if (musicTitleText) musicTitleText.setVisible(true);
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
+
+currentPauseMenu = 'selectMusic';
 }
 
 
 
 function openSelectMusicMenu(scene) {
-  closeLevelOptions(scene);
-  
-  if (musicTitleText) musicTitleText.setVisible(true);
-  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-  if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
-  
-  currentPauseMenu = 'selectMusic';
+closeLevelOptions(scene);
+
+if (musicTitleText) musicTitleText.setVisible(true);
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+if (selectMusicBackButton) selectMusicBackButton.setVisible(true);
+
+currentPauseMenu = 'selectMusic';
 }
 
 
 
 function playSelectedMusic(scene) {
-  // Stop any currently playing track
-  if (currentMusic) {
-    currentMusic.stop();
-    currentMusic.destroy();
-    currentMusic = null;
-  }
+// Stop any currently playing track
+if (currentMusic) {
+currentMusic.stop();
+currentMusic.destroy();
+currentMusic = null;
+}
 
-  const soundKey = MUSIC_MAP[selectedMusicKey];  // e.g. 'Adventure'
+const soundKey = MUSIC_MAP[selectedMusicKey];  // e.g. 'Adventure'
 
-  // If mapping is wrong, bail silently
-  if (!soundKey) {
-    console.warn('No sound mapping for selectedMusicKey:', selectedMusicKey);
-    return;
-  }
+// If mapping is wrong, bail silently
+if (!soundKey) {
+console.warn('No sound mapping for selectedMusicKey:', selectedMusicKey);
+return;
+}
 
-  // If audio wasnâ€™t loaded or key typo, bail
-  if (!scene.sound || !scene.sound.exists || !scene.sound.exists(soundKey)) {
-    // In older Phaser versions, exists() may not exist â€“ in that case just try/catch play.
-    console.warn('Sound not loaded or key invalid:', soundKey);
-    return;
-  }
+// If audio wasnâ€™t loaded or key typo, bail
+if (!scene.sound || !scene.sound.exists || !scene.sound.exists(soundKey)) {
+// In older Phaser versions, exists() may not exist â€“ in that case just try/catch play.
+console.warn('Sound not loaded or key invalid:', soundKey);
+return;
+}
 
-  currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
-  currentMusic.play();
+currentMusic = scene.sound.add(soundKey, { loop: true, volume: 1 });
+currentMusic.play();
 }
 
 
@@ -2794,17 +2784,17 @@ function playSelectedMusic(scene) {
 
 // ðŸ”¥ LOAD LEVEL FROM CLIPBOARD (L key)
 function loadLevelFromClipboard(scene) {
-  navigator.clipboard.readText().then(compressedData => {
-    try {
-      window.loadLevel(compressedData, scene);  // ✅ Use GLOBAL function
-      showInstruction(scene, "✅ LEVEL LOADED PERFECTLY!", 2000);
-    } catch (error) {
-      console.error("LOAD ERROR:", error);
-      showInstruction(scene, "❌ LOAD FAILED!", 2000);
-    }
-  }).catch(err => {
-    console.error('Failed to read from clipboard:', err);
-  });
+navigator.clipboard.readText().then(compressedData => {
+try {
+window.loadLevel(compressedData, scene);  // ✅ Use GLOBAL function
+showInstruction(scene, "✅ LEVEL LOADED PERFECTLY!", 2000);
+} catch (error) {
+console.error("LOAD ERROR:", error);
+showInstruction(scene, "❌ LOAD FAILED!", 2000);
+}
+}).catch(err => {
+console.error('Failed to read from clipboard:', err);
+});
 }
 
 
@@ -2821,65 +2811,65 @@ function loadLevelFromClipboard(scene) {
 
 
 function openBackgroundMenu(scene) {
-  if (!backgroundOverlay) {
-    backgroundOverlay = scene.add.rectangle(0, 0, 800, 600, 0x000000, 0.8)
-      .setOrigin(0.5).setScrollFactor(0).setDepth(2000).setVisible(false);
-    backgroundTitleText = scene.add.text(0, 0, 'SELECT BACKGROUND', {
-      fontSize: '64px', fill: '#ffffff'
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
-  }
-  backgroundOverlay.setVisible(true);
-  backgroundTitleText.setVisible(true);
+if (!backgroundOverlay) {
+backgroundOverlay = scene.add.rectangle(0, 0, 800, 600, 0x000000, 0.8)
+.setOrigin(0.5).setScrollFactor(0).setDepth(2000).setVisible(false);
+backgroundTitleText = scene.add.text(0, 0, 'SELECT BACKGROUND', {
+fontSize: '64px', fill: '#ffffff'
+}).setOrigin(0.5).setScrollFactor(0).setDepth(2001).setVisible(false);
+}
+backgroundOverlay.setVisible(true);
+backgroundTitleText.setVisible(true);
 }
 
 
 
 function playSelectedMusic(scene) {
-  if (currentMusic) {
-    currentMusic.stop();
-    currentMusic.destroy();
-  }
-  
-  const musicName = MUSIC_MAP[selectedMusicKey] || 'Adventure';
-  currentMusic = scene.sound.add(musicName, { 
-    loop: true, 
-    volume: 0.3 
-  });
-  
-  if (currentMusic) {
-    currentMusic.play();
-    console.log(`♪ Playing: ${musicName}`);
-  }
+if (currentMusic) {
+currentMusic.stop();
+currentMusic.destroy();
+}
+
+const musicName = MUSIC_MAP[selectedMusicKey] || 'Adventure';
+currentMusic = scene.sound.add(musicName, { 
+loop: true, 
+volume: 0.3 
+});
+
+if (currentMusic) {
+currentMusic.play();
+console.log(`♪ Playing: ${musicName}`);
+}
 }
 
 
 
 function openLevelOptions() {
-  levelOptionsOverlay?.setVisible(true);
-  levelOptionsText?.setVisible(true);
-  selectMusicButton?.setVisible(true);
-  selectBackgroundButton?.setVisible(true);
-  backFromLevelOptionsButton?.setVisible(true);
+levelOptionsOverlay?.setVisible(true);
+levelOptionsText?.setVisible(true);
+selectMusicButton?.setVisible(true);
+selectBackgroundButton?.setVisible(true);
+backFromLevelOptionsButton?.setVisible(true);
 }
 
 function closeLevelOptions() {
-  levelOptionsOverlay?.setVisible(false);
-  levelOptionsText?.setVisible(false);
-  selectMusicButton?.setVisible(false);
-  selectBackgroundButton?.setVisible(false);
-  backFromLevelOptionsButton?.setVisible(false);
+levelOptionsOverlay?.setVisible(false);
+levelOptionsText?.setVisible(false);
+selectMusicButton?.setVisible(false);
+selectBackgroundButton?.setVisible(false);
+backFromLevelOptionsButton?.setVisible(false);
 }
 
 function openSelectMusicMenu() {
-  selectMusicOverlay?.setVisible(true);
-  musicTitleText?.setVisible(true);
-  Object.values(musicButtons).forEach(btn => btn.setVisible(true));
-  selectMusicBackButton?.setVisible(true);
+selectMusicOverlay?.setVisible(true);
+musicTitleText?.setVisible(true);
+Object.values(musicButtons).forEach(btn => btn.setVisible(true));
+selectMusicBackButton?.setVisible(true);
 }
 
 function openBackgroundMenu() {
-  // Add background selection UI here if needed
-  showInstruction(this, 'Background menu coming soon!', 2000);
+// Add background selection UI here if needed
+showInstruction(this, 'Background menu coming soon!', 2000);
 }
 
 
@@ -2890,45 +2880,36 @@ function openBackgroundMenu() {
 
 
 function destroyAllMenus() {
-    // Pause overlays
-    if (pauseOverlay) pauseOverlay.setVisible(false);
-    if (pauseText) pauseText.setVisible(false);
+// Pause overlays
+if (pauseOverlay) pauseOverlay.setVisible(false);
+if (pauseText) pauseText.setVisible(false);
 
-    // Old level options / background / music menus
-    if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
-    if (levelOptionsText) levelOptionsText.setVisible(false);
-    if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
-    if (musicTitleText) musicTitleText.setVisible(false);
-    if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
-    if (selectBackgroundOverlay) selectBackgroundOverlay.setVisible(false);
-    if (backgroundTitleText) backgroundTitleText.setVisible(false);
-    if (backgroundBackButton) backgroundBackButton.setVisible(false);
+// Old level options / background / music menus
+if (levelOptionsOverlay) levelOptionsOverlay.setVisible(false);
+if (levelOptionsText) levelOptionsText.setVisible(false);
+if (selectMusicOverlay) selectMusicOverlay.setVisible(false);
+if (musicTitleText) musicTitleText.setVisible(false);
+if (selectMusicBackButton) selectMusicBackButton.setVisible(false);
+if (selectBackgroundOverlay) selectBackgroundOverlay.setVisible(false);
+if (backgroundTitleText) backgroundTitleText.setVisible(false);
+if (backgroundBackButton) backgroundBackButton.setVisible(false);
 
-    if (backgroundButtons && backgroundButtons.A) {
-        backgroundButtons.A.setVisible(false);
-        backgroundButtons.B.setVisible(false);
-        backgroundButtons.C.setVisible(false);
-    }
-
-    if (musicButtons && musicButtons.X) {
-        Object.values(musicButtons).forEach(btn => btn.setVisible(false));
-    }
-
-    if (helpOverlay) helpOverlay.setVisible(false);
-    if (helpImage) helpImage.setVisible(false);
-    if (helpBackButton) helpBackButton.setVisible(false);
-
-    currentPauseMenu = null;
+if (backgroundButtons && backgroundButtons.A) {
+backgroundButtons.A.setVisible(false);
+backgroundButtons.B.setVisible(false);
+backgroundButtons.C.setVisible(false);
 }
 
+if (musicButtons && musicButtons.X) {
+Object.values(musicButtons).forEach(btn => btn.setVisible(false));
+}
 
+if (helpOverlay) helpOverlay.setVisible(false);
+if (helpImage) helpImage.setVisible(false);
+if (helpBackButton) helpBackButton.setVisible(false);
 
-
-
-
-
-
-
+currentPauseMenu = null;
+}
 
 
 
