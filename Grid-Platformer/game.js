@@ -1084,22 +1084,21 @@ selected.border.setStrokeStyle(4, 0xffff00); // highlight selected button
 
 
 function setupPlayerCollisions(scene) {
-  // Destroy old colliders
-  scene.physics.world.colliders.destroy();
-  // SAFE version - no collider destroy
-  if (!scene.player) return;
+    // Remove old colliders
+    scene.physics.world.colliders.destroy();
 
-  // Add fresh ones - USE SCENE GROUPS, not globals
-  scene.physics.add.collider(scene.player, scene.blocksGroup);
-  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => { scene.player.canOpenWindow = true; }, null, scene);
-  scene.physics.add.collider(scene.player, scene.blocksGroup || blocksGroup);
-  scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup || noBoostBlocksGroup);
-  scene.physics.add.overlap(scene.player, scene.spikesGroup || spikesGroup, killPlayer, null, scene);
-  scene.physics.add.overlap(scene.player, scene.windowsGroup || windowsGroup, () => { 
-    scene.player.canOpenWindow = true; 
-  }, null, scene);
+    if (!scene.player) return;
+
+    // Only use the scene-owned groups
+    scene.physics.add.collider(scene.player, scene.blocksGroup);
+    scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+
+    scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+    scene.physics.add.overlap(scene.player, scene.windowsGroup,
+        () => { scene.player.canOpenWindow = true; },
+        null,
+        scene
+    );
 }
 
 
@@ -1150,21 +1149,25 @@ firstTimeEditorInstructionsShown = true;
 }
 
 function createSpike(group, x, y, size) {
-const spike = group.create(x, y, 'spike')
-.setOrigin(0, 0)
-.setDisplaySize(size, size);
-spike.refreshBody();
+    const spike = group.create(x, y, 'spike')
+        .setOrigin(0, 0)
+        .setDisplaySize(size, size);
 
-const hitboxWidth  = size * 0.2;
-const hitboxHeight = size * 0.55;
-const offsetX      = size - hitboxWidth / 2;
-const offsetY      = size - hitboxHeight;
+    spike.refreshBody();
 
-spike.body.setSize(hitboxWidth, hitboxHeight);
-spike.body.setOffset(offsetX, offsetY);
+    const hitboxWidth  = size * 0.2;
+    const hitboxHeight = size * 0.55;
 
-return spike;
+    // Centered horizontally, hugging the bottom
+    const offsetX = (size - hitboxWidth) / 2;
+    const offsetY = size - hitboxHeight;
+
+    spike.body.setSize(hitboxWidth, hitboxHeight);
+    spike.body.setOffset(offsetX, offsetY);
+
+    return spike;
 }
+
 
 
 
@@ -2927,6 +2930,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
