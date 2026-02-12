@@ -136,6 +136,25 @@ C: 'Red'
 let currentMusic = null;
 
 
+function createSpike(group, x, y, size) {
+    const spike = group.create(x, y, 'spike')
+        .setOrigin(0, 0)
+        .setDisplaySize(size, size);
+    spike.refreshBody();
+
+    // Custom hitbox: narrow and tall, centered at the bottom
+    const hitboxWidth = size * 0.2;  // 20% of size (narrow)
+    const hitboxHeight = size * 0.55;  // 55% of size (tall, for the tip)
+    const offsetX = (size - hitboxWidth) / 2;  // Center horizontally
+    const offsetY = size - hitboxHeight;  // Align to bottom (spike tip)
+
+    spike.body.setSize(hitboxWidth, hitboxHeight);
+    spike.body.setOffset(offsetX, offsetY);
+
+    return spike;
+}
+
+
 // --- WORLD ---
 const WORLD_WIDTH = 8000;
 const WORLD_HEIGHT = 4000;
@@ -611,12 +630,9 @@ block.refreshBody();
 
 // ----- LOAD SPIKES (s) -----
 if (Array.isArray(levelData.s)) {
-levelData.s.forEach(([x, y, w, h]) => {
-const spike = scene.spikesGroup.create(x, y, "spike")
-.setOrigin(0, 0)
-.setDisplaySize(w, h);
-spike.refreshBody();
-});
+    levelData.s.forEach(([x, y, w, h]) => {
+        createSpike(scene.spikesGroup, x, y, w || 64);  // Use the helper, default to 64 if no w
+    });
 }
 
 // ----- LOAD WINDOWS (w) -----
@@ -1152,25 +1168,15 @@ blocksGroup.create(x, y, 'pixel')
 finishLine.setPosition(x, y);
 } else if (currentTool === 'spawn') {
 spawnPoint.setPosition(x, y);
-} else if (currentTool === 'spike') {
-const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
-if (!existing) {
-const spike = spikesGroup.create(x, y, 'spike')
-.setOrigin(0, 0)
-.setDisplaySize(gridSize, gridSize);
 
-spike.refreshBody();
-
-const hitboxWidth = gridSize * 0.2;
-const hitboxHeight = gridSize * 0.55;
-
-const offsetX = (gridSize - hitboxWidth) / 2;
-const offsetY = gridSize - hitboxHeight;
-
-spike.body.setSize(hitboxWidth, hitboxHeight);
-spike.body.setOffset(offsetX, offsetY);
+  } else if (currentTool === 'spike') {
+    const existing = spikesGroup.getChildren().find(s => s.x === x && s.y === y);
+    if (!existing) {
+        createSpike(spikesGroup, x, y, gridSize);
+    }
 }
-} else if (currentTool === 'window') {
+
+else if (currentTool === 'window') {
 const existing = windowsGroup.getChildren().find(w => w.x === x && w.y === y);
 if (!existing) {
 const win = windowsGroup.create(x, y, 'window')
@@ -2892,6 +2898,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
