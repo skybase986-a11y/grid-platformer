@@ -437,18 +437,25 @@ this.noBoostBlocksGroup = noBoostBlocksGroup;
 
 // === PLAYER ===
 player = this.physics.add.sprite(100, 100, 'pixel')
-.setOrigin(0, 0)
-.setDisplaySize(64, 64)
-.setTint(0xffff00);
+  .setOrigin(0, 0)
+  .setDisplaySize(64, 64)
+  .setTint(0xffff00);
+
+this.player = player;  // <- CRITICAL: Set scene reference LAST
 
 player.sfx = { death: this.sound.add('death1') };
+
+
 
 // âœ… ADD THIS LINE - FIXES ERROR
 player.boostOutline = this.add.rectangle(player.x, player.y, player.displayWidth + 8, player.displayHeight + 8)
 .setOrigin(0, 0).setStrokeStyle(3, 0xffff00).setVisible(false);
 cursors = this.input.keyboard.createCursorKeys();
 
-    setupPlayerCollisions(this);  // <- NOW SAFE
+
+
+// NOW safe to call
+setupPlayerCollisions(this);
 
 
 // Add this in create() after player is created
@@ -1150,7 +1157,7 @@ player.body.setVelocity(0, 0);
 player.body.enable = false;
 this.physics.world.debugGraphic.visible = false;
 } else {
-    this.player.body.enable = true;
+    player.body.enable = true;
     player.setPosition(spawnPoint.x, spawnPoint.y);
     player.body.setVelocity(0, 0);
     cam.startFollow(player, true, 0.08, 0.08);
@@ -2957,19 +2964,7 @@ currentPauseMenu = null;
 
 
 
-// Call this once in create():
-//   this.setupCollisionDebug();
 
-function setupCollisionDebug() {
-  this.time.addEvent({
-    delay: 1000,
-    loop: true,
-    callback: () => {
-      console.log('Player:', !!this.player);      // <- this.player
-      console.log('Blocks:', !!this.blocksGroup);
-    }
-  });
-}
 
 
 
@@ -2996,6 +2991,7 @@ function setupPlayerCollisions(scene) {
   
   console.log("✅ COLLISIONS READY");
 }
+
 
 
 
