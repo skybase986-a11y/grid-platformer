@@ -572,6 +572,11 @@ selectMusicBackButton = makeMenuButton(this, config.width / 2, config.height / 2
 // Block color menu
 createBlockColorMenu(this);
 
+
+    setupCollisionDebug.call(this);
+
+
+    
 // Replace your existing window.loadLevel with this:
 window.loadLevel = function (compressedData, scene) {
 // Remember scene globally for menus etc.
@@ -2949,6 +2954,93 @@ currentPauseMenu = null;
 
 
 
+
+// Call this once in create():
+//   this.setupCollisionDebug();
+
+function setupCollisionDebug() {
+  // Attach to scene so you can call it as this.setupCollisionDebug()
+  this.time.addEvent({
+    delay: 250, // every 0.25s so it doesn't spam too hard
+    loop: true,
+    callback: () => {
+      const scene = this;
+
+      if (!scene.player) {
+        console.warn('[COLLISION DEBUG] No player found');
+        return;
+      }
+
+      const p = scene.player;
+      const world = scene.physics.world;
+
+      console.log('--- COLLISION DEBUG TICK ---');
+
+      // 1. Basic player body state
+      console.log('Player body:', {
+        exists: !!p.body,
+        enable: p.body?.enable,
+        immovable: p.body?.immovable,
+        isStatic: p.body?.isStatic,
+        x: p.body?.x,
+        y: p.body?.y,
+        width: p.body?.width,
+        height: p.body?.height,
+        touching: p.body?.touching,
+        blocked: p.body?.blocked
+      });
+
+      // 2. Group sanity checks
+      const groups = [
+        { name: 'blocksGroup', group: scene.blocksGroup },
+        { name: 'noBoostBlocksGroup', group: scene.noBoostBlocksGroup },
+        { name: 'spikesGroup', group: scene.spikesGroup },
+        { name: 'windowsGroup', group: scene.windowsGroup }
+      ];
+
+      groups.forEach(({ name, group }) => {
+        const children = group?.getChildren() || [];
+        const first = children[0];
+        console.log(`[${name}]`, {
+          exists: !!group,
+          childCount: children.length,
+          firstBodyExists: !!first?.body,
+          firstBodyStatic: first?.body?.isStatic,
+          firstXY: first ? { x: first.body?.x, y: first.body?.y } : null
+        });
+      });
+
+      // 3. Is the world even trying to collide these?
+      //    Direct collide/overlap tests will return true if they intersect.
+      const collideBlocks = world.collide(p, scene.blocksGroup);
+      const collideNoBoost = world.collide(p, scene.noBoostBlocksGroup);
+      const overlapSpikes = world.overlap(p, scene.spikesGroup);
+      const overlapWindows = world.overlap(p, scene.windowsGroup);
+
+      console.log('World tests:', {
+        collideBlocks,
+        collideNoBoost,
+        overlapSpikes,
+        overlapWindows
+      });
+
+      // 4. Collider list sanity
+      console.log('Colliders count:', world.colliders?.length ?? '(no list)');
+      world.colliders?.forEach((c, i) => {
+        console.log(`  collider[${i}]`, {
+          name: c.name,
+          active: c.active,
+          object1IsPlayer: c.object1 === p,
+          object2IsPlayer: c.object2 === p,
+          type1: c.object1?.type,
+          type2: c.object2?.type
+        });
+      });
+
+      console.log('-----------------------------');
+    }
+  });
+}
 
 
 
