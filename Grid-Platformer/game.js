@@ -3047,44 +3047,27 @@ function setupCollisionDebug() {
 function setupPlayerCollisions(scene) {
   console.log("🔧 Setting up collisions...");
   
-  // Destroy old colliders
   scene.physics.world.colliders.destroy();
-  
-  if (!scene.player) {
-    console.error("❌ No player!");
+  if (!scene.player || !scene.blocksGroup) {
+    console.error("❌ Missing player/blocks");
     return;
   }
   
-  if (!scene.blocksGroup) {
-    console.error("❌ No blocksGroup!");
-    return;
-  }
-  
-  // FORCE refresh all group bodies
+  // CRITICAL: Refresh ALL groups
   scene.blocksGroup.refresh();
   scene.noBoostBlocksGroup.refresh();
   scene.spikesGroup.refresh();
   scene.windowsGroup.refresh();
   
-  console.log("✅ Groups refreshed");
-  console.log("Blocks count:", scene.blocksGroup.getChildren().length);
-  
-  // FORCE collisions - these will work
+  // Colliders
   scene.physics.add.collider(scene.player, scene.blocksGroup);
   scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+  scene.physics.add.overlap(scene.player, scene.spikesGroup, (p, s) => killPlayer.call(scene, p));
+  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => scene.player.canOpenWindow = true);
   
-  // FORCE spikes kill
-  scene.physics.add.overlap(scene.player, scene.spikesGroup, (player, spike) => {
-    killPlayer.call(scene, player);
-  });
-  
-  // Window overlap
-  scene.physics.add.overlap(scene.player, scene.windowsGroup, () => {
-    scene.player.canOpenWindow = true;
-  });
-  
-  console.log("✅ ALL COLLISIONS ACTIVE");
+  console.log("✅ COLLISIONS READY");
 }
+
 
 
 
