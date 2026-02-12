@@ -1115,7 +1115,6 @@ cam.startFollow(player, true, 0.08, 0.08);
 this.physics.world.debugGraphic.visible = true;
 this.physics.add.collider(player, blocksGroup);
 this.physics.add.collider(player, noBoostBlocksGroup);
-this.physics.add.collider(player, spikesGroup);
 this.physics.add.overlap(player, spikesGroup, killPlayer, null, this);
 this.physics.add.overlap(player, windowsGroup, () => { player.canOpenWindow = true; }, null, this);
 blocksGroup.refresh();
@@ -1552,23 +1551,20 @@ editorTargetZoom,
 );
 }
 
-function killPlayer(scene) {
-player.sfx.death.play();
-
-// Reset velocity
-player.body.setVelocity(0, 0);
-
-// Reset position to spawn
-player.setPosition(spawnPoint.x, spawnPoint.y);
-
-// Reset boost state
-canBoost = false;
-lastTouchingDown = false;
-lastLandingFrame = -9999;
-
-// Small camera snap to avoid weird offsets
-scene.cameras.main.flash(120, 255, 0, 0);
+function killPlayer(player, spike) {
+    player.sfx.death.play();
+    // Reset velocity
+    player.body.setVelocity(0, 0);
+    // Reset position to spawn
+    player.setPosition(spawnPoint.x, spawnPoint.y);
+    // Reset boost state
+    canBoost = false;
+    lastTouchingDown = false;
+    lastLandingFrame = -9999;
+    // Small camera snap to avoid weird offsets
+    this.cameras.main.flash(120, 255, 0, 0);
 }
+
 
 function triggerWin() {
 hasWon = true;
@@ -2896,6 +2892,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
