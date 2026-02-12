@@ -2849,6 +2849,212 @@ currentPauseMenu = null;
 
 
 
+// RADICAL FIX: Overwrite broken functions with working versions
+
+// Updated setupPlayerCollisions: Properly destroys and recreates colliders
+function setupPlayerCollisions(scene) {
+    // Force destroy ALL existing colliders (radical cleanup)
+    scene.physics.world.colliders.length = 0;  // Clear the array completely
+
+    if (!scene.player) return;
+
+    // Recreate colliders with fresh groups (use scene groups, not globals)
+    scene.physics.add.collider(scene.player, scene.blocksGroup);
+    scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
+    scene.physics.add.overlap(scene.player, scene.spikesGroup, killPlayer, null, scene);
+    scene.physics.add.overlap(scene.player, scene.windowsGroup, (player, win) => {
+        scene.player.canOpenWindow = true;
+    }, null, scene);
+
+    // Force physics update to ensure bodies are ready
+    scene.physics.world.update(0, 0);  // Immediate update
+    console.log("Colliders set up: Blocks =", scene.blocksGroup.getChildren().length, "Spikes =", scene.spikesGroup.getChildren().length);
+}
+
+// Updated loadLevel: Includes refresh and forces collider setup
+window.loadLevel = function (compressedData, scene) {
+    window.myGameScene = scene;
+    console.log("Loading level...");
+
+    let levelData = null;
+
+    try {
+        if (typeof LZString === "undefined") {
+            throw new Error("LZString missing - check script tag");
+        }
+
+        const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+        if (!jsonString) {
+            throw new Error("Decompression failed - invalid level data");
+        }
+        levelData = JSON.parse(jsonString);
+        console.log("Loaded data:", levelData);
+
+        // Destroy and recreate groups
+        const groupNames = ["blocksGroup", "spikesGroup", "windowsGroup", "noBoostBlocksGroup"];
+        groupNames.forEach((name) => {
+            if (scene[name]) {
+                scene[name].clear(true, true);
+                scene[name].destroy(true);
+            }
+            scene[name] = scene.physics.add.staticGroup();
+        });
+
+        // Destroy old start/finish
+        if (scene.spawnPoint) {
+            scene.spawnPoint.destroy();
+            scene.spawnPoint = null;
+        }
+        if (scene.finishLine) {
+            scene.finishLine.destroy();
+            scene.finishLine = null;
+        }
+
+        const gridSize = 64;
+
+        // Load blocks
+        if (Array.isArray(levelData.b)) {
+            levelData.b.forEach(([x, y, w, h, tint = 0xffffff]) => {
+                const block = scene.blocksGroup.create(x, y, "pixel")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h)
+                    .setTint(tint);
+                block.refreshBody();
+            });
+        }
+
+        // Load spikes
+        if (Array.isArray(levelData.s)) {
+            levelData.s.forEach(([x, y, w, h]) => {
+                createSpike(scene.spikesGroup, x, y, w || 64);
+            });
+        }
+
+        // Load windows
+        if (Array.isArray(levelData.w)) {
+            levelData.w.forEach(([x, y, w, h]) => {
+                const win = scene.windowsGroup.create(x, y, "window")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h);
+                win.refreshBody();
+            });
+        }
+
+        // Load no-boost blocks
+        if (Array.isArray(levelData.nb)) {
+            levelData.nb.forEach(([x, y, w, h]) => {
+                const nb = scene.noBoostBlocksGroup.create(x, y, "pixel")
+                    .setOrigin(0, 0)
+                    .setDisplaySize(w, h)
+                    .setTint(0x0000ff);
+                nb.refreshBody();
+            });
+        }
+
+        // Load start
+        if (levelData.st) {
+            const [x, y, w, h] = levelData.st;
+            scene.spawnPoint = scene.add.sprite(x, y, "start")
+                .setOrigin(0, 0)
+                .setDisplaySize(w, h)
+                .setDepth(10);
+        }
+
+        // Load finish
+        if (levelData.f) {
+            const [x, y, w, h] = levelData.f;
+            scene.finishLine = scene.add.sprite(x, y, "finish")
+                .setOrigin(0, 0)
+                .setDisplaySize(w, h)
+                .setDepth(10);
+        }
+
+        // Update globals
+        blocksGroup = scene.blocksGroup;
+        spikesGroup = scene.spikesGroup;
+        windowsGroup = scene.windowsGroup;
+        noBoostBlocksGroup = scene.noBoostBlocksGroup;
+        spawnPoint = scene.spawnPoint;
+        finishLine = scene.finishLine;
+
+        // RADICAL REFRESH: Force update all static bodies
+        blocksGroup.refresh();
+        spikesGroup.refresh();
+        noBoostBlocksGroup.refresh();
+        windowsGroup.refresh();
+        scene.physics.world.update(0, 0);  // Force physics update
+
+        // Player reset and collider setup
+        if (scene.player) {
+            const spawnX = spawnPoint ? spawnPoint.x + 10 : 0;
+            const spawnY = spawnPoint ? spawnPoint.y - 50 : 0;
+            scene.player.body.setVelocity(0, 0);
+            scene.player.setPosition(spawnX, spawnY);
+
+            scene.physics.world.collideBounds = false;
+            scene.time.delayedCall(50, () => {
+                setupPlayerCollisions(scene);  // Use the updated function
+                scene.physics.world.collideBounds = true;
+            });
+        }
+
+        console.log("SUCCESS: Loaded", (levelData.b?.length || 0), "blocks,", (levelData.s?.length || 0), "spikes");
+        showInstruction(scene, `${(levelData.b?.length || 0)} BLOCKS COLLISION READY`, 3000);
+
+        // Apply music/background
+        if (levelData.m) selectedMusicKey = levelData.m;
+        if (levelData.bg) {
+            selectedBackgroundKey = levelData.bg;
+            if (!currentBackground) {
+                currentBackground = scene.add.image(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, BACKGROUND_MAP[levelData.bg])
+                    .setOrigin(0.5)
+                    .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
+                    .setDepth(-4000)
+                    .setScrollFactor(0);
+            } else {
+                currentBackground.setTexture(BACKGROUND_MAP[levelData.bg]);
+            }
+        }
+
+    } catch (error) {
+        console.error("LOAD ERROR:", error);
+        showInstruction(scene, "❌ LOAD FAILED!", 2000);
+    }
+};
+
+// Updated killPlayer: Fixed callback signature
+function killPlayer(player, spike) {
+    const scene = this;  // 'this' is the scene from overlap
+    player.sfx.death.play();
+    player.body.setVelocity(0, 0);
+    player.setPosition(spawnPoint.x, spawnPoint.y);
+    canBoost = false;
+    lastTouchingDown = false;
+    lastLandingFrame = -9999;
+    scene.cameras.main.flash(120, 255, 0, 0);
+    console.log("Player killed by spike!");
+}
+
+// Test function: Call this manually in console to verify colliders
+function testColliders() {
+    console.log("Testing colliders...");
+    console.log("Blocks group children:", blocksGroup.getChildren().length);
+    console.log("Spikes group children:", spikesGroup.getChildren().length);
+    console.log("Player position:", player.x, player.y);
+    console.log("Player velocity:", player.body.velocity.x, player.body.velocity.y);
+    // Move player slightly to trigger overlaps
+    player.setPosition(player.x + 10, player.y);
+    scene.physics.world.update(0, 0);
+}
+
+
+
+
+
+
+
+
+
 
 
 
