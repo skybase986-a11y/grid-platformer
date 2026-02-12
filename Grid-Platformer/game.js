@@ -429,6 +429,12 @@ spikesGroup = this.physics.add.staticGroup();
 windowsGroup = this.physics.add.staticGroup();
 noBoostBlocksGroup = this.physics.add.staticGroup();
 
+    this.blocksGroup = blocksGroup;
+this.spikesGroup = spikesGroup;
+this.windowsGroup = windowsGroup;
+this.noBoostBlocksGroup = noBoostBlocksGroup;
+
+
 // === PLAYER ===
 player = this.physics.add.sprite(100, 100, 'pixel')
 .setOrigin(0, 0)
@@ -696,6 +702,9 @@ scene.time.delayedCall(50, () => {
 setupPlayerCollisions(scene);
 scene.physics.world.collideBounds = true;
 });
+
+
+
 
 
 scene.physics.world.collideBounds = true;
@@ -1090,10 +1099,14 @@ function setupPlayerCollisions(scene) {
     scene.physics.add.collider(scene.player, scene.blocksGroup);
     scene.physics.add.collider(scene.player, scene.noBoostBlocksGroup);
     
-    // Fix overlap callbacks
-    scene.physics.add.overlap(scene.player, scene.spikesGroup, 
-        (player, spike) => { killPlayer.call(scene, player); }
-    );
+scene.physics.add.overlap(
+  scene.player,
+  scene.spikesGroup,
+  (player, spike) => {
+    killPlayer.call(scene, player);
+  }
+);
+
     
     scene.physics.add.overlap(scene.player, scene.windowsGroup,
         () => { scene.player.canOpenWindow = true; }
@@ -2930,6 +2943,7 @@ if (helpBackButton) helpBackButton.setVisible(false);
 
 currentPauseMenu = null;
 }
+
 
 
 
